@@ -1,9 +1,11 @@
+# Canonical source snapshot checksums and provenance: sources/manifest.json.
+# Generation uses bundled inputs and does not refresh live upstream data.
 # Canonical SatNet dataset construction for the finished benchmark.
 #
-# The upstream SatNet release is ingested from the repository ref below, then
+# The bundled SatNet input retains the historical upstream ref below and is
 # rewritten into the split-aware dataset layout under dataset/cases/<split>/.
 source:
-  upstream_ref: master  # Current canonical upstream SatNet data ref.
+  upstream_ref: master  # Historical provenance label, checked against the bundled snapshot.
 
 # Pair dataset/example_solution.json with the first published 2018 benchmark case.
 example_smoke_case: test/W10_2018

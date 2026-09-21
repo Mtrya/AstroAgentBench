@@ -337,6 +337,8 @@ The RL rows are selected from 1,000 stochastic inference runs after training con
 - **Generator**: `uv run python benchmarks/satnet/generator.py benchmarks/satnet/splits.yaml`
 - **Test fixtures**: `tests/fixtures/satnet_mock_solutions/`
 
+The bundled `sources/satnet.json` consolidates the preserved requests, maintenance windows, and mission colors for the five published weeks. Its manifest records normalization, historical upstream provenance, and the SHA-256 hash checked before generation. The `upstream_ref` in `splits.yaml` is checked against this historical provenance; it does not fetch the current upstream branch. An explicit `--source-dir` remains available for maintenance imports with separate provenance.
+
 ## Key Technical Concepts
 
 ### View Periods (VPs)

@@ -1,7 +1,7 @@
 """Regenerate the canonical SPOT-5 split-aware dataset.
 
-By default this script downloads the upstream Mendeley dataset ZIP and rewrites
-it into the canonical case layout used by this repository:
+By default this script reads the benchmark-owned published SPOT-5 inputs and
+rewrites them into the canonical case layout used by this repository:
 
     dataset/
       index.json
@@ -16,19 +16,31 @@ previously downloaded ZIP may still be supplied for maintenance workflows via
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import tempfile
 import zipfile
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 import yaml
 
 
 UPSTREAM_DATASET_URL = "https://data.mendeley.com/public-api/zip/2kbzg9nw3b/download/1"
 UPSTREAM_DATASET_PAGE = "https://data.mendeley.com/datasets/2kbzg9nw3b/1"
-DOWNLOAD_USER_AGENT = "Mozilla/5.0 AstroReason-Bench/1.0"
+
+
+SOURCE_SNAPSHOT_DIR = Path(__file__).resolve().parent / "sources"
+
+
+def _read_source_snapshot(filename: str) -> bytes:
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text(encoding="utf-8"))
+    if manifest["schema_version"] != 1:
+        raise ValueError("Unsupported source snapshot manifest version")
+    payload = (SOURCE_SNAPSHOT_DIR / filename).read_bytes()
+    if hashlib.sha256(payload).hexdigest() != manifest["files"][filename]["sha256"]:
+        raise ValueError(f"Source snapshot checksum mismatch: {filename}")
+    return payload
 
 
 def _write_json(path: Path, data: object) -> None:
@@ -99,17 +111,14 @@ def is_multi_orbit_case(case_id: str) -> bool:
     return int(case_id) > 1000
 
 
-def download_upstream_zip(destination: Path) -> Path:
-    """Download the published SPOT-5 dataset ZIP from Mendeley Data."""
-
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    request = Request(
-        UPSTREAM_DATASET_URL,
-        headers={"User-Agent": DOWNLOAD_USER_AGENT},
-    )
-    with urlopen(request) as response, destination.open("wb") as output_file:  # noqa: S310 - fixed public dataset URL
-        shutil.copyfileobj(response, output_file)
-    return destination
+def load_bundled_spot_files() -> list[Path]:
+    """Verify and return the distinct published instances in the source snapshot."""
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text())
+    files = []
+    for name in manifest["files"]:
+        _read_source_snapshot(name)
+        files.append(SOURCE_SNAPSHOT_DIR / name)
+    return files
 
 
 def collect_spot_files(source_dir: Path) -> list[Path]:
@@ -261,16 +270,11 @@ def main() -> int:  # pragma: no cover - CLI wrapper
             split_assignments=config["splits"],
             example_smoke_case=config["example_smoke_case"],
         )
-    else:
+    elif args.zip_path is not None:
         with tempfile.TemporaryDirectory(prefix="spot5-generator-") as temp_dir_name:
             temp_dir = Path(temp_dir_name)
-            zip_path = args.zip_path or (temp_dir / "spot5.zip")
-
-            if args.zip_path is None:
-                download_upstream_zip(zip_path)
-                provenance = build_upstream_provenance()
-            else:
-                provenance = build_local_zip_provenance(args.zip_path)
+            zip_path = args.zip_path
+            provenance = build_local_zip_provenance(zip_path)
 
             extract_dir = temp_dir / "source"
             extract_zip_tree(zip_path, extract_dir)
@@ -282,6 +286,14 @@ def main() -> int:  # pragma: no cover - CLI wrapper
                 split_assignments=config["splits"],
                 example_smoke_case=config["example_smoke_case"],
             )
+    else:
+        build_case_dataset(
+            spot_files=load_bundled_spot_files(),
+            output_dir=args.output_dir,
+            provenance=build_upstream_provenance(),
+            split_assignments=config["splits"],
+            example_smoke_case=config["example_smoke_case"],
+        )
     print(f"Wrote SPOT-5 dataset to {args.output_dir}")
     return 0
 

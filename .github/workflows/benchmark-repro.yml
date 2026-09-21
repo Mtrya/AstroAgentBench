@@ -13,6 +13,7 @@ on:
   push:
     branches:
       - main
+      - aacl-ijcnlp-2026
     paths:
       - ".github/workflows/benchmark-repro.yml"
       - "benchmarks/**"
@@ -38,7 +39,7 @@ jobs:
           python-version: "3.13.11"
 
       - name: Sync environment
-        run: uv sync
+        run: uv sync --locked
 
-      - name: Check finished benchmark reproducibility
-        run: uv run python scripts/check_finished_benchmark_repro.py
+      - name: Check finished benchmark reproducibility without network access
+        run: sudo unshare --net -- .venv/bin/python scripts/check_finished_benchmark_repro.py

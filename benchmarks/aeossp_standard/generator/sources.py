@@ -7,7 +7,6 @@ import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
-import urllib.request
 
 from . import cached_tles, cached_tles_2022
 
@@ -38,6 +37,19 @@ _GENERATOR_DIR = Path(__file__).resolve().parent
 VENDORED_WORLD_CITIES_PATH = _GENERATOR_DIR / WORLD_CITIES_SNAPSHOT_NAME
 
 
+SOURCE_SNAPSHOT_DIR = Path(__file__).resolve().parent.parent / "sources"
+
+
+def _read_source_snapshot(filename: str) -> bytes:
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text(encoding="utf-8"))
+    if manifest["schema_version"] != 1:
+        raise ValueError("Unsupported source snapshot manifest version")
+    payload = (SOURCE_SNAPSHOT_DIR / filename).read_bytes()
+    if hashlib.sha256(payload).hexdigest() != manifest["files"][filename]["sha256"]:
+        raise ValueError(f"Source snapshot checksum mismatch: {filename}")
+    return payload
+
+
 @dataclass(frozen=True)
 class SourceFetchResult:
     kind: str
@@ -54,14 +66,6 @@ def _sha256_file(path: Path, *, chunk_size: int = 1 << 20) -> str:
                 break
             digest.update(chunk)
     return digest.hexdigest()
-
-
-def _download_bytes(url: str, destination_path: Path) -> Path:
-    destination_path.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url, timeout=30) as response:  # noqa: S310
-        payload = response.read()
-    destination_path.write_bytes(payload)
-    return destination_path
 
 
 def supported_celestrak_snapshot_epochs() -> tuple[str, ...]:
@@ -150,26 +154,18 @@ def download_world_cities(dest_dir: Path, *, force_download: bool) -> SourceFetc
 
 
 def download_natural_earth_land(dest_dir: Path, *, force_download: bool) -> SourceFetchResult:
-    land_dir = dest_dir / "natural_earth"
-    geojson_path = land_dir / NATURAL_EARTH_LAND_FILENAME
-    if not force_download and geojson_path.is_file():
-        return SourceFetchResult(
-            "natural_earth_land",
-            [geojson_path],
-            {
-                "url": NATURAL_EARTH_LAND_URL,
-                "sha256": _sha256_file(geojson_path),
-            },
-        )
-    _download_bytes(NATURAL_EARTH_LAND_URL, geojson_path)
-    # Validate that the file is at least parseable GeoJSON before returning.
-    json.loads(geojson_path.read_text(encoding="utf-8"))
+    del force_download  # Canonical generation always stages the pinned source.
+    payload = _read_source_snapshot(NATURAL_EARTH_LAND_FILENAME)
+    geojson_path = dest_dir / "natural_earth" / NATURAL_EARTH_LAND_FILENAME
+    geojson_path.parent.mkdir(parents=True, exist_ok=True)
+    geojson_path.write_bytes(payload)
     return SourceFetchResult(
         "natural_earth_land",
         [geojson_path],
         {
             "url": NATURAL_EARTH_LAND_URL,
             "sha256": _sha256_file(geojson_path),
+            "vendored_snapshot": True,
         },
     )
 

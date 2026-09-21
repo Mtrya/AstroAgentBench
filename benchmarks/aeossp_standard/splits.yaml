@@ -1,3 +1,5 @@
+# Canonical source snapshot checksums and provenance: sources/manifest.json.
+# Generation uses bundled inputs and does not refresh live upstream data.
 # Canonical aeossp_standard dataset construction for the finished benchmark.
 #
 # test is the primary medium-difficulty split. test_horizon_2022

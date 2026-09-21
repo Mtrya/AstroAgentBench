@@ -61,7 +61,9 @@ def _write_provenance(
         },
         "world_cities": {
             "kaggle_dataset": sources_module.WORLD_CITIES_DATASET,
-            "sha256": cities.extra.get("sha256"),
+            # The canonical index identifies the original upstream CSV.
+            # The normalized file is verified separately by sources/manifest.json.
+            "sha256": cities.extra["upstream_sha256"],
         },
         "lookup_tables": lookup_table_metadata(),
     }
@@ -75,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Stereo imaging v4 generator: stage runtime sources (vendored CelesTrak-format TLEs; "
-            "Kaggle world-cities when needed), then emit the canonical dataset "
+            "pinned world-cities), then emit the canonical dataset "
             "(dataset/cases/<split>/, index.json)."
         )
     )
@@ -102,12 +104,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--sources-only",
         action="store_true",
-        help="Only fetch and normalize runtime source data; skip canonical dataset emission.",
+        help="Only stage the pinned source data; skip canonical dataset emission.",
     )
     parser.add_argument(
         "--force-download",
         action="store_true",
-        help="Re-download runtime sources even when cached files exist",
+        help="Restage the pinned source snapshots; never download newer upstream data",
     )
     args = parser.parse_args(argv)
 

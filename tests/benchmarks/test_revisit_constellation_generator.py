@@ -9,26 +9,6 @@ import yaml
 
 import benchmarks.revisit_constellation.generator.run as generator_run
 from benchmarks.revisit_constellation.generator.build import CityRecord, select_targets
-from benchmarks.revisit_constellation.generator import sources
-
-
-def _write_world_cities_csv(path: Path) -> None:
-    path.write_text(
-        "\n".join(
-            [
-                "name,country,lat,lng,population",
-                "Alpha,Aland,0.0,0.0,1000000",
-                "Bravo,Bland,0.0,60.0,900000",
-                "Charlie,Cland,30.0,120.0,800000",
-                "Delta,Dland,-30.0,-120.0,700000",
-                "Echo,Eland,45.0,45.0,600000",
-                "Foxtrot,Fland,-45.0,135.0,500000",
-                "Polar,Poland,78.0,15.0,2000000",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
 
 
 def _write_splits_yaml(path: Path) -> None:
@@ -106,24 +86,16 @@ def test_main_requires_splits_yaml(monkeypatch: pytest.MonkeyPatch, capsys: pyte
     assert "usage:" in captured.err.lower()
 
 
-def test_main_builds_dataset_from_yaml_and_keeps_download_controls_operational(
+def test_main_builds_dataset_from_yaml_and_restages_pinned_sources(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    csv_path = tmp_path / "world_cities.csv"
-    _write_world_cities_csv(csv_path)
     splits_path = tmp_path / "splits.yaml"
     _write_splits_yaml(splits_path)
     output_dir = tmp_path / "output"
     download_dir = tmp_path / "downloads"
-    captured: dict[str, object] = {}
-
-    def fake_download_sources(destination_dir: Path, *, force_download: bool = False) -> Path:
-        captured["destination_dir"] = destination_dir
-        captured["force_download"] = force_download
-        return csv_path
-
-    monkeypatch.setattr(generator_run, "download_sources", fake_download_sources)
+    download_dir.mkdir()
+    (download_dir / "world_cities.csv").write_text("stale local cache")
     monkeypatch.setattr(
         sys,
         "argv",
@@ -139,8 +111,7 @@ def test_main_builds_dataset_from_yaml_and_keeps_download_controls_operational(
     )
 
     assert generator_run.main() == 0
-    assert captured["destination_dir"] == download_dir
-    assert captured["force_download"] is True
+    assert (download_dir / "world_cities.csv").read_text().startswith("name,country,latitude_deg,longitude_deg,population\n")
     assert (output_dir / "cases" / "test" / "case_0001" / "assets.json").exists()
     index = json.loads((output_dir / "index.json").read_text(encoding="utf-8"))
     assert index["example_smoke_case"] == "test/case_0001"
@@ -154,22 +125,6 @@ def test_main_builds_dataset_from_yaml_and_keeps_download_controls_operational(
     )["targets"]
     assert targets
     assert all(abs(float(target["latitude_deg"])) < 70.0 for target in targets)
-
-
-def test_source_schema_match_requires_data_rows(tmp_path: Path) -> None:
-    header_only = tmp_path / "header_only.csv"
-    header_only.write_text("name,country,lat,lng,population\n\n", encoding="utf-8")
-    valid_source = tmp_path / "world_cities.csv"
-    _write_world_cities_csv(valid_source)
-
-    assert not sources._matches_alias_groups(
-        header_only,
-        sources.WORLD_CITIES_REQUIRED_COLUMNS,
-    )
-    assert sources._matches_alias_groups(
-        valid_source,
-        sources.WORLD_CITIES_REQUIRED_COLUMNS,
-    )
 
 
 def test_select_targets_uses_seed_beyond_initial_choice() -> None:

@@ -543,7 +543,7 @@ def test_main_rejects_invalid_max_abs_latitude(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -592,7 +592,7 @@ def test_sources_only_mode_is_operational_and_skips_dataset_emission(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -641,7 +641,7 @@ def test_main_builds_split_aware_dataset(monkeypatch: pytest.MonkeyPatch, tmp_pa
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -711,7 +711,7 @@ def test_main_exhausts_feasibility_attempts_without_writing_case(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -772,7 +772,7 @@ def test_main_retries_until_feasibility_guard_accepts(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 

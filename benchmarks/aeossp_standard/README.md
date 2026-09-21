@@ -334,9 +334,9 @@ Public source workflow:
 - GeoNames city data
 - Natural Earth land polygons
 
-Runtime source data for GeoNames and Natural Earth may be cached under `dataset/source_data/`, but that directory is not tracked and is not required to exist before running the generator. The CelesTrak TLE snapshots used for canonical reproduction are tracked in the generator package and staged into normalized CSVs without network access.
+Canonical generation uses only bundled inputs: the generator's normalized GeoNames city snapshot and TLE catalogs, plus the compact Natural Earth land geometry in `sources/`. The source manifest records provenance, normalization, and a SHA-256 checksum verified before staging. A clean generation does not need network access.
 
-Exact reproduction of the committed canonical dataset requires reusing the same staged GeoNames and Natural Earth snapshots under `dataset/source_data/`, or otherwise vendoring and pinning those external inputs before regeneration. A cold run or a run with `--force-download` can refresh those live external sources even when `splits.yaml` is unchanged. The retained operational flags `--download-dir`, `--output-dir`, and `--force-download` only control source staging and output locations; they are not alternate canonical dataset contracts. `splits.yaml` carries the benchmark-owned generation parameters for the canonical splits, including mission timing, per-split CelesTrak snapshot selection, satellite-pool filtering, subsystem templates, and task-sampling controls.
+The operational flags `--download-dir`, `--output-dir`, and `--force-download` control staging and output locations. Restaging always restores the pinned inputs, including when a stale cache exists; it never refreshes upstream data. `splits.yaml` remains the construction contract for mission timing, satellite filtering, subsystem templates, and task sampling.
 
 ## Tests And Fixtures
 

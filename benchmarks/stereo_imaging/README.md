@@ -321,12 +321,12 @@ uv run python -m benchmarks.stereo_imaging.generator.run \
     benchmarks/stereo_imaging/splits.yaml \
     --output-dir /tmp/stereo_imaging_dataset
 
-# Fetch and cache runtime sources only (operational mode; skips dataset emission):
+# Stage pinned runtime sources only (operational mode; skips dataset emission):
 uv run python -m benchmarks.stereo_imaging.generator.run \
     benchmarks/stereo_imaging/splits.yaml \
     --sources-only
 
-# Force re-download of world-cities from Kaggle even when cached:
+# Restage the pinned world-city snapshot:
 uv run python -m benchmarks.stereo_imaging.generator.run \
     benchmarks/stereo_imaging/splits.yaml \
     --force-download
@@ -336,7 +336,9 @@ The canonical generator writes cases under `dataset/cases/test/` and `dataset/ca
 
 `splits.yaml` carries the benchmark-owned construction parameters plus an exact supported CelesTrak snapshot epoch label for the vendored real-TLE subset. It defines a 5-case `test` split plus a 10-case `train` split that inherits the test generation controls with a distinct seed. The satellite TLE rows and sensor/agility profiles live in `generator/satellite_catalog.py`, so the split file stays focused on case counts, mission policy, and sampling parameters. The canonical mission horizon is anchored to that cached snapshot, and the generator rejects any other epoch because this benchmark does not ship alternate cached TLE snapshots.
 
-`--sources-only`, `--download-dir`, and `--force-download` are retained operational modes around source staging; they are not alternate canonical dataset-construction contracts.
+The normalized world-city snapshot in `sources/world_cities.csv` preserves all original rows and the five consumed columns. `sources/manifest.json` records provenance, normalization, and its verified SHA-256 hash. The canonical index retains the original upstream CSV hash; the manifest separately identifies the normalized input consumed by the generator. Together with the existing TLE and lookup tables, this makes canonical generation independent of live downloads.
+
+`--sources-only`, `--download-dir`, and `--force-download` control staging; they always use the pinned inputs and replace stale cache data. They do not refresh upstream sources or change the canonical dataset-construction contract.
 
 ### Visualizer
 
