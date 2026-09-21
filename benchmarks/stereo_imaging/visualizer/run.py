@@ -21,7 +21,7 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
-from brahe.plots.texture_utils import load_earth_texture
+from brahe.plots.texture_utils import load_body_texture
 from matplotlib import colors as mpl_colors
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle, Polygon
@@ -99,7 +99,7 @@ def _load_world_texture() -> np.ndarray:
             texture_names.insert(0, "natural_earth_10m")
         for texture_name in texture_names:
             try:
-                image = load_earth_texture(texture_name)
+                image = load_body_texture(texture_name)
             except Exception:
                 continue
             if image is not None:

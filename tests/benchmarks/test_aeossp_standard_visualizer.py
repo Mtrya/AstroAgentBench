@@ -10,6 +10,17 @@ from benchmarks.aeossp_standard.verifier.engine import _action_sample_times
 from benchmarks.aeossp_standard.verifier.models import Mission
 from benchmarks.aeossp_standard.visualizer import geometry as viz_geometry
 from benchmarks.aeossp_standard.visualizer.geometry import OrbitSampleGrid
+from benchmarks.aeossp_standard.visualizer.plot import _load_world_texture
+
+
+def test_visualizer_loads_default_earth_texture() -> None:
+    texture = _load_world_texture(None)
+
+    assert texture is not None
+    assert texture.ndim == 3
+    assert texture.shape[0] > 0 and texture.shape[1] > 0
+    assert texture.shape[2] in (3, 4)
+    assert np.ptp(texture) > 0
 
 
 def _utc_datetime(

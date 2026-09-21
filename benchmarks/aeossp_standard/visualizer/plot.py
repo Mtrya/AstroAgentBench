@@ -10,7 +10,7 @@ from typing import Any
 
 import matplotlib
 import numpy as np
-from brahe.plots.texture_utils import load_earth_texture
+from brahe.plots.texture_utils import load_body_texture
 
 matplotlib.use("Agg")
 
@@ -66,7 +66,7 @@ def _load_world_texture(texture_path: Path | None) -> np.ndarray | None:
     if _WORLD_TEXTURE is None:
         for texture_name in ("blue_marble", "natural_earth_50m"):
             try:
-                image = load_earth_texture(texture_name)
+                image = load_body_texture(texture_name)
             except Exception:
                 continue
             if image is not None:
