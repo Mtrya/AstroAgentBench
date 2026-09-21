@@ -18,6 +18,7 @@ def source(tmp_path):
     git(repo, 'init', '-q')
     git(repo, 'config', 'user.name', 'Release Test')
     git(repo, 'config', 'user.email', 'test@example.invalid')
+    (repo / '.python-version').write_text('3.13.11\n')
     (repo / 'benchmarks/example').mkdir(parents=True)
     (repo / 'benchmarks/example/input.bin').write_bytes(bytes(range(256)))
     (repo / 'benchmarks/example/verifier.py').write_text('print("standalone verifier")\n')
@@ -32,6 +33,7 @@ def test_binary_code_and_immutable_source(source, tmp_path):
     output = tmp_path / 'release'
     manifest = stage(source, revision, 'v1', output)
     assert (output / 'benchmarks/example/input.bin').read_bytes() == bytes(range(256))
+    assert (output / '.python-version').read_text() == '3.13.11\n'
     assert manifest['files']['benchmarks/example/verifier.py']['bytes'] > 0
     assert stage(source, revision, 'v1', output) == manifest
     with pytest.raises(subprocess.CalledProcessError):

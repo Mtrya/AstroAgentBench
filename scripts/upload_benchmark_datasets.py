@@ -69,7 +69,7 @@ def stage(repo: Path, revision: str, version: str, output: Path) -> dict:
         submodules = {}
         for mode, kind, oid, name in entries:
             targets = [target + name[len(source):] for source, target in mappings if name.startswith(source)]
-            if name in ("LICENSE", "pyproject.toml", "uv.lock", ".gitmodules"):
+            if name in ("LICENSE", "pyproject.toml", "uv.lock", ".python-version", ".gitmodules"):
                 targets.append(name)
             if kind == "commit":
                 submodules[name] = oid
