@@ -40,7 +40,7 @@ Prepare a task without `--reference-solution`, then select a Harbor installed-ag
 
 ## Versions and contributions
 
-`main` evolves with the project. [`aacl-ijcnlp-2026`](https://github.com/Mtrya/AstroAgentBench/tree/aacl-ijcnlp-2026) preserves the May submission implementation used for the AACL-IJCNLP paper. The January AstroReason-Bench snapshot currently remains at [`v1`](https://github.com/Mtrya/AstroAgentBench/tree/v1). Historical study workflows belong to their corresponding snapshots and history.
+`main` evolves with the project. [`aacl-ijcnlp-2026`](https://github.com/Mtrya/AstroAgentBench/tree/aacl-ijcnlp-2026) preserves the May submission implementation used for the AACL-IJCNLP paper. The January AstroReason-Bench snapshot is preserved in [`acl-submission-2026`](https://github.com/Mtrya/AstroAgentBench/tree/acl-submission-2026). Historical study workflows belong to their corresponding snapshots and history.
 
 Contributions can add benchmarks, improve verifiers or tooling, extend solver baselines, or evaluate a novel agent system. Start with [CONTRIBUTING.md](CONTRIBUTING.md). Benchmark releases are also prepared for Hugging Face with Git commit and checksum provenance; see [release staging](docs/releases.md).
 
