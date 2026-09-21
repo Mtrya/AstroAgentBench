@@ -1,0 +1,4 @@
+name: python
+image: astroagentbench-python:latest
+dockerfile: Dockerfile
+build_context: .

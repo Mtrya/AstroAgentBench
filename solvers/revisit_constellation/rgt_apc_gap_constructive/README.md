@@ -226,20 +226,7 @@ Direct solve with a config directory:
   /tmp/revisit_rgt_apc_solution
 ```
 
-Smoke verification through `main_solver`:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --benchmark revisit_constellation \
-  --solver revisit_constellation_rgt_apc_gap_constructive \
-  --case test/case_0001
-```
-
-Aggregate experiment results:
-
-```bash
-uv run python experiments/main_solver/aggregate.py
-```
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 ## Sanity Baseline
 
@@ -267,7 +254,3 @@ The same smoke run has `max_revisit_gap_hours = 11.966666666666667`, zero target
 - Visibility windows are sampled, so very short opportunities can be missed or approximated.
 - Battery feasibility is handled by conservative solver-local validation and repair, while the benchmark verifier remains authoritative.
 - Full public-case runs are slower than the focused smoke case because visibility sampling dominates runtime. Public-case timing and validity evidence belong in experiment configs and results, not in the solver registry.
-
-## Evidence And Registry Status
-
-`experiments/main_solver` records this as `evidence_type: reproduced_solver`. `solvers/finished_solvers.json` records only solver-contract CI metadata; the solver is registered there with `repro_ci: false` because full reproduction runs are comparatively expensive, while solver-local tests are exposed through `test.sh`.

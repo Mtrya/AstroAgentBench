@@ -44,7 +44,7 @@ The benchmark differs from the paper in several important ways:
 - The paper uses fixed additive acquisition profits; the benchmark scores unique regional coverage, so candidate value is recomputed as marginal uncovered sample weight.
 - The paper has precomputed acquisition opportunities; the benchmark exposes no access windows, so this solver generates deterministic fixed-start, roll-grid strip candidates from public case files.
 - The paper includes downloads and onboard memory planning; the benchmark solution contract has no download or memory actions.
-- The benchmark has hard battery and imaging-duty constraints. This solver avoids known sequence conflicts and reports solver-local validation, while official validity remains owned by `experiments/main_solver` plus the benchmark verifier.
+- The benchmark has hard battery and imaging-duty constraints. This solver avoids known sequence conflicts and reports solver-local validation, while official validity remains owned by the evaluation runner plus the benchmark verifier.
 - The paper uses Tempo for CP-based TSPTW insertion; this solver uses a solver-local OR-Tools CP-SAT backend prepared by `setup.sh`.
 
 This solver reproduces the paper's acquisition-planning structure under the benchmark contract, not every industrial subsystem or every result table. The selected configuration uses a dense benchmark-adapted optimization envelope, while the interval/opportunity configuration is kept as a comparison path for interval-style modeling.
@@ -223,50 +223,11 @@ Direct solve with a config directory:
   /tmp/regional_coverage_cp_local_search_solution
 ```
 
-Official smoke verification through `main_solver`:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --benchmark regional_coverage \
-  --solver regional_coverage_cp_local_search \
-  --case test/case_0001
-```
-
-Run the all-case reproduction comparison:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --config experiments/main_solver/config_regional_coverage_cp_local_search_reproduction.yaml
-uv run python experiments/main_solver/aggregate.py
-```
-
-Run the interval/opportunity comparison profile:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --config experiments/main_solver/config_regional_coverage_cp_local_search_faithful.yaml
-uv run python experiments/main_solver/aggregate.py
-```
-
-Aggregate experiment results:
-
-```bash
-uv run python experiments/main_solver/aggregate.py
-```
-
-## Experiment Profiles
-
-The CI smoke profile remains light and unchanged. It is intended for quick contract checks, not full reproduction evidence.
-
-The selected reproduction profile uses the benchmark configuration chosen for current all-case reporting: 60-second candidate stride, nine roll magnitudes per side, positive-coverage candidates only, thirty search seeds, bounded local-search neighborhoods, fixed-start OR-Tools CP-SAT repair, and eight candidate workers.
-
-The interval/opportunity comparison profile uses five search seeds, deterministic same-satellite conflict-component neighborhoods, conservative opportunity grouping, and `interval_tsptw` OR-Tools repair. Emitted actions remain public `strip_observation` actions.
-
-Use `experiments/main_solver/aggregate.py` and `results/main_solver/summary.csv` for current metrics. The README intentionally avoids a fixed metrics snapshot so the documentation does not drift when experiments are rerun.
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 ## Scope
 
-Implemented and adapted pieces include standalone case parsing, deterministic candidate generation, verifier-shaped unique-coverage scoring, satellite-local sequences, greedy insertion, bounded local-search neighborhoods, conflict-component neighborhoods, conservative opportunity grouping, restart/multi-start plumbing, selectable OR-Tools CP-SAT neighborhood repair, structured timings, and official main-solver validation.
+Implemented and adapted pieces include standalone case parsing, deterministic candidate generation, verifier-shaped unique-coverage scoring, satellite-local sequences, greedy insertion, bounded local-search neighborhoods, conflict-component neighborhoods, conservative opportunity grouping, restart/multi-start plumbing, selectable OR-Tools CP-SAT neighborhood repair, structured timings, and official evaluation.
 
 The benchmark adaptation is explicit: this is not Tempo itself and it does not reproduce download or memory planning. Within the public regional-coverage contract, the selected method provides a dense candidate envelope, process-parallel candidate generation, verified all-case experiment outputs, and observable local-search/CP improvements over greedy.
 
@@ -279,8 +240,4 @@ The benchmark adaptation is explicit: this is not Tempo itself and it does not r
 - The interval repair mode permits bounded start flexibility inside the model but still emits concrete public actions, not continuous industrial access-window schedules.
 - Battery and duty constraints are not globally optimized inside the search objective. Official validity is still checked by the benchmark verifier through experiments.
 - Local search is intentionally bounded and deterministic. It is not an ALNS or broad metaheuristic sweep.
-- Server-side reproduction can raise `candidate_workers` to `16`; the public profile uses `8` workers as a fair laptop-safe default.
-
-## Evidence Type
-
-The `experiments/main_solver` profile carries `evidence_type: reproduced_solver`, meaning the experiment can run the solver and verify benchmark-shaped outputs through the public verifier. `solvers/finished_solvers.json` is only the hardened solver-contract registry; it carries `repro_ci` metadata and case paths, not experiment evidence metadata.
+- Server-side reproduction can raise `candidate_workers` to `16`; choose worker counts appropriate to the available memory.

@@ -21,13 +21,16 @@ jobs:
           python-version: "3.13.11"
 
       - name: Sync environment
-        run: uv sync
+        run: uv sync --locked --extra evaluation
 
       - name: Validate finished benchmark contract
-        run: uv run python scripts/validate_benchmark_contract.py
+        run: uv run --locked --extra evaluation python scripts/validate_benchmark_contract.py
 
       - name: Validate finished solver contract
-        run: uv run python scripts/validate_solver_contract.py
+        run: uv run --locked --extra evaluation python scripts/validate_solver_contract.py
 
       - name: Run tests
-        run: uv run pytest tests/
+        run: uv run --locked --extra evaluation pytest tests/
+
+      - name: Stage benchmark release without uploading
+        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$(git rev-parse HEAD)" --version ci-check --output .runtime/hf-ci

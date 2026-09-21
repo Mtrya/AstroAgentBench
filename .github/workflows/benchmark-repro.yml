@@ -13,7 +13,6 @@ on:
   push:
     branches:
       - main
-      - aacl-ijcnlp-2026
     paths:
       - ".github/workflows/benchmark-repro.yml"
       - "benchmarks/**"

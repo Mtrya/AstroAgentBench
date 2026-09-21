@@ -158,14 +158,7 @@ Direct solve with a config directory:
   /tmp/aeossp_greedy_lns_solution
 ```
 
-Official smoke verification through `main_solver`:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --benchmark aeossp_standard \
-  --solver aeossp_standard_greedy_lns \
-  --case test/case_0001
-```
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 Solver-local tests:
 
@@ -173,11 +166,7 @@ Solver-local tests:
 ./solvers/aeossp_standard/greedy_lns/test.sh
 ```
 
-Aggregate experiment results:
-
-```bash
-uv run python experiments/main_solver/aggregate.py
-```
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 ## Sanity Baseline
 
@@ -193,25 +182,6 @@ What matters here is:
 
 If raw greedy/local-search selection looks strong but repair removes many actions, inspect the local battery model, transition gap logic, and candidate generation before tuning search parameters.
 
-## Public Evidence Snapshot
-
-The public `experiments/main_solver` profile uses a quality-preserving
-multi-start configuration: `total_time_budget_s: 300`, `candidate_workers: 4`,
-`restart_count: 8`, `local_search_workers: 4`, fixed-seed stochastic component
-ordering, bounded exact reinsertion, battery guardrails, and bounded repair.
-
-On the five public AEOSSP standard `test` cases, the current profile verifies
-all cases with average `WCR 0.681622`, `CR 0.721229`, `TAT 1128.286`, and
-`PC 18496.574`. Average wall time is `136.936 s`, split mainly between
-candidate generation (`46.977 s`) and local search (`88.147 s`). Final repair
-removed zero objective on all five cases.
-
-The local search is intentionally not fully parallel inside one descent: each
-accepted connected-component move mutates the incumbent. The parallelism is at
-candidate generation and restart-wave scope, with status counters exposing
-bounded exact-reinsertion work and components pruned by the safe objective
-upper bound.
-
 ## Known Limitations
 
 - This is a reproduction of the paper's acquisition-planning method, not a claim to reproduce every runtime or every table from the paper.
@@ -219,7 +189,3 @@ upper bound.
 - Battery feasibility is handled by optional solver-local guardrails and bounded repair instead of being fully encoded inside the greedy/LNS core.
 - Candidate generation remains non-interruptible and can still consume noticeable runtime before local search receives its budget.
 - Download and memory scheduling are omitted because the benchmark is observation-only.
-
-## Evidence Type
-
-This solver is registered in `experiments/main_solver` with `evidence_type: reproduced_solver`.

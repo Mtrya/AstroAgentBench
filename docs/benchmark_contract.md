@@ -191,7 +191,6 @@ GitHub Actions runs:
 
 - PR/push CI (`ci.yml`): tests plus contract validation
 - PR/push reproducibility (`benchmark-repro.yml`): generator reproducibility check for benchmarks with `"repro_ci": true`
-- Push i18n sync reminder (`i18n-sync.yml`): non-blocking check that opens a reminder issue when Chinese translations may need updating
 - Release dataset sync (`sync-datasets.yml`): uploads benchmark datasets to Hugging Face on release publication
 
 The reproducibility workflow compares only generator-owned dataset outputs from `generated_paths`, because finished benchmarks may also keep documented, hand-written dataset artifacts such as dataset-level notes.

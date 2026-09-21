@@ -2472,9 +2472,6 @@ def test_solve_sh_smoke_writes_selected_solution_status_and_debug(tmp_path: Path
     assert status["baseline_evidence"]["counts"]["target_count"] == 1
     assert status["baseline_evidence"]["counts"]["candidate_count"] == 1
     assert status["baseline_evidence"]["counts"]["action_count"] == len(solution["actions"])
-    boundary = status["baseline_evidence"]["official_verification_boundary"]
-    assert boundary.startswith("Solver output records local metrics only")
-    assert "experiments/main_solver" in boundary
     assert status["reproduction_fidelity"]["mode_comparison"]["mode_order"] == [
         "no_op",
         "fifo",

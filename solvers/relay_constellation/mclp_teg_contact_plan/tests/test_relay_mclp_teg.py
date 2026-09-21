@@ -859,15 +859,9 @@ def test_reproduction_config_generates_scaled_candidate_library() -> None:
         pytest.skip("Smoke case not available")
 
     case = load_case(CASE_0001)
-    profile_path = (
-        REPO_ROOT
-        / "experiments"
-        / "main_solver"
-        / "solvers"
-        / "relay_constellation_mclp_teg_contact_plan.yaml"
-    )
-    profile = yaml.safe_load(profile_path.read_text(encoding="utf-8"))
-    grid = profile["config"]["orbit_grid"]
+    profile_path = Path(__file__).resolve().parents[1] / "config.example.yaml"
+    config = yaml.safe_load(profile_path.read_text(encoding="utf-8"))
+    grid = config["orbit_grid"]
     cands = generate_candidates(
         case.manifest.constraints,
         altitude_step_m=grid["altitude_step_m"],

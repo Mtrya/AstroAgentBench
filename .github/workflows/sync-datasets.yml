@@ -1,31 +1,53 @@
-name: Sync Datasets to Hugging Face
+name: Stage or Publish Benchmark Dataset
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
+    inputs:
+      revision:
+        description: Full Git commit SHA or release tag to export
+        required: true
+        type: string
+      version:
+        description: Matching GitHub release identifier
+        required: true
+        type: string
+      publish:
+        description: Publish the verified stage and create an immutable HF tag
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
 
 jobs:
-  sync:
-    concurrency:
-      group: sync-datasets
-      cancel-in-progress: false
+  dataset:
     runs-on: ubuntu-latest
-
+    concurrency:
+      group: benchmark-dataset-publication
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
-
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v7
-
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13.11"
-
-      - name: Sync environment
-        run: uv sync
-
-      - name: Upload benchmark datasets to Hugging Face
+      - run: uv sync --locked
+      - name: Stage immutable Git source
+        env:
+          SOURCE_REVISION: ${{ inputs.revision }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --output .runtime/hf-release
+      - uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-release-stage
+          path: .runtime/hf-release
+      - name: Publish verified immutable version
+        if: ${{ inputs.publish }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: uv run python scripts/upload_benchmark_datasets.py --repo-id ${{ secrets.HF_DATASET_REPO_ID }}
+          HF_DATASET_REPO_ID: ${{ secrets.HF_DATASET_REPO_ID }}
+          SOURCE_REVISION: ${{ inputs.revision }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --output .runtime/hf-release --repo-id "$HF_DATASET_REPO_ID" --publish

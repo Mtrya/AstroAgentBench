@@ -1,6 +1,6 @@
 # Regional Coverage CELF Submodular Solver
 
-This solver is a runnable reproduced solver for `regional_coverage`. It is `READY` as a faithful CELF/CEF reproduction adapted to the benchmark's fixed candidate coverage model, with explicit compute-envelope, schedule, repair, and fixed-set bound evidence. It is also `READY_QUALITY_FAIR` for the stronger claim of faithful benchmark-adapted reproduction under a meaningful quality-seeking fixed-candidate optimization envelope: the promoted `main_solver` `quality_probe_stride150_full` profile uses the strongest fixed candidate grid, schedule-aware CELF/CEF, bounded local improvement, and deterministic parallel throughput while staying within its runtime gate.
+This solver implements CELF/CEF over a fixed candidate strip-coverage model, with schedule repair, local improvement, and explicit compute limits.
 
 It follows the CELF and CEF method family described by Leskovec, Krause, Guestrin, Faloutsos, VanBriesen, and Glance in "Cost-effective Outbreak Detection in Networks", adapted to the benchmark's public strip-observation case and solution contract.
 
@@ -173,7 +173,7 @@ Selection knobs:
 - `max_iteration_debug`: maximum recompute/accept/reject rows to keep per
   CELF variant
 
-The promoted public configuration is `quality_probe_stride150_full`: a 518400-candidate fixed grid with 150-second start spacing, schedule-aware CELF/CEF, bounded local improvement, and deterministic parallel coverage/local-improvement throughput. Users may still tune `config.yaml` for local experiments, but the public profile and reported evidence use this single strongest configuration.
+Choose candidate-grid size, local improvement, and worker counts in config.yaml according to the compute budget. The bounded evaluation example checks integration only.
 
 ## Debug Artifacts
 
@@ -235,20 +235,7 @@ Direct solve with a config directory:
   /tmp/regional_coverage_celf_solution
 ```
 
-Official quality-ready profile:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --benchmark regional_coverage \
-  --solver regional_coverage_celf_submodular \
-  --policy quality_probe_stride150_full
-```
-
-Aggregate experiment results:
-
-```bash
-uv run python experiments/main_solver/aggregate.py
-```
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 ## Sanity Baseline
 
@@ -272,23 +259,6 @@ metrics are the scoring evidence. The fixed-set online bound is an algorithmic
 certificate for the generated candidate universe; it does not replace verifier
 metrics.
 
-## Verified Evidence
-
-The single promoted public profile is `quality_probe_stride150_full`. Latest official quality evidence on `test/case_0001` shows:
-
-- 518400 fixed candidates on a 150-second start grid
-- 998 nonzero solver-local candidates
-- 64 selected and repaired actions
-- 7 bounded local-improvement swaps
-- repair objective loss ratio `0.0`
-- verifier coverage ratio `0.905533`
-- verifier weighted coverage ratio `0.897791`
-- solver time about `73.8` seconds, below the `420` second runtime gate
-- coverage mapping `parallel_fork` with 16 workers and 127 chunks
-- local improvement `parallel_fork` with 16 workers and 472 chunks
-
-The quality-ready claim remains scoped to the fixed candidate set and experiment-owned verification on `test/case_0001`; it does not certify continuous-schedule optimality or all regional-coverage cases.
-
 ## Known Limitations
 
 - This is a reproduction of the CELF/CEF method family with fixed-set online
@@ -311,7 +281,3 @@ The quality-ready claim remains scoped to the fixed candidate set and experiment
 - Battery and duty checks are conservative solver-local approximations; the
   official verifier remains the source of truth.
 - The public profile intentionally keeps one strongest fixed-candidate configuration. Local users can tune `config.yaml`, but alternative smaller profiles are not reported as quality evidence.
-
-## Evidence Type
-
-The official `main_solver` `quality_probe_stride150_full` profile passes with `status: verified`, `valid: true`, and no verifier violations on the promoted case. This solver is therefore registered in `experiments/main_solver` with `evidence_type: reproduced_solver`.

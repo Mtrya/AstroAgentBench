@@ -1,0 +1,8 @@
+brahe[plots]==1.7.0
+numpy==2.5.2
+PyYAML==6.0.3
+skyfield==1.55
+shapely==2.1.2
+pyproj==3.7.2
+plotly==6.6.0
+matplotlib==3.11.1

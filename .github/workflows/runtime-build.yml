@@ -7,6 +7,8 @@ on:
       - "pyproject.toml"
       - "uv.lock"
       - "runtimes/**"
+      - "experiments/evaluate/**"
+      - "benchmarks/**"
       - "scripts/discover_runtime_matrix.py"
   push:
     branches:
@@ -16,6 +18,8 @@ on:
       - "pyproject.toml"
       - "uv.lock"
       - "runtimes/**"
+      - "experiments/evaluate/**"
+      - "benchmarks/**"
       - "scripts/discover_runtime_matrix.py"
   workflow_dispatch:
 
@@ -36,7 +40,7 @@ jobs:
           python-version: "3.13.11"
 
       - name: Sync environment
-        run: uv sync
+        run: uv sync --locked
 
       - name: Discover runtime matrix
         id: runtime-matrix
@@ -71,3 +75,35 @@ jobs:
 
       - name: Smoke check ${{ matrix.name }} runtime
         run: docker run --rm "${{ matrix.image }}" python --version
+
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Install evaluation tools
+        run: uv sync --locked --extra evaluation
+
+      - name: Check reference and bounded solver workflows
+        env:
+          HARBOR_TELEMETRY: "0"
+        run: |
+          uv run --locked --extra evaluation python -m experiments.evaluate.prepare spot5 test 8 --output .runtime/tasks/spot5 --reference-solution benchmarks/spot5/dataset/example_solution.json
+          uv run --locked --extra evaluation harbor run -p .runtime/tasks/spot5 -a oracle -n 1 --jobs-dir results --job-name spot5
+          uv run --locked --extra evaluation python -m experiments.evaluate.prepare regional_coverage test case_0001 --output .runtime/tasks/celf
+          uv run --locked --extra evaluation harbor run -p .runtime/tasks/celf -a experiments.evaluate.solver:SolverAgent --agent-kwarg solver_dir=solvers/regional_coverage/celf_submodular --agent-kwarg config_dir=experiments/evaluate/examples/celf -n 1 --jobs-dir results --job-name celf
+          uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/spot5 --output results/spot5.jsonl
+          uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/celf --output results/celf.jsonl
+          uv run --locked --extra evaluation python - <<'PYCODE'
+          import json
+          from pathlib import Path
+          for name in ("spot5", "celf"):
+              rows = [json.loads(line) for line in Path(f"results/{name}.jsonl").read_text().splitlines()]
+              assert len(rows) == 1 and rows[0]["status"] == "valid", rows
+          PYCODE
+
+      - name: Retain evaluation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: evaluation-smoke
+          path: |
+            results/
+            .runtime/tasks/

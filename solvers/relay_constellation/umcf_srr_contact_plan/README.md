@@ -73,11 +73,7 @@ Important adaptations from the papers:
 
 ## Promoted Configuration
 
-The canonical evaluated configuration is owned by:
-
-```text
-experiments/main_solver/solvers/relay_constellation_umcf_srr_contact_plan.yaml
-```
+The standalone configuration is documented in config.example.yaml.
 
 The promoted public profile is `reproduction`:
 
@@ -150,31 +146,7 @@ Direct solve on a public case:
   benchmarks/relay_constellation/dataset/cases/test/case_0001
 ```
 
-Official reproduced-solver run through `main_solver`:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --benchmark relay_constellation \
-  --solver relay_constellation_umcf_srr_contact_plan \
-  --case test/case_0001
-```
-
-Aggregate experiment results:
-
-```bash
-uv run python experiments/main_solver/aggregate.py
-```
-
-## Reported Evidence
-
-Current reported evidence uses the experiment-owned `reproduction` profile. Fresh canonical artifacts exist for `test/case_0001` and `test/case_0002`.
-
-| case | valid | service_fraction | worst_demand_service_fraction | mean_latency_ms | added satellites | candidates | solve_s | peak RSS |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `test/case_0001` | true | 0.9240740741 | 0.5444444444 | 165.009 | 6 | 64 | 69.245 | ~1.35 GiB |
-| `test/case_0002` | true | 0.9511904762 | 0.6666666667 | 125.338 | 5 | 64 | 73.512 | ~1.46 GiB |
-
-Backbone-only calibration was also run on all five test cases to confirm that the added relay layer materially improves service. The quality calibration verified on the first two cases, but is not promoted because its memory and wall-time profile is too heavy for the current fair full-matrix envelope.
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 ## Reproduction Gap Summary
 
@@ -200,7 +172,3 @@ Backbone-only calibration was also run on all five test cases to confirm that th
 - The verifier may route differently from the solver-local SRR oracle because routes are not submitted.
 - Full dynamic path-sequence optimization, column generation, and LP re-actualization remain outside the promoted profile.
 - The promoted profile is the strongest currently practical full-matrix-oriented configuration. The larger quality calibration is evidence, not the public default.
-
-## Evidence Type
-
-This solver is registered in `experiments/main_solver` with `evidence_type: reproduced_solver`.

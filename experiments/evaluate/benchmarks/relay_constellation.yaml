@@ -1,0 +1,22 @@
+benchmark: relay_constellation
+metrics:
+- name: service_fraction
+  path: metrics.service_fraction
+  direction: maximize
+  role: primary
+- name: worst_demand_service_fraction
+  path: metrics.worst_demand_service_fraction
+  direction: maximize
+  role: secondary
+- name: num_added_satellites
+  path: metrics.num_added_satellites
+  direction: minimize
+  role: secondary
+- name: mean_latency_ms
+  path: metrics.mean_latency_ms
+  direction: minimize
+  role: secondary
+- name: latency_p95_ms
+  path: metrics.latency_p95_ms
+  direction: minimize
+  role: secondary

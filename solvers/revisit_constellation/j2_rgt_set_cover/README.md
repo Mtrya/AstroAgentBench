@@ -21,7 +21,7 @@ The solver writes:
 - `debug/selection_summary.json`: selected confirmed assignments, total satellite cost, uncovered targets, and budget blockers
 - `debug/solution_summary.json`: satellites, emitted selected-assignment actions, target gaps, local validation, and retry history
 
-Experiment-owned profiles are defined in `experiments/main_solver/solvers/revisit_constellation_j2_rgt_set_cover.yaml`. The solver records `active_profile`, `compute_envelope`, and worker counts in `status.json.compute_profile`; benchmark verification is owned by `experiments/main_solver`.
+Supply a config directory through the standalone solve.sh contract. The solver records active_profile, compute_envelope, and worker counts in status.json.compute_profile; the evaluation runner owns official benchmark verification.
 
 ## Orbit Templates And Candidates
 

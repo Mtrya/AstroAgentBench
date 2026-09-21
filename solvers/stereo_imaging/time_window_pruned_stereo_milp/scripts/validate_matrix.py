@@ -2,7 +2,7 @@
 
 Runs the solver across multiple configs and caller-provided cases, then records
 solver-local status metrics. Official benchmark verification is owned by
-experiments/main_solver.
+experiments/evaluate.
 """
 
 from __future__ import annotations

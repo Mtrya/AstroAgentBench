@@ -1,0 +1,18 @@
+benchmark: regional_coverage
+metrics:
+- name: coverage_ratio
+  path: metrics.coverage_ratio
+  direction: maximize
+  role: primary
+- name: weighted_coverage_ratio
+  path: metrics.weighted_coverage_ratio
+  direction: maximize
+  role: secondary
+- name: num_actions
+  path: metrics.num_actions
+  direction: minimize
+  role: secondary
+- name: min_battery_wh
+  path: metrics.min_battery_wh
+  direction: maximize
+  role: secondary

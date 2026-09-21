@@ -1,0 +1,18 @@
+benchmark: aeossp_standard
+metrics:
+- name: WCR
+  path: metrics.WCR
+  direction: maximize
+  role: primary
+- name: CR
+  path: metrics.CR
+  direction: maximize
+  role: secondary
+- name: TAT
+  path: metrics.TAT
+  direction: minimize
+  role: secondary
+- name: PC
+  path: metrics.PC
+  direction: minimize
+  role: secondary
