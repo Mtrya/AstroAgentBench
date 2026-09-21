@@ -84,7 +84,9 @@ jobs:
       - name: Check reference and bounded solver workflows
         env:
           HARBOR_TELEMETRY: "0"
+          BUILDX_BUILDER: default
         run: |
+          docker buildx use default
           uv run --locked --extra evaluation python -m experiments.evaluate.prepare spot5 test 8 --output .runtime/tasks/spot5 --reference-solution benchmarks/spot5/dataset/example_solution.json
           uv run --locked --extra evaluation harbor run -p .runtime/tasks/spot5 -a oracle -n 1 --jobs-dir results --job-name spot5
           uv run --locked --extra evaluation python -m experiments.evaluate.prepare regional_coverage test case_0001 --output .runtime/tasks/celf

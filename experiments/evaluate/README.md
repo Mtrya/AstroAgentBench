@@ -15,7 +15,7 @@ uv run --locked --extra evaluation harbor run -p .runtime/tasks/regional -a your
 
 Harbor also supplies [installed-agent adapters](https://docs.harborframework.com/core-concepts/agents/pre-integrated-agents), including `claude-code`, `codex`, `gemini-cli`, and `opencode`. Select one with `-a`, its model with `-m` when applicable, and adapter options with `--agent-kwarg`. Use the adapter's supported version/config options to identify the evaluated system. `--install-only` checks installation without running a model. Check the selected adapter's upstream documentation for credentials, provider support, and any generated model settings; those settings are part of the evaluated system. Our integration adds no generation overrides. Python interface checks do not establish live provider compatibility.
 
-The general Python runtime supplies scientific libraries, bash, curl, git, and uv. Harbor adapters install their own CLI prerequisites; a system requiring other tools can use its own image via `prepare --image`. No specific harness, provider, or domain skill is bundled into the default runtime.
+The general Python runtime supplies scientific libraries, bash, curl, git, and uv. Harbor adapters install their own CLI prerequisites; a system requiring other tools can use its own image via `prepare --image`. No specific harness, provider, or domain skill is bundled into the default runtime. If you build the runtime locally with an isolated Buildx builder, load it into Docker and select `docker buildx use default` before running Harbor so Compose can resolve the local base image.
 
 ## Standalone solver example
 
