@@ -142,4 +142,4 @@ latency_p95_ms = 95th percentile latency over served samples, or null if none ar
 num_added_satellites = len(added_satellites)
 ```
 
-Validity is required before service metrics are meaningful. Residual ambiguity is limited to numerical orbit/link geometry at hard boundaries; check close range, elevation, and Earth-blockage cases with the local helper.
+Validity is required before service metrics are meaningful. Residual ambiguity is limited to numerical orbit/link geometry at hard boundaries.

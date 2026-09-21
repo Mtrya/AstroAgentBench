@@ -38,6 +38,8 @@ def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: st
         raise ValueError("Expected a Docker image reference")
     if network not in ("public", "no-network"):
         raise ValueError("Unsupported network policy")
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
+    dirty = bool(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=all"], cwd=repo, text=True))
     output.mkdir(parents=True, exist_ok=False)
     environment, tests = output / "environment", output / "tests"
     for target in (environment, tests):
@@ -62,8 +64,6 @@ def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: st
     (tests / "profile.json").write_text(json.dumps(profile, indent=2) + "\n")
     (tests / "test.sh").write_text("#!/bin/bash\nset -euo pipefail\npython /tests/score.py\n")
     (tests / "Dockerfile").write_text(f"FROM {image}\nCOPY . /tests\nWORKDIR /tests\n")
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
-    dirty = bool(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=repo, text=True))
     metadata = dict(benchmark=benchmark, split=split, case_id=case_id, source_commit=commit, source_dirty=dirty, case_sha256=tree_hash(case), verifier_sha256=tree_hash(tests / "benchmarks"), runtime_image=image, solution_filename=solution_filename)
     (output / "task.toml").write_text('\n'.join([
         'schema_version = "1.3"',

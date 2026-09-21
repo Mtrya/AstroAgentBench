@@ -108,7 +108,7 @@ def _write_splits_yaml(path: Path, *, snapshot_epoch_utc: str = CELESTRAK_SNAPSH
                 "dataset": WORLD_CITIES_DATASET,
                 "version": 8,
                 "page_url": "https://www.kaggle.com/datasets/juanmah/world-cities",
-                "snapshot": "generator/world_cities_snapshot.csv",
+                "snapshot": "sources/world_cities.csv",
             },
             "lookup_tables": {
                 "kind": "vendored_lookup_tables",

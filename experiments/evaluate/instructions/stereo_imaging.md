@@ -155,4 +155,4 @@ coverage_ratio = number of targets with at least one valid product / number of t
 normalized_quality = sum(best target product quality over all targets) / number of targets
 ```
 
-Residual ambiguity is the intentional deterministic overlap approximation: exact continuous AOI overlap is not the scored quantity, so use the local helper to check close overlap-threshold cases.
+Residual ambiguity is the intentional deterministic overlap approximation: exact continuous AOI overlap is not the scored quantity.

@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 
 import pytest
+import yaml
 
 
 @pytest.mark.parametrize(
@@ -51,6 +52,11 @@ def test_source_staging_replaces_stale_data(benchmark, force, tmp_path):
     destination.write_text("stale cached upstream data")
     stage(tmp_path, force_download=force)
     assert destination.read_bytes() == (module.SOURCE_SNAPSHOT_DIR / relative.name).read_bytes()
+    if benchmark in ("revisit_constellation", "stereo_imaging"):
+        benchmark_root = Path(module.__file__).resolve().parents[1]
+        config = yaml.safe_load((benchmark_root / "splits.yaml").read_text())
+        advertised_snapshot = benchmark_root / config["source"]["world_cities"]["snapshot"]
+        assert destination.read_bytes() == advertised_snapshot.read_bytes()
 
 
 def test_stereo_preserves_canonical_source_provenance(tmp_path):

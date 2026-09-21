@@ -14,7 +14,7 @@ source:
     dataset: juanmah/world-cities
     version: 8
     page_url: https://www.kaggle.com/datasets/juanmah/world-cities
-    snapshot: generator/world_cities_snapshot.csv
+    snapshot: sources/world_cities.csv
 
 splits:
   test: &test_split

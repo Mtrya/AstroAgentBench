@@ -116,4 +116,4 @@ subject_allocated_s = sum(allocated_s for those requests)
 U_i = max(subject_requested_s - subject_allocated_s, 0) / subject_requested_s
 ```
 
-`U_max = max(U_i)`, and `U_rms = sqrt(mean(U_i^2))`. `n_satisfied_requests` counts requests whose capped allocation reaches `duration_min`. Residual ambiguity is mostly inherited from integer truncation of hour/minute request fields; when in doubt, use the equations above and then confirm with the local helper.
+`U_max = max(U_i)`, and `U_rms = sqrt(mean(U_i^2))`. `n_satisfied_requests` counts requests whose capped allocation reaches `duration_min`. Residual ambiguity is mostly inherited from integer truncation of hour/minute request fields.

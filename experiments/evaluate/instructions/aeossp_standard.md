@@ -103,4 +103,4 @@ TAT = mean(completion_time - release_time) over completed tasks, in seconds, or 
 PC  = gross consumed watt-hours
 ```
 
-Validity is the hard gate before these metrics matter. Residual ambiguity remains only for borderline propagation, geometry, and battery cases at numerical tolerances; use the local helper for final checks rather than treating this prose as a replacement for full validation.
+Validity is the hard gate before these metrics matter. Residual ambiguity remains only for borderline propagation, geometry, and battery cases at numerical tolerances.

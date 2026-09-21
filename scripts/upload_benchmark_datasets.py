@@ -83,8 +83,12 @@ def stage(repo: Path, revision: str, version: str, output: Path) -> dict:
                 file.chmod(0o755 if mode == "100755" else 0o644)
                 sources[target] = name
                 modes[target] = mode
-        card = (Path(__file__).with_name("DATASET_CARD.md")).read_text()
+        card_path = "scripts/DATASET_CARD.md"
+        if layout == "january" and not any(name == card_path for _, _, _, name in entries):
+            card_path = "README.md"
+        card = git(repo, "show", f"{commit}:{card_path}").decode()
         (destination / "README.md").write_text(card + f"\nRelease: `{version}`. Git source: [`{commit}`](https://github.com/Mtrya/AstroAgentBench/tree/{commit}). Source layout: `{layout}`.\n")
+        sources["README.md"] = card_path
         manifest = {"schema_version": 1, "version": version, "source_commit": commit, "layout": layout, "export_mapping": mappings, "source_paths": sources, "git_modes": modes, "external_submodules": submodules, "files": inventory(destination)}
         (destination / MANIFEST).write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
         validate_stage(destination)

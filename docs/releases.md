@@ -10,6 +10,8 @@ uv run --locked python scripts/upload_benchmark_datasets.py --revision FULL_COMM
 
 This command performs no upload. It exports Git objects rather than local working files, verifies byte sizes and SHA-256 checksums, and atomically installs the staged directory. A repeated identical stage succeeds; conflicting or corrupt existing output fails. `release-manifest.json` records the source commit and path mapping. Review the stage before publication.
 
+The release card also comes from the selected commit's `scripts/DATASET_CARD.md`, with release provenance appended. January revisions without that card retain their committed root README instead; its historical links and instructions describe the original repository layout. The manifest records which source document was used.
+
 Current releases export the entire `benchmarks/` tree, root dependency/license files, and the evaluation package/runtime files needed by the source installation. January releases explicitly map `src/dataset/` to `benchmarks/` and preserve the original `src/` tree under `legacy/src/`, with external submodule commit identities in the manifest. Symbolic links retain their target bytes as ordinary files and their Git modes in the manifest; the exporter never reads external targets. This packaging does not modernize or establish availability of historical external services.
 
 The **Stage or Publish Benchmark Dataset** workflow takes a source revision and matching release identifier. Its default only stages and retains an Actions artifact. Run it from the current implementation branch. Publication requires selecting `publish` and configuring `HF_TOKEN` and `HF_DATASET_REPO_ID` for an existing dataset repository. The local equivalent adds `--repo-id OWNER/DATASET --publish`.

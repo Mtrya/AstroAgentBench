@@ -3,6 +3,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tomllib
 
 import pytest
 
@@ -56,6 +57,26 @@ def test_existing_task_cannot_be_overwritten(tmp_path):
     output = prepare('spot5', 'test', '8', tmp_path / 'task')
     with pytest.raises(FileExistsError):
         prepare('spot5', 'test', '8', output)
+
+
+def test_untracked_inputs_mark_task_source_dirty(tmp_path):
+    repo = tmp_path / 'repo'
+    benchmark = repo / 'benchmarks/spot5'
+    case = benchmark / 'dataset/cases/test/8'
+    shutil.copytree(ROOT / 'benchmarks/spot5/dataset/cases/test/8', case)
+    shutil.copyfile(ROOT / 'benchmarks/spot5/verifier.py', benchmark / 'verifier.py')
+    for args in [('init', '-q'), ('add', '.'), ('-c', 'user.name=Task Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'Canonical inputs')]:
+        subprocess.run(['git', *args], cwd=repo, check=True)
+    clean = prepare('spot5', 'test', '8', tmp_path / 'clean', repo=repo)
+    metadata = tomllib.loads((clean / 'task.toml').read_text())['metadata']
+    assert metadata['source_dirty'] is False
+    (case / 'extra.json').write_text('{"new_input": true}\n')
+    dirty = prepare('spot5', 'test', '8', tmp_path / 'dirty', repo=repo)
+    dirty_metadata = tomllib.loads((dirty / 'task.toml').read_text())['metadata']
+    assert dirty_metadata['source_dirty'] is True
+    assert dirty_metadata['source_commit'] == metadata['source_commit']
+    assert dirty_metadata['case_sha256'] != metadata['case_sha256']
+    assert (dirty / 'environment/case/extra.json').read_bytes() == (case / 'extra.json').read_bytes()
 
 
 def test_native_installed_and_external_adapter_interfaces():

@@ -132,4 +132,4 @@ The primary metric is:
 capped_max_revisit_gap_hours = mean(target_capped_gap over targets)
 ```
 
-Lower is better; `num_satellites` is a secondary metric after revisit quality. Poor revisit gaps do not invalidate an otherwise feasible solution. Residual ambiguity remains around numerical orbit and visibility boundaries; validate borderline states and contacts with the local helper.
+Lower is better; `num_satellites` is a secondary metric after revisit quality. Poor revisit gaps do not invalidate an otherwise feasible solution. Residual ambiguity remains around numerical orbit and visibility boundaries.
