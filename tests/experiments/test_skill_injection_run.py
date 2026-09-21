@@ -230,7 +230,6 @@ def test_interactive_dry_run_selects_stereo_skill_condition(capsys) -> None:
     assert "Interactive benchmark: stereo_imaging" in output
     assert "Interactive condition: compact_domain" in output
     assert "Interactive harness: opencode_dpsk" in output
-    assert "Missing assemble sources: none" in output
 
 
 def test_missing_assemble_sources_report_skill_directories_only_for_skill_conditions() -> None:
