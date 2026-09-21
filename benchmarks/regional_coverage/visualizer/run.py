@@ -15,7 +15,7 @@ import matplotlib
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from brahe.plots.texture_utils import load_earth_texture
+from brahe.plots.texture_utils import load_body_texture
 from matplotlib.lines import Line2D
 from shapely.geometry import Polygon as ShapelyPolygon
 
@@ -138,7 +138,7 @@ def _load_world_texture() -> np.ndarray:
     if _WORLD_TEXTURE is None:
         for texture_name in ("natural_earth_50m", "blue_marble"):
             try:
-                image = load_earth_texture(texture_name)
+                image = load_body_texture(texture_name)
             except Exception:
                 continue
             if image is not None:

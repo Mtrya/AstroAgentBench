@@ -17,7 +17,7 @@ import matplotlib.dates as mdates
 from matplotlib.patches import FancyArrowPatch
 import matplotlib.pyplot as plt
 import numpy as np
-from brahe.plots.texture_utils import load_earth_texture
+from brahe.plots.texture_utils import load_body_texture
 from PIL import Image
 
 from .geometry import (
@@ -158,7 +158,7 @@ def _load_texture_image(texture_path: Path | None = None) -> np.ndarray:
     if texture_path is None:
         for texture_name in ("natural_earth_50m", "blue_marble"):
             try:
-                image = load_earth_texture(texture_name)
+                image = load_body_texture(texture_name)
             except Exception:
                 continue
             if image is not None:
