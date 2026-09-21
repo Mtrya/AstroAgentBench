@@ -13,10 +13,6 @@ benchmarks/stereo_imaging/generator/lookup_tables.py linguist-generated=true -di
 benchmarks/regional_coverage/dataset/cases/*/coverage_grid.json linguist-generated=true -diff
 benchmarks/satnet/dataset/cases/*/problem.json linguist-generated=true
 
-# Archived datasets and fixtures
-benchmarks/aeosbench/dataset/cases.tar.gz binary -diff linguist-generated=true
-tests/fixtures/aeosbench_gt_bsk2.9.0/*.tar.gz binary -diff linguist-generated=true
-
 # Vendored or reference fixture corpora
 benchmarks/spot5/dataset/cases/**/*.spot linguist-vendored=true
 tests/fixtures/spot5_val_sol/** linguist-vendored=true
