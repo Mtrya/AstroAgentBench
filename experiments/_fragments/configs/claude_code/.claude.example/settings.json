@@ -1,5 +1,5 @@
 {
-  "model": "claude-sonnet-4-5",
+  "model": "claude-opus-4-6",
   "includeCoAuthoredBy": false,
   "env": {
     "ANTHROPIC_AUTH_TOKEN": "replace_with_your_api_key_or_gateway_token",

@@ -5,8 +5,8 @@
   "enabled_providers": [
     "dpsk"
   ],
-  "model": "dpsk/replace_with_dpsk_model_id",
-  "small_model": "dpsk/replace_with_dpsk_small_model_id",
+  "model": "dpsk/deepseek-v4-pro",
+  "small_model": "dpsk/deepseek-v4-flash",
   "permission": "allow",
   "provider": {
     "dpsk": {
@@ -17,8 +17,8 @@
         "apiKey": "replace_with_dpsk_api_key"
       },
       "models": {
-        "replace_with_dpsk_model_id": {
-          "name": "replace_with_dpsk_model_id",
+        "deepseek-v4-pro": {
+          "name": "deepseek-v4-pro",
           "interleaved": {
             "field": "reasoning_content"
           },
@@ -26,8 +26,8 @@
             "reasoning_effort": "max"
           }
         },
-        "replace_with_dpsk_small_model_id": {
-          "name": "replace_with_dpsk_small_model_id",
+        "deepseek-v4-flash": {
+          "name": "deepseek-v4-flash",
           "interleaved": {
             "field": "reasoning_content"
           }

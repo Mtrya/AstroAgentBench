@@ -2,7 +2,7 @@
 
 `main_agentic` is the canonical experiment family for running the current finished benchmark set across agentic harnesses.
 
-The tracked family shape is about benchmarks, harnesses, prompts, execution, and aggregation. Exact model names, provider accounts, and gateway endpoints belong in ignored local harness config directories under `experiments/_fragments/configs/`.
+The tracked family shape is about benchmarks, harnesses, prompts, execution, and aggregation. Model identities and configuration examples are documented in [`../_fragments/configs/README.md`](../_fragments/configs/README.md). Supply credentials and provider connection settings locally.
 
 ## Layout
 

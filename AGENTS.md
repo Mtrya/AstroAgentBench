@@ -1,10 +1,10 @@
-# AstroReason: Coding Agent Guide
+# AstroAgentBench: Coding Agent Guide
 
 This document guides coding agents working on this repository.
 
 ## Project Vision
 
-AstroReason is a monorepo for space mission design benchmarks, reproducible experiments, and first-party method layers.
+AstroAgentBench is a monorepo for space mission design benchmarks, reproducible experiments, and first-party method layers.
 
 ## Terminology
 
@@ -18,7 +18,7 @@ Do not mix these two meanings of "agent" in code or documentation.
 ## Repository Shape
 
 ```text
-astro-reason/
+AstroAgentBench/
 ├── benchmarks/   # canonical benchmark definitions and benchmark-side tooling
 ├── experiments/  # reproducible evaluated runs of methods against benchmarks
 ├── solvers/      # reusable traditional solver implementations

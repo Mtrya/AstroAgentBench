@@ -1,89 +1,76 @@
-# AstroReason-Bench
+# AstroAgentBench
 
-**AstroReason-Bench** is a benchmark suite and reproducible experiment harness for
-evaluating *agentic* LLM systems on heterogeneous space mission design and
-scheduling problems, side by side with traditional solver baselines.
+AstroAgentBench evaluates complete LLM agent systems on seven space mission planning tasks, alongside traditional solver baselines. Each system produces a solution artifact scored by the same standalone, benchmark-owned verifier.
 
-Unlike symbolic or weakly grounded agent benchmarks, every task here is
-physics-grounded: instances are built from real satellite orbital elements and
-propagation, access geometry, and hard operational constraints. An agent must
-read a problem brief, reason about the physics, and produce a solution artifact
-that is scored by a standalone, benchmark-owned verifier — the same verifier
-used for every method, agentic or classical.
+This branch, `aacl-ijcnlp-2026`, maintains the experimental baseline used for the May EMNLP submission and the subsequent AACL-IJCNLP paper. The evolving implementation is on [`main`](https://github.com/Mtrya/AstroAgentBench/tree/main). The original AstroReason-Bench implementation is preserved separately in [`v1`](https://github.com/Mtrya/AstroAgentBench/tree/v1).
 
-The benchmark core stays algorithm-agnostic: benchmarks define problems,
-datasets, and verifiers; methods consume benchmarks and never the reverse.
-
-## Task Families
-
-Seven standalone benchmarks span communication scheduling, agile Earth
-observation, imaging geometry, and constellation design:
+## Task families
 
 | Benchmark | Problem |
 |---|---|
-| `satnet` | Deep Space Network ground-station antenna scheduling: allocate communication tracks under view-period, setup/teardown, exclusivity, and maintenance constraints. |
-| `spot5` | SPOT-5 daily photograph selection (ROADEF 2003 / CNES): maximize imaging profit under camera, non-overlap, data-flow, and memory constraints. |
-| `aeossp_standard` | Agile Earth-observation satellite scheduling: plan time-stamped observations to maximize weighted task completion under agility and power limits. |
-| `stereo_imaging` | Optical same-pass and bounded cross-satellite stereo / tri-stereo acquisition planning over ground targets, with retargeting cost and product-quality scoring. |
-| `regional_coverage` | Strip-observation planning over polygonal regions (SAR-like) to maximize unique regional coverage under retargeting and battery feasibility. |
-| `revisit_constellation` | Joint constellation design and operating schedule that minimizes target revisit gaps over a mission horizon. |
-| `relay_constellation` | Relay-network augmentation and contact-plan design to meet service demand and latency targets with minimal added satellites. |
+| [`satnet`](benchmarks/satnet/) | Deep Space Network ground-station antenna scheduling. |
+| [`spot5`](benchmarks/spot5/) | SPOT-5 daily photograph selection under camera, memory, and data-flow constraints. |
+| [`aeossp_standard`](benchmarks/aeossp_standard/) | Agile Earth-observation scheduling under agility and power limits. |
+| [`stereo_imaging`](benchmarks/stereo_imaging/) | Stereo and tri-stereo acquisition planning over ground targets. |
+| [`regional_coverage`](benchmarks/regional_coverage/) | Strip-observation planning for polygonal coverage under retargeting and battery constraints. |
+| [`revisit_constellation`](benchmarks/revisit_constellation/) | Constellation and observation planning to minimize target revisit gaps. |
+| [`relay_constellation`](benchmarks/relay_constellation/) | Relay augmentation and contact planning under service and latency requirements. |
 
-Each benchmark is self-contained, with its own dataset, generator, verifier, and
-(where useful) visualizer. Start from a benchmark's `README.md` for its exact
-problem model, solution artifact, and scoring contract.
+Each benchmark owns its dataset, generator, verifier, and optional visualizer. Its README and verifier define the task and scoring contract.
 
-## How Evaluation Works
+## Installation and checks
 
-- **Agentic harnesses** solve cases inside reproducible container runtimes. A
-  space agent receives a problem brief and case files — never benchmark,
-  harness, or evaluation internals — and emits a solution artifact.
-- **Benchmark-owned verifiers** are the single source of truth for validity and
-  scoring. They run outside the agent workspace and are consumed only through
-  CLI/file contracts, never source imports.
-- **Traditional solvers** provide classical baselines (greedy, local search,
-  CP/MILP, and domain methods) under the same verifier.
-- **Experiment families** are the reproducible studies that tie these together:
-  the main agentic and solver runs plus focused ablations on verifier exposure,
-  injected task skills, temporal robustness, and memory accumulation.
+Install Python 3.13 and [uv](https://docs.astral.sh/uv/), then check out this snapshot:
 
-## Repository Shape
-
-```text
-astro-reason/
-├── benchmarks/   # canonical problems, datasets, verifiers, generators, visualizers
-├── experiments/  # reproducible evaluated runs of methods and ablations
-├── solvers/      # traditional (non-agentic) solver implementations
-├── runtimes/     # reusable execution substrates for agentic systems
-├── scripts/      # repo-owned orchestration and validation entrypoints
-├── docs/         # public contract documentation
-└── tests/        # focused benchmark and tooling tests
+```bash
+git clone --branch aacl-ijcnlp-2026 https://github.com/Mtrya/AstroAgentBench.git
+cd AstroAgentBench
+uv sync --locked
 ```
 
-## Design Principles
+The repository lockfile and the agent runtime's pinned packages describe separate environments. Keep both when using this snapshot. Provider availability and new stochastic runs can change results even with the same configuration.
 
-- **Algorithm-agnostic benchmark core**: `benchmarks/` encodes no preferred solving strategy.
-- **One-way contracts**: methods may depend on benchmarks; benchmarks never depend on method code.
-- **Standalone everything**: benchmarks, solvers, and runtimes are self-contained and do not import or invoke one another; cross-layer orchestration lives in `experiments/`.
-- **Reproducible method layers**: experiments, solvers, and runtimes are runnable and inspectable.
-- **Honest agent surface**: agent-facing prompts read like an engineering handoff, with no benchmark, verifier, or harness leakage.
+Run the existing local checks without model calls:
 
-## Getting Started
+```bash
+uv run --locked python scripts/validate_benchmark_contract.py
+uv run --locked python scripts/validate_solver_contract.py
+uv run --locked pytest tests/
+```
 
-Benchmark-core development uses [`uv`](https://github.com/astral-sh/uv). Method-owned
-directories may use different tooling when justified, as long as benchmark
-contracts stay clean.
+The solver check prepares solver-local dependencies and runs its declared small cases. Agent evaluations additionally require Docker and credentials for the selected provider.
 
-Useful entry points:
+## Experiments and recorded results
 
-- A benchmark's `README.md` — its problem model and scoring contract.
-- `docs/benchmark_contract.md`, `docs/solver_contract.md`, `docs/experiment_contract.md`, `docs/runtime_contract.md` — the public contracts.
-- `experiments/main_solver/README.md` and `experiments/main_agentic/README.md` — how to run baseline and agentic evaluations.
-- `experiments/{verifier_exposure,skill_injection,temporal_robustness,memory_accumulation}/` — the ablation studies.
+| Study | Entry point and documentation |
+|---|---|
+| Agent systems | [`experiments/main_agentic/README.md`](experiments/main_agentic/README.md) |
+| Traditional solver baselines | [`experiments/main_solver/README.md`](experiments/main_solver/README.md) |
+| Verifier exposure | [`experiments/verifier_exposure/README.md`](experiments/verifier_exposure/README.md) |
+| Procedure injection | [`experiments/skill_injection/README.md`](experiments/skill_injection/README.md) |
+| Temporal robustness | [`experiments/temporal_robustness/README.md`](experiments/temporal_robustness/README.md) |
+| Memory accumulation | [`experiments/memory_accumulation/`](experiments/memory_accumulation/) |
 
-Dataset provenance and licensing are documented in `scripts/DATASET_CARD.md`.
+[System configuration examples](experiments/_fragments/configs/README.md) retain model identities and inference settings while keeping credentials user-supplied. The shared runtime is defined in [`runtimes/base/Dockerfile`](runtimes/base/Dockerfile).
 
-## Citation
+Preview a single run without starting a model:
 
-This repository is anonymized for peer review. Citation details will be added
-after the review period.
+```bash
+uv run --locked python experiments/main_agentic/run.py --dry-run --benchmark aeossp_standard --harness codex --case case_0001
+```
+
+The preview reports any setup inputs still needed. Before executing agent runs, configure the selected harness and build the runtime and opaque verifier helpers as described in the [verifier-helper guide](experiments/_fragments/opaque_verifiers/README.md).
+
+Recorded [main result tables and case studies](experiments/main_agentic/reports/) and the individual study reports are included. Read [the snapshot guide](docs/snapshot.md) for paper and artifact organization.
+
+## Paper
+
+The available manuscript source, bibliography, styles, and required figures are in [`paper/`](paper/README.md). It builds without rerunning experiments. Camera-ready formatting and author metadata are still being finalized.
+
+The original preprint is [AstroReason-Bench, arXiv:2601.11354](https://arxiv.org/abs/2601.11354). Its existing title identifies that earlier version; the updated paper uses AstroAgentBench.
+
+## Repository contracts
+
+Benchmarks, solvers, and runtimes are standalone. Experiments orchestrate their CLI/file interfaces; benchmark verifiers remain authoritative. See the [benchmark](docs/benchmark_contract.md), [solver](docs/solver_contract.md), [experiment](docs/experiment_contract.md), and [runtime](docs/runtime_contract.md) contracts.
+
+Code is provided under the [MIT license](LICENSE). Dataset-specific provenance and terms are recorded in the [dataset card](scripts/DATASET_CARD.md).

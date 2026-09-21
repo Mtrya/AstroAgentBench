@@ -2,9 +2,11 @@
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": false,
   "share": "disabled",
-  "enabled_providers": ["minimax"],
-  "model": "minimax/replace_with_minimax_model_id",
-  "small_model": "minimax/replace_with_minimax_small_model_id",
+  "enabled_providers": [
+    "minimax"
+  ],
+  "model": "minimax/MiniMax-M2.7",
+  "small_model": "minimax/MiniMax-M2.7",
   "permission": "allow",
   "provider": {
     "minimax": {
@@ -15,11 +17,8 @@
         "apiKey": "replace_with_minimax_api_key"
       },
       "models": {
-        "replace_with_minimax_model_id": {
-          "name": "replace_with_minimax_model_id"
-        },
-        "replace_with_minimax_small_model_id": {
-          "name": "replace_with_minimax_small_model_id"
+        "MiniMax-M2.7": {
+          "name": "MiniMax-M2.7"
         }
       }
     }

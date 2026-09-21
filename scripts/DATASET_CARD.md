@@ -11,9 +11,9 @@ tags:
   - benchmark
 ---
 
-# AstroReason-Bench Datasets
+# AstroAgentBench Datasets
 
-This is the canonical Hugging Face Dataset repository for **AstroReason-Bench**, a benchmark suite for evaluating AI agents and algorithms on space mission design and planning problems.
+This is the canonical Hugging Face Dataset repository for **AstroAgentBench**, a benchmark suite for evaluating AI agents and algorithms on space mission design and planning problems.
 
 Each benchmark is exposed as a separate **config** (subset) within this dataset. Splits within a config map transparently to the benchmark's own dataset splits (e.g., `test`, `single_orbit`, `multi_orbit`).
 
@@ -63,7 +63,7 @@ Every example in every config follows the same schema:
 from datasets import load_dataset
 
 # Load the aeossp_standard benchmark
-ds = load_dataset("AstroReason-Bench/datasets", "aeossp_standard")
+ds = load_dataset("YOUR_DATASET_REPO_ID", "aeossp_standard")
 print(ds["test"][0]["case_id"])
 ```
 
@@ -81,9 +81,9 @@ for file in case["files"]:
 ```python
 from datasets import get_dataset_config_names
 
-configs = get_dataset_config_names("AstroReason-Bench/datasets")
+configs = get_dataset_config_names("YOUR_DATASET_REPO_ID")
 for config in configs:
-    ds = load_dataset("AstroReason-Bench/datasets", config)
+    ds = load_dataset("YOUR_DATASET_REPO_ID", config)
     for split_name, split_ds in ds.items():
         print(f"{config}/{split_name}: {len(split_ds)} cases")
 ```
@@ -139,7 +139,7 @@ Future benchmark releases may add additional splits (e.g., `val`) transparently 
 
 ## Dataset Creation
 
-All canonical datasets are generated or curated by the AstroReason-Bench repository. Where generators exist, they are deterministic and tied to committed `splits.yaml` contracts. Canonical cases are committed to the repository and are the source of truth for evaluation.
+All canonical datasets are generated or curated by the AstroAgentBench repository. Where generators exist, they are deterministic and tied to committed `splits.yaml` contracts. Canonical cases are committed to the repository and are the source of truth for evaluation.
 
 ## Source Data
 
@@ -166,15 +166,15 @@ This dataset repository aggregates multiple sources with different provenance:
 
 - **`spot5`**: The `.spot` instances are from the Mendeley Data release (DOI: 10.17632/2kbzg9nw3b.1) and are provided under **CC BY 4.0**.
 - **`satnet`**: Derived from NASA/JPL Deep Space Network operations research. Used for research and educational purposes.
-- **All other benchmarks** (`aeossp_standard`, `regional_coverage`, `relay_constellation`, `revisit_constellation`, `stereo_imaging`): Original benchmark materials created by the AstroReason-Bench project.
+- **All other benchmarks** (`aeossp_standard`, `regional_coverage`, `relay_constellation`, `revisit_constellation`, `stereo_imaging`): Original benchmark materials created by the AstroAgentBench project.
 
 Please cite the appropriate references when using individual benchmarks (see Citation Information).
 
 ## Citation Information
 
-If you use this dataset suite in your research, please cite the AstroReason-Bench paper and the original benchmark sources:
+If you use this dataset suite in your research, please cite the AstroAgentBench paper and the original benchmark sources:
 
-### AstroReason-Bench (suite)
+### Original preprint
 ```bibtex
 @article{wang2026astroreason,
   title={AstroReason-Bench: Evaluating Unified Agentic Planning across Heterogeneous Space Planning Problems},
@@ -210,5 +210,5 @@ If you use this dataset suite in your research, please cite the AstroReason-Benc
 
 ## Contact and Links
 
-- **Repository**: https://github.com/Mtrya/astro-reason
-- **Issue Tracker**: https://github.com/Mtrya/astro-reason/issues
+- **Repository**: https://github.com/Mtrya/AstroAgentBench
+- **Issue Tracker**: https://github.com/Mtrya/AstroAgentBench/issues
