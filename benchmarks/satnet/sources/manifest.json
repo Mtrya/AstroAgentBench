@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "origin": {
+    "kind": "upstream",
+    "repository": "https://github.com/edwinytgoh/satnet",
+    "ref": "master",
+    "problems_path": "data/problems.json",
+    "maintenance_path": "data/maintenance.csv",
+    "mission_color_map_path": "data/mission_color_map.json"
+  },
+  "normalization": "Consolidate the five published 2018 weeks from their preserved canonical case inputs; retain request and maintenance order and values. The historical upstream ref is provenance, not a live download selector.",
+  "files": {
+    "satnet.json": {
+      "sha256": "fed8a4654b5500e74fdd02677b3a0dbf4e6fea48a272a8299c4e4757dd4ba080",
+      "bytes": 3927482
+    }
+  }
+}

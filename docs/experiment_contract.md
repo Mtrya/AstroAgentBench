@@ -1,140 +1,23 @@
-# Experiment Contract
+# Evaluation Contract
 
-This document defines the initial public contract for `experiments/`.
+`experiments/evaluate/` integrates standalone benchmark and solver CLI/file contracts with Harbor 0.23.0. Harbor is the evaluation runner. The evaluated agent system is the complete harness, models, tools, memory, and coordination supplied by the researcher.
 
-The contract is intentionally minimal. It captures the canonical shape needed for the first runnable vertical slice and should not be read as a complete long-term method-layer design.
+## Task preparation
 
-## Purpose
+`python -m experiments.evaluate.prepare BENCHMARK SPLIT CASE --output DIRECTORY` copies one canonical case and its task brief into a self-contained Harbor task. It records the Git commit/dirty state, case and verifier SHA-256 identities, image reference, solution filename, resource limits, and network policy. Existing output directories are never overwritten.
 
-`experiments/` owns runnable benchmark-facing configurations.
+The solving environment has `/workspace/case/` and an empty `/workspace/solution/`. It does not contain other cases, example solutions, repository history, or authoritative verifier code. `--reference-solution` explicitly adds an Oracle solution for integration checks; omit it for evaluated systems. An independent verifier image contains the original case and unmodified benchmark verifier, plus a small CLI-output adapter.
 
-A runnable experiment family defines:
+## Execution and scoring
 
-- which benchmark it targets
-- which method substrate it runs against
-- which benchmark-owned files are copied into the prepared Docker workspace
-- which prompts and config files shape the run
+Use Harbor's native `run -p TASK -a ADAPTER` interface. Installed CLI and external `BaseAgent` adapters use the same task environment and output contract. The repository does not implement a second scheduler, Docker lifecycle, retry loop, model router, or agent reasoning protocol.
 
-In the first vertical slice, that substrate is a runtime. Future experiments may also target a reusable solver instead of a runtime.
+The required artifact is `solution/solution.json`, or `solution/solution.spot_sol.txt` when explicitly selected for SPOT5. Additional files in the solution directory are collected. Harbor transfers these artifacts into a fresh verifier environment and runs `tests/test.sh`. The adapter executes the benchmark's public verifier CLI, preserves stdout/stderr and native metrics, and emits Harbor numerical rewards. A missing solution is unsuccessful; malformed verifier output or runtime exceptions remain errors, not successful zero-score runs. Invalid solutions retain the metrics reported by the authority, so consumers must consider validity when comparing scores.
 
-Experiments consume benchmarks and method layers such as runtimes or solvers.
-Benchmarks, runtimes, and solvers must not depend on experiments.
+`SolverAgent` calls standalone `setup.sh` and `solve.sh CASE CONFIG SOLUTION`. It imports neither solvers nor benchmarks and leaves their scientific implementations unchanged. Solvers and runtimes never invoke benchmark authorities themselves.
 
-Experiments are the only layer that should orchestrate across `benchmarks/`,
-`solvers/`, and `runtimes/`. They should use CLI/file contracts, not source
-imports, when invoking those layers.
+## Results and reproducibility
 
-## Required Entry Point
+The native job and prepared task are the durable record. The summary includes task/version, system identity/configuration, limits/access settings, status, timing, validity, metrics, errors, and artifact paths. Full traces and model usage counters are optional. Numerical metrics retain benchmark-specific units and directions; no global scalar is defined. Provider drift and stochasticity mean identical historical values are not a migration or CI requirement.
 
-Each experiment lives under:
-
-```text
-experiments/<family>/
-```
-
-The only stable required artifact for the first slice is an experiment-owned runnable entrypoint:
-
-```text
-experiments/<family>/
-└── run.py
-```
-
-## Recommended Agent-Run Shape
-
-For runtime-backed agent runs, the recommended structure in the first vertical slice is:
-
-```text
-experiments/
-├── _fragments/
-│   ├── prompts/
-│   └── configs/
-└── <family>/
-    ├── run.py
-    └── configs/
-```
-
-`_fragments/` is a visible shared asset root for reusable prompt and config fragments. It is not a runnable experiment family.
-
-## Recommended Solver-Run Shape
-
-For solver-backed runs, the recommended structure is:
-
-```text
-experiments/
-└── <family>/
-    ├── run.py
-    ├── aggregate.py
-    ├── solvers/
-    └── config.yaml
-```
-
-Solver-backed experiments should treat solver directories as method
-implementations behind the `setup.sh` / `solve.sh` contract. The experiment
-owns case selection, solver selection, verifier execution, result layout, and
-aggregation. Since traditional solvers are benchmark-specific, solver-backed
-experiment profiles may be solver-centered instead of using separate benchmark
-and method axes.
-
-Experiments should not assume that a solver runs in the repository's project
-Python environment. A solver may prepare a Python virtual environment, compiled
-binary, language-native build output, or other solver-local runtime through
-`setup.sh`. If setup writes a solver-owned handoff file such as `.solver-env`,
-the experiment runner may read simple `SOLVER_*` assignments from that file and
-pass them into the `solve.sh` subprocess. Experiment profiles own evidence
-labels, verifier commands, solver-specific configs, and result layout; those
-fields do not belong in `solvers/finished_solvers.json`.
-
-## Family Config
-
-Experiment families may keep one or more runner-owned YAML config files under `configs/`.
-
-In the first slice, those config files commonly describe:
-
-- the benchmark to run
-- the runtime to use
-- assembly rules that copy prompt/config/case assets into prepared container paths
-- collection rules that preserve runtime-owned artifacts after execution
-- optional compute and memory limits for the containerized run
-- timeout defaults
-- headless shell commands
-
-The exact YAML shape is still runner-owned and is not yet standardized as a public repository-wide contract.
-
-## Ownership Boundaries
-
-`run.py` is experiment-owned. It is the canonical runnable entrypoint for the family.
-
-Family-local `configs/` are experiment-owned. They describe concrete runnable configurations for that family.
-
-`_fragments/prompts/` contains reusable prompt and helper fragments such as `README.md`, `AGENTS.md`, and `PROMPT.md`. These are assembled into the prepared workspace at run time.
-
-`_fragments/configs/` contains reusable checked-in config examples and may also contain ignored machine-local real config files.
-
-## Workspace Preparation
-
-Experiments may request that benchmark-owned files be copied into a temporary prepared workspace at run time, including:
-
-- the selected case directory
-- the benchmark verifier source
-- the benchmark example solution
-
-These files are prepared-at-run-time artifacts, not experiment-owned checked-in assets.
-
-## Execution Notes
-
-For the first slice:
-
-- direct-path execution like `python experiments/.../run.py` is the natural style
-- module-style execution may also be allowed
-- headless and interactive modes are both in scope
-- official verification is experiment-owned and may invoke the benchmark-owned verifier through its public CLI
-- the exact family config selection logic is runner-owned for now
-
-## What This Contract Does Not Promise Yet
-
-This document does not yet standardize:
-
-- cross-experiment shared libraries
-- batch orchestration interfaces
-- stable cross-benchmark verifier result schemas
-- non-Docker execution backends
+See [the runnable examples](../experiments/evaluate/README.md) for defaults, overrides, installation-only checks, and practical limits. CI uses real example solutions and a bounded standalone solver rather than a model campaign.

@@ -183,14 +183,7 @@ Direct solve with a config directory:
   /tmp/stereo_cp_solution
 ```
 
-Official smoke verification through `main_solver`:
-
-```bash
-uv run python experiments/main_solver/run.py \
-  --benchmark stereo_imaging \
-  --solver stereo_imaging_cp_local_search_stereo_insertion \
-  --case test/case_0001
-```
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 Solver-local tests:
 
@@ -198,11 +191,7 @@ Solver-local tests:
 ./solvers/stereo_imaging/cp_local_search_stereo_insertion/test.sh
 ```
 
-Aggregate experiment results:
-
-```bash
-uv run python experiments/main_solver/aggregate.py
-```
+For official evaluation and aggregation, use the [Harbor solver workflow](../../../experiments/evaluate/README.md).
 
 ## Sanity Baseline
 
@@ -248,7 +237,3 @@ Benchmark-profile evidence on `test/case_0001` with `run_profile: benchmark` (`n
 - Candidate generation can be parallelized across satellites; product construction, seed, and local search remain single-process Python.
 - Product construction is now the main remaining runtime bottleneck, especially on `test/case_0005`. The run policy reports this explicitly; the solver is benchmark-faithful and reproducible, but not a claim of competitive optimized performance.
 - Solver-local product predicates are designed to match the verifier geometry, but minor drift is possible due to floating-point ordering.
-
-## Evidence Type
-
-This solver is registered in `experiments/main_solver` with `evidence_type: reproduced_solver`.

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "origin": {
+    "dataset": "juanmah/world-cities",
+    "url": "https://www.kaggle.com/datasets/juanmah/world-cities",
+    "input_sha256": "67a4fed1d7ddd92ad3d7b5befef6e2d1b65f7a54f0764e5cec98e8720c587200"
+  },
+  "normalization": "Preserve all 48059 rows in source order; retain the five columns consumed by the generator, with canonical column names. No coordinate or population rounding.",
+  "files": {
+    "world_cities.csv": {
+      "sha256": "db67ff4b5df49911dbc3105b3634c4049403baa7a4dd88c9266cd19e59259dbb",
+      "bytes": 1993975
+    }
+  }
+}

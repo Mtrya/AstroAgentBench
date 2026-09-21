@@ -25,7 +25,7 @@ from benchmarks.stereo_imaging.generator.sources import (
     CELESTRAK_RAW_NAME,
     CELESTRAK_SNAPSHOT_EPOCH_UTC,
     SourceFetchResult,
-    VENDORED_WORLD_CITIES_PATH,
+    SOURCE_SNAPSHOT_DIR,
     WORLD_CITIES_DATASET,
     WORLD_CITIES_FILENAME,
     download_world_cities,
@@ -108,7 +108,7 @@ def _write_splits_yaml(path: Path, *, snapshot_epoch_utc: str = CELESTRAK_SNAPSH
                 "dataset": WORLD_CITIES_DATASET,
                 "version": 8,
                 "page_url": "https://www.kaggle.com/datasets/juanmah/world-cities",
-                "snapshot": "generator/world_cities_snapshot.csv",
+                "snapshot": "sources/world_cities.csv",
             },
             "lookup_tables": {
                 "kind": "vendored_lookup_tables",
@@ -253,7 +253,7 @@ def test_download_world_cities_stages_vendored_snapshot(tmp_path: Path) -> None:
     staged = tmp_path / "world_cities" / WORLD_CITIES_FILENAME
     assert result.paths == [staged]
     assert result.extra["vendored_snapshot"] is True
-    assert staged.read_bytes() == VENDORED_WORLD_CITIES_PATH.read_bytes()
+    assert staged.read_bytes() == (SOURCE_SNAPSHOT_DIR / WORLD_CITIES_FILENAME).read_bytes()
 
 
 def _mission_model(
@@ -556,7 +556,7 @@ def test_main_rejects_invalid_max_abs_latitude(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -605,7 +605,7 @@ def test_sources_only_mode_is_operational_and_skips_dataset_emission(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -654,7 +654,7 @@ def test_main_builds_split_aware_dataset(monkeypatch: pytest.MonkeyPatch, tmp_pa
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -724,7 +724,7 @@ def test_main_exhausts_feasibility_attempts_without_writing_case(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 
@@ -785,7 +785,7 @@ def test_main_retries_until_feasibility_guard_accepts(
             "world_cities": SourceFetchResult(
                 "world_cities",
                 [dest_dir / "world_cities" / WORLD_CITIES_FILENAME],
-                {"sha256": "fake"},
+                {"sha256": "fake", "upstream_sha256": "fake"},
             ),
         }
 

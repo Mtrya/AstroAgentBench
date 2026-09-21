@@ -11,7 +11,7 @@ def _write_runtime_manifest(
     runtime_dir: Path,
     *,
     name: str = "demo",
-    image: str = "astroreason-demo:latest",
+    image: str = "astroagentbench-demo:latest",
     dockerfile: str = "Dockerfile",
     build_context: str = ".",
 ) -> None:
@@ -35,9 +35,9 @@ def test_discover_runtime_matrix_emits_compact_actions_shape(tmp_path: Path) -> 
     runtimes_dir = repo_root / "runtimes"
     alpha = runtimes_dir / "alpha"
     zeta = runtimes_dir / "zeta"
-    _write_runtime_manifest(zeta, name="zeta", image="astroreason-zeta:latest")
+    _write_runtime_manifest(zeta, name="zeta", image="astroagentbench-zeta:latest")
     _write_dockerfile(zeta)
-    _write_runtime_manifest(alpha, name="alpha", image="astroreason-alpha:latest")
+    _write_runtime_manifest(alpha, name="alpha", image="astroagentbench-alpha:latest")
     _write_dockerfile(alpha)
 
     matrix = runtime_discovery.discover_runtime_matrix(runtimes_dir, repo_root)
@@ -46,13 +46,13 @@ def test_discover_runtime_matrix_emits_compact_actions_shape(tmp_path: Path) -> 
         "include": [
             {
                 "name": "alpha",
-                "image": "astroreason-alpha:latest",
+                "image": "astroagentbench-alpha:latest",
                 "dockerfile": "runtimes/alpha/Dockerfile",
                 "build_context": "runtimes/alpha",
             },
             {
                 "name": "zeta",
-                "image": "astroreason-zeta:latest",
+                "image": "astroagentbench-zeta:latest",
                 "dockerfile": "runtimes/zeta/Dockerfile",
                 "build_context": "runtimes/zeta",
             },
@@ -64,14 +64,14 @@ def test_discover_runtime_matrix_includes_base_runtime_from_manifest(tmp_path: P
     repo_root = tmp_path
     runtimes_dir = repo_root / "runtimes"
     base = runtimes_dir / "base"
-    _write_runtime_manifest(base, name="base", image="astroreason-base:latest")
+    _write_runtime_manifest(base, name="base", image="astroagentbench-base:latest")
     _write_dockerfile(base)
 
     matrix = runtime_discovery.discover_runtime_matrix(runtimes_dir, repo_root)
 
     assert {
         "name": "base",
-        "image": "astroreason-base:latest",
+        "image": "astroagentbench-base:latest",
         "dockerfile": "runtimes/base/Dockerfile",
         "build_context": "runtimes/base",
     } in matrix["include"]
@@ -121,7 +121,7 @@ def test_discovery_rejects_duplicate_runtime_names(tmp_path: Path) -> None:
     second = runtimes_dir / "second"
     _write_runtime_manifest(first, name="same")
     _write_dockerfile(first)
-    _write_runtime_manifest(second, name="same", image="astroreason-same-2:latest")
+    _write_runtime_manifest(second, name="same", image="astroagentbench-same-2:latest")
     _write_dockerfile(second)
 
     with pytest.raises(

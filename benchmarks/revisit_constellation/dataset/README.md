@@ -27,8 +27,8 @@ uv run python -m benchmarks.revisit_constellation.generator.run \
   benchmarks/revisit_constellation/splits.yaml
 ```
 
-The generator stages the vendored world-cities snapshot (`../generator/world_cities_snapshot.csv`, normalized from version 8 of the documented Kaggle dataset) under `dataset/source_data/` by default, and then rebuilds the canonical cases without network access. The committed dataset-shape contract lives in [splits.yaml](../splits.yaml); operational staging controls like `--download-dir` remain CLI options.
+The generator stages the vendored world-cities snapshot (`../sources/world_cities.csv`, normalized from version 8 of the documented Kaggle dataset) under `dataset/source_data/` by default, and then rebuilds the canonical cases without network access. The committed dataset-shape contract lives in [splits.yaml](../splits.yaml); operational staging controls like `--download-dir` remain CLI options.
 
 Source dataset:
 
-- world cities: `juanmah/world-cities` version 8 (vendored as `../generator/world_cities_snapshot.csv`)
+- world cities: `juanmah/world-cities` version 8 (vendored as `../sources/world_cities.csv`)

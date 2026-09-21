@@ -1,11 +1,11 @@
-"""Reproducible staging for stereo_imaging source data."""
+"""Stage benchmark-owned source snapshots for stereo_imaging."""
 
 from __future__ import annotations
 
 import csv
 import hashlib
 import io
-import shutil
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -22,10 +22,19 @@ CELESTRAK_CSV_NAME = "earth_resources.csv"
 
 WORLD_CITIES_DATASET = "juanmah/world-cities"
 WORLD_CITIES_FILENAME = "world_cities.csv"
-WORLD_CITIES_SNAPSHOT_NAME = "world_cities_snapshot.csv"
 
-_GENERATOR_DIR = Path(__file__).resolve().parent
-VENDORED_WORLD_CITIES_PATH = _GENERATOR_DIR / WORLD_CITIES_SNAPSHOT_NAME
+
+SOURCE_SNAPSHOT_DIR = Path(__file__).resolve().parent.parent / "sources"
+
+
+def _read_source_snapshot(filename: str) -> bytes:
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text(encoding="utf-8"))
+    if manifest["schema_version"] != 1:
+        raise ValueError("Unsupported source snapshot manifest version")
+    payload = (SOURCE_SNAPSHOT_DIR / filename).read_bytes()
+    if hashlib.sha256(payload).hexdigest() != manifest["files"][filename]["sha256"]:
+        raise ValueError(f"Source snapshot checksum mismatch: {filename}")
+    return payload
 
 
 def _sha256_file(path: Path, *, chunk_size: int = 1 << 20) -> str:
@@ -96,24 +105,20 @@ def download_celestrak(dest_dir: Path, *, force_download: bool) -> SourceFetchRe
 
 
 def download_world_cities(dest_dir: Path, *, force_download: bool) -> SourceFetchResult:
-    """Stage the vendored world-cities snapshot into the source-data directory."""
-    del force_download  # Vendored snapshot is always used for reproducibility.
-
-    if not VENDORED_WORLD_CITIES_PATH.is_file():
-        raise FileNotFoundError(
-            f"Vendored world-cities snapshot is missing: {VENDORED_WORLD_CITIES_PATH}"
-        )
-
-    cities_dir = dest_dir / "world_cities"
-    final_csv = cities_dir / WORLD_CITIES_FILENAME
-    cities_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(VENDORED_WORLD_CITIES_PATH, final_csv)
+    """Stage the pinned normalized world-city input, replacing stale cache data."""
+    del force_download
+    payload = _read_source_snapshot(WORLD_CITIES_FILENAME)
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text(encoding="utf-8"))
+    final_csv = dest_dir / "world_cities" / WORLD_CITIES_FILENAME
+    final_csv.parent.mkdir(parents=True, exist_ok=True)
+    final_csv.write_bytes(payload)
     return SourceFetchResult(
         "world_cities",
         [final_csv],
         {
             "kaggle_dataset": WORLD_CITIES_DATASET,
             "sha256": _sha256_file(final_csv),
+            "upstream_sha256": manifest["origin"]["input_sha256"],
             "vendored_snapshot": True,
         },
     )
@@ -124,7 +129,7 @@ def fetch_all_sources(
     *,
     force_download: bool = False,
 ) -> dict[str, SourceFetchResult]:
-    """Stage the runtime source inputs needed by the lookup-table-based generator."""
+    """Stage the pinned source inputs needed by the lookup-table-based generator."""
     return {
         "celestrak": download_celestrak(dest_dir, force_download=force_download),
         "world_cities": download_world_cities(dest_dir, force_download=force_download),

@@ -10,7 +10,7 @@ from .case_io import RevisitCase
 BASELINE_VERSION = 1
 OFFICIAL_VERIFICATION_BOUNDARY = (
     "Solver output records local metrics only. Official validity and metrics are "
-    "produced by experiments/main_solver through the benchmark verifier executable."
+    "produced by experiments/evaluate through the benchmark verifier executable."
 )
 
 

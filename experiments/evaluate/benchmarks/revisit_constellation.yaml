@@ -1,0 +1,10 @@
+benchmark: revisit_constellation
+metrics:
+- name: capped_max_revisit_gap_hours
+  path: metrics.capped_max_revisit_gap_hours
+  direction: minimize
+  role: primary
+- name: num_satellites
+  path: metrics.num_satellites
+  direction: minimize
+  role: secondary

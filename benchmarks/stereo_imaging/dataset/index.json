@@ -612,7 +612,7 @@
       "dataset": "juanmah/world-cities",
       "kind": "vendored_snapshot",
       "page_url": "https://www.kaggle.com/datasets/juanmah/world-cities",
-      "snapshot": "generator/world_cities_snapshot.csv",
+      "snapshot": "sources/world_cities.csv",
       "version": 8
     }
   },

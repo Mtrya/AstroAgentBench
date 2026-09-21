@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
         "--download-dir",
         type=Path,
         help=(
-            "Where staged source CSVs should be stored; "
+            "Where pinned source CSVs should be staged; "
             "defaults to <output-dir>/source_data"
         ),
     )
@@ -38,7 +38,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--force-download",
         action="store_true",
-        help="Deprecated no-op; world-cities source data is a vendored snapshot",
+        help="Restage the pinned source snapshot; never download newer upstream data",
     )
     args = parser.parse_args(argv)
 

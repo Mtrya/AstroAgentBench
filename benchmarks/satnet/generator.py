@@ -1,7 +1,7 @@
 """Regenerate the canonical SatNet split-aware dataset.
 
-By default this script downloads the upstream aggregate SatNet data from
-https://github.com/edwinytgoh/satnet/tree/master/data and rewrites it into the
+By default this script reads the benchmark-owned SatNet source snapshot
+and rewrites it into the
 canonical case layout used by this repository:
 
     dataset/
@@ -19,19 +19,31 @@ operational override for maintenance workflows.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import csv
 import json
 from pathlib import Path
 import shutil
 from typing import Iterable
-from urllib.request import urlopen
 
 import yaml
 
 
 UPSTREAM_REPOSITORY = "https://github.com/edwinytgoh/satnet"
-UPSTREAM_RAW_BASE = "https://raw.githubusercontent.com/edwinytgoh/satnet/{ref}/data"
 CSV_FIELDNAMES = ["week", "year", "starttime", "endtime", "antenna"]
+
+
+SOURCE_SNAPSHOT_DIR = Path(__file__).resolve().parent / "sources"
+
+
+def _read_source_snapshot(filename: str) -> bytes:
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text(encoding="utf-8"))
+    if manifest["schema_version"] != 1:
+        raise ValueError("Unsupported source snapshot manifest version")
+    payload = (SOURCE_SNAPSHOT_DIR / filename).read_bytes()
+    if hashlib.sha256(payload).hexdigest() != manifest["files"][filename]["sha256"]:
+        raise ValueError(f"Source snapshot checksum mismatch: {filename}")
+    return payload
 
 
 def _write_json(path: Path, data: object) -> None:
@@ -45,11 +57,6 @@ def _write_csv(path: Path, rows: Iterable[dict]) -> None:
         writer = csv.DictWriter(file_obj, fieldnames=CSV_FIELDNAMES)
         writer.writeheader()
         writer.writerows(rows)
-
-
-def _download_text(url: str) -> str:
-    with urlopen(url) as response:  # noqa: S310 - explicit benchmark source URL
-        return response.read().decode("utf-8")
 
 
 def _validate_path_segment(value: object, label: str) -> str:
@@ -109,14 +116,14 @@ def load_generator_config(path: Path) -> dict:
     return payload
 
 
-def load_upstream_inputs(ref: str) -> tuple[dict, list[dict], dict]:
-    """Download aggregate SatNet inputs from the upstream repository."""
-
-    base = UPSTREAM_RAW_BASE.format(ref=ref)
-    problems = json.loads(_download_text(f"{base}/problems.json"))
-    maintenance_rows = list(csv.DictReader(_download_text(f"{base}/maintenance.csv").splitlines()))
-    mission_color_map = json.loads(_download_text(f"{base}/mission_color_map.json"))
-    return problems, maintenance_rows, mission_color_map
+def load_bundled_inputs(ref: str) -> tuple[dict, list[dict], dict]:
+    """Read verified canonical inputs, keeping the historical upstream provenance."""
+    payload = _read_source_snapshot("satnet.json")
+    manifest = json.loads((SOURCE_SNAPSHOT_DIR / "manifest.json").read_text())
+    if ref != manifest["origin"]["ref"]:
+        raise ValueError("source.upstream_ref does not match the bundled SatNet snapshot")
+    data = json.loads(payload)
+    return data["problems"], data["maintenance"], data["mission_color_map"]
 
 
 def load_local_inputs(source_dir: Path) -> tuple[dict, list[dict], dict]:
@@ -265,7 +272,7 @@ def main() -> int:  # pragma: no cover - CLI wrapper
         )
     else:
         upstream_ref = config.get("source", {}).get("upstream_ref", "master")
-        problems, maintenance_rows, mission_color_map = load_upstream_inputs(upstream_ref)
+        problems, maintenance_rows, mission_color_map = load_bundled_inputs(upstream_ref)
         provenance = build_upstream_provenance(upstream_ref)
 
     build_case_dataset(

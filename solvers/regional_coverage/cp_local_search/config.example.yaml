@@ -1,7 +1,7 @@
 # Example configuration for the regional_coverage CP/local-search solver.
 #
 # Copy this file into a config directory as config.yaml, pass it directly to
-# solve.sh as the config path, or let experiments/main_solver provide its
+# solve.sh as the config path, or let the evaluation runner provide its
 # experiment-owned config directory.
 #
 # Recommended quick smoke envelope:
@@ -100,7 +100,7 @@
 # search_run_seeds: [0]
 #
 # These settings are bounded and mirror the public profiles under
-# experiments/main_solver.
+# the evaluation runner.
 
 # ---------------------------------------------------------------------------
 # Candidate generation

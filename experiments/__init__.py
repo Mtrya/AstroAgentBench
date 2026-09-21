@@ -1,1 +1,1 @@
-"""Experiment packages."""
+"""AstroAgentBench evaluation integrations."""

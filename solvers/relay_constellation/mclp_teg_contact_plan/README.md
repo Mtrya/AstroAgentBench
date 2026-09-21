@@ -13,7 +13,7 @@ It reads benchmark case files and writes `solution.json`, `status.json`, and sol
 
 ## Recommended configuration
 
-The canonical configuration is owned by `experiments/main_solver/solvers/relay_constellation_mclp_teg_contact_plan.yaml`. That experiment profile is the configuration used for reproduced-solver reporting.
+See config.example.yaml for the solver configuration and compute limits.
 
 Direct no-config runs use a small built-in smoke configuration for local contract checks only. Smoke output should not be reported as the solver's reproduction result.
 
@@ -52,17 +52,6 @@ The bounded per-sample scheduler MILP remains available for small cases, but the
 | Gerard full-horizon MILP | Bounded per-sample MILP with route-aware fallback |
 | Gerard route tables and forwarding | Not submitted; benchmark verifier owns routing and allocation |
 | Optical retargeting delay | Not modeled because the benchmark does not model pointing delay |
-
-## Reported evidence
-
-Current reported evidence uses the experiment-owned reproduction configuration and reports `case_0001` and `case_0002` performance. A final all-case canonical run can be rerun through `experiments/main_solver` when all solvers are ready.
-
-| case | valid | service_fraction | worst_demand_service_fraction | added satellites | actions | solve_s | verifier_s | candidates |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `test/case_0001` | true | 0.9259259259 | 0.5555555556 | 3 | 74 | 467.394 | 84.013 | 300 |
-| `test/case_0002` | true | 0.9523809524 | 0.6666666667 | 3 | 78 | 470.848 | 98.408 | 300 |
-
-For these runs, MCLP marginal evaluation is no longer the dominant cost; propagation over the 96-hour horizon dominates runtime.
 
 ## Configuration fields
 

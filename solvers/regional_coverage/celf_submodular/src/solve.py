@@ -121,7 +121,7 @@ def _reproduction_summary(
             "schedule_aware_selection": "when enabled, CELF accepts only candidates that keep the current fixed-candidate schedule solver-local feasible",
             "local_improvement": "when enabled, a bounded fixed-candidate insertion/swap pass may improve the solver-local objective before repair without creating new candidates",
             "schedule_repair": "same-satellite overlap, slew, action-cap, battery, and duty checks remain a deterministic safety net after fixed-set CELF selection",
-            "official_validation": "experiments/main_solver runs the benchmark verifier through CLI/file contracts",
+            "official_validation": "experiments/evaluate runs the benchmark verifier through CLI/file contracts",
         },
         "known_fidelity_limits": {
             "online_bound_scope": "the online bound certifies only the fixed benchmark-adapted candidate set used by CELF, not the continuous satellite scheduling problem",

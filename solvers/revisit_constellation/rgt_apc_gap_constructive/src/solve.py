@@ -49,7 +49,7 @@ def _paper_adaptation_notes() -> dict:
             "constructive": "Freshness/flexibility/opportunity-cost schedule before repair.",
             "repaired": "Final solver output after deterministic repair.",
         },
-        "official_verification_boundary": "The solver records local metrics only. Official validity and metrics are produced by experiments/main_solver through the benchmark verifier executable.",
+        "official_verification_boundary": "The solver records local metrics only. Official validity and metrics are produced by experiments/evaluate through the benchmark verifier executable.",
     }
 
 

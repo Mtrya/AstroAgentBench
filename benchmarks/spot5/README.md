@@ -311,6 +311,8 @@ The verifier checks:
 - **Verifier**: `benchmarks/spot5/verifier.py`
 - **Generator**: `uv run python benchmarks/spot5/generator.py benchmarks/spot5/splits.yaml`
 
+The bundled `sources/` directory contains one unchanged `.spot` input per distinct published instance, deduplicated across overlapping splits. Its manifest records original provenance and the SHA-256 hash of each file, checked before generation. Canonical generation needs no network access. Explicit `--source-dir` and `--zip-path` imports remain available for maintenance with separate provenance.
+
 ## License & Attribution
 
 **Data License**: CC BY 4.0 (Creative Commons Attribution 4.0 International)

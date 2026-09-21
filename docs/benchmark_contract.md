@@ -31,6 +31,7 @@ Optional:
 - `visualizer.py` or `visualizer/run.py`
 - `dataset/index.json`
 - `dataset/README.md`
+- `sources/` for compact, benchmark-owned generator input snapshots and provenance
 
 No other tracked top-level benchmark entries are allowed for finished benchmarks.
 
@@ -102,7 +103,8 @@ Finished benchmark generators must satisfy the following:
 - Running without the required YAML path must fail with usage information. Finished benchmarks do not keep a no-argument canonical generation path.
 - The committed `splits.yaml` is benchmark-owned public configuration, not a placeholder. It should expose the intended dataset-construction parameters clearly enough that readers do not need to reverse-engineer generator defaults from Python code.
 - Dataset-construction parameters belong in YAML. Purely operational controls such as `--help`, and benchmark-specific runtime toggles like force-refresh or force-download behavior when justified, may remain optional CLI flags.
-- If source downloads are needed, the generator may cache them under `dataset/source_data/`, but it must also be able to perform a live download when that cache is absent.
+- Canonical generation for finished benchmarks must use benchmark-owned input snapshots. It must work without network access or an existing `dataset/source_data/` cache. Keep normalized source snapshots and a `sources/manifest.json` with upstream provenance, normalization notes, and file SHA-256 hashes; verify those hashes before consuming the files. Existing pinned catalogs and lookup tables in generator packages remain valid source snapshots.
+- Runtime staging under `dataset/source_data/` stays untracked. Replacing a stale staging cache must restore the pinned inputs, not download a new upstream version. Explicit maintenance imports may use separate source directories or archives and must record their different provenance.
 
 Case specifications should be derived algorithmically from parameters (seed, scaling rules, sampling), not from hand-maintained lists of per-case tuples. Hardcoding curated lists such as `base_specs` or `BASE_SPECS` is discouraged; see `stereo_imaging` generator patterns (e.g. sampling driven by seed) for a reference approach.
 
@@ -189,8 +191,7 @@ GitHub Actions runs:
 
 - PR/push CI (`ci.yml`): tests plus contract validation
 - PR/push reproducibility (`benchmark-repro.yml`): generator reproducibility check for benchmarks with `"repro_ci": true`
-- Push i18n sync reminder (`i18n-sync.yml`): non-blocking check that opens a reminder issue when Chinese translations may need updating
-- Release dataset sync (`sync-datasets.yml`): uploads benchmark datasets to Hugging Face on release publication
+- Dataset staging/publication (`sync-datasets.yml`): manually dispatched; stages an artifact by default and uploads to Hugging Face only when `publish` is explicitly selected. Publishing a GitHub release does not trigger it. See [Benchmark Releases](releases.md).
 
 The reproducibility workflow compares only generator-owned dataset outputs from `generated_paths`, because finished benchmarks may also keep documented, hand-written dataset artifacts such as dataset-level notes.
 

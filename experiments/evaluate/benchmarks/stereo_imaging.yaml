@@ -1,0 +1,10 @@
+benchmark: stereo_imaging
+metrics:
+- name: coverage_ratio
+  path: metrics.coverage_ratio
+  direction: maximize
+  role: primary
+- name: normalized_quality
+  path: metrics.normalized_quality
+  direction: maximize
+  role: secondary

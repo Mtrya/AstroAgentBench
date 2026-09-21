@@ -1,10 +1,10 @@
-# AstroReason: Coding Agent Guide
+# AstroAgentBench: Coding Agent Guide
 
 This document guides coding agents working on this repository.
 
 ## Project Vision
 
-AstroReason is a monorepo for space mission design benchmarks, reproducible experiments, and first-party method layers.
+AstroAgentBench is a monorepo for space mission design benchmarks, evaluation of complete agent systems, and standalone solvers.
 
 ## Terminology
 
@@ -18,7 +18,7 @@ Do not mix these two meanings of "agent" in code or documentation.
 ## Repository Shape
 
 ```text
-astro-reason/
+AstroAgentBench/
 ├── benchmarks/   # canonical benchmark definitions and benchmark-side tooling
 ├── experiments/  # reproducible evaluated runs of methods against benchmarks
 ├── solvers/      # reusable traditional solver implementations
@@ -31,7 +31,7 @@ astro-reason/
 Directory roles:
 
 - `benchmarks/` owns public benchmark definitions, datasets, verifiers, generators, and optional visualizers.
-- `experiments/` owns flat runnable experiment families, runner-owned configs, and shared prompt/config fragments under `experiments/_fragments/`.
+- `experiments/` owns Harbor task preparation, CLI/file adapters, task briefs, and small runnable evaluation examples.
 - `solvers/` owns reusable non-agentic methods and solver-local tooling.
 - `runtimes/` owns reusable agent runtime environments, build logic, installation steps, and shared runtime assets.
 

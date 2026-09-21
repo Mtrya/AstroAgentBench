@@ -1,6 +1,6 @@
 # Example direct-run configuration for the relay_constellation UMCF/SRR
 # contact-plan solver. The canonical evaluated configuration is owned by:
-# experiments/main_solver/solvers/relay_constellation_umcf_srr_contact_plan.yaml
+# the solver-local config.example.yaml
 
 profile: reproduction
 

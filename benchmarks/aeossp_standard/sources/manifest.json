@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "origin": {
+    "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson",
+    "input_sha256": "9e0729ee253ca7d7a5c4ae9395fb1902264c5377c52e224d13dd85010e2835d9"
+  },
+  "normalization": "Preserve feature order and all geometry coordinates; remove unused feature properties and collection metadata.",
+  "files": {
+    "ne_110m_land.geojson": {
+      "sha256": "612c66faa26227dc73f03ba149e98bc8e491a7cb31edb02c7b3324e20d40cdfb",
+      "bytes": 125938
+    }
+  }
+}

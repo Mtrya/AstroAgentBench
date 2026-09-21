@@ -25,7 +25,7 @@ jobs:
           python-version: "3.13.11"
 
       - name: Sync environment
-        run: uv sync
+        run: uv sync --locked
 
       - name: Generate Brahe skill from upstream
         run: |
