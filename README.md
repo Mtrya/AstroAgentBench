@@ -2,7 +2,7 @@
 
 AstroAgentBench evaluates complete LLM agent systems on seven space mission planning tasks, alongside traditional solver baselines. Each system produces a solution artifact scored by the same standalone, benchmark-owned verifier.
 
-This branch, `aacl-ijcnlp-2026`, maintains the experimental baseline used for the May EMNLP submission and the subsequent AACL-IJCNLP paper. The evolving implementation is on [`main`](https://github.com/Mtrya/AstroAgentBench/tree/main). The original AstroReason-Bench implementation is preserved separately in [`v1`](https://github.com/Mtrya/AstroAgentBench/tree/v1).
+This branch, `aacl-ijcnlp-2026`, maintains the experimental baseline used for the May EMNLP submission and the subsequent AACL-IJCNLP paper. The evolving implementation is on [`main`](https://github.com/Mtrya/AstroAgentBench/tree/main). The original AstroReason-Bench implementation is preserved separately in [`acl-submission-2026`](https://github.com/Mtrya/AstroAgentBench/tree/acl-submission-2026).
 
 ## Task families
 
