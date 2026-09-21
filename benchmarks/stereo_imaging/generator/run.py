@@ -75,8 +75,8 @@ def _write_provenance(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Stereo imaging v4 generator: stage runtime sources (vendored CelesTrak-format TLEs "
-            "and world-cities snapshot), then emit the canonical dataset "
+            "Stereo imaging v4 generator: stage runtime sources (vendored CelesTrak-format TLEs; "
+            "pinned world-cities), then emit the canonical dataset "
             "(dataset/cases/<split>/, index.json)."
         )
     )
@@ -103,12 +103,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--sources-only",
         action="store_true",
-        help="Only stage and normalize runtime source data; skip canonical dataset emission.",
+        help="Only stage the pinned source data; skip canonical dataset emission.",
     )
     parser.add_argument(
         "--force-download",
         action="store_true",
-        help="Deprecated no-op; runtime sources are vendored snapshots",
+        help="Restage the pinned source snapshots; never download newer upstream data",
     )
     args = parser.parse_args(argv)
 

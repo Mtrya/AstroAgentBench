@@ -312,4 +312,4 @@ uv run python -m benchmarks.revisit_constellation.generator.run \
   benchmarks/revisit_constellation/splits.yaml
 ```
 
-The canonical world-cities input is the vendored snapshot `generator/world_cities_snapshot.csv`, normalized from version 8 of the `juanmah/world-cities` Kaggle dataset, so canonical rebuilds require no network access. The generator stages it under the dataset directory by default at `dataset/source_data/`. The committed dataset-construction parameters live in `benchmarks/revisit_constellation/splits.yaml`; `--download-dir` is an optional CLI override for the staging location, and `--force-download` is a deprecated no-op retained for CLI compatibility.
+Canonical generation uses the normalized world-city snapshot in `sources/world_cities.csv`, with all original rows and only the five consumed columns. `sources/manifest.json` records upstream provenance, normalization, and the SHA-256 hash verified before staging. No network access is needed. The `--download-dir` and `--force-download` controls restage the pinned data rather than downloading a newer Kaggle version; `splits.yaml` continues to define the case-construction parameters.

@@ -1,6 +1,6 @@
-import io
 import json
 import sys
+import subprocess
 import zipfile
 from pathlib import Path
 
@@ -11,8 +11,6 @@ from benchmarks.spot5.generator import (
     build_case_dataset,
     build_local_directory_provenance,
     collect_spot_files,
-    download_upstream_zip,
-    DOWNLOAD_USER_AGENT,
     extract_zip_tree,
 )
 
@@ -59,30 +57,20 @@ def test_build_case_dataset_from_local_source_dir(tmp_path):
     assert (output_dir / "cases" / "test" / "8" / "8.spot").read_text() == SMALL_SPOT
 
 
-def test_download_upstream_zip_uses_explicit_user_agent(monkeypatch, tmp_path):
-    captured = {}
-
-    class FakeResponse(io.BytesIO):
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc, tb):
-            return False
-
-    def fake_urlopen(request):
-        captured["full_url"] = request.full_url
-        captured["user_agent"] = request.get_header("User-agent")
-        return FakeResponse(b"PK\x03\x04fake-zip")
-
-    monkeypatch.setattr(generator_module, "urlopen", fake_urlopen)
-
-    destination = tmp_path / "spot5.zip"
-    result = download_upstream_zip(destination)
-
-    assert result == destination
-    assert destination.read_bytes() == b"PK\x03\x04fake-zip"
-    assert captured["full_url"] == generator_module.UPSTREAM_DATASET_URL
-    assert captured["user_agent"] == DOWNLOAD_USER_AGENT
+def test_default_cli_rebuilds_published_instances_from_local_snapshot(tmp_path):
+    benchmark_root = PROJECT_ROOT / "benchmarks" / "spot5"
+    output_dir = tmp_path / "dataset"
+    subprocess.run(
+        [sys.executable, str(benchmark_root / "generator.py"),
+         str(benchmark_root / "splits.yaml"), "--output-dir", str(output_dir)],
+        check=True,
+    )
+    expected_index = json.loads((benchmark_root / "dataset/index.json").read_text())
+    actual_index = json.loads((output_dir / "index.json").read_text())
+    assert actual_index == expected_index
+    for case in expected_index["cases"]:
+        relative = Path(case["path"]) / case["instance_file"]
+        assert (output_dir / relative).read_bytes() == (benchmark_root / "dataset" / relative).read_bytes()
 
 
 def test_extract_zip_tree_extracts_nested_zip_contents(tmp_path):

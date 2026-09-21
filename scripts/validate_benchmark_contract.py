@@ -25,7 +25,7 @@ ALLOWED_ROOT_FILES = {
     "visualizer.py",
     "splits.yaml",
 }
-ALLOWED_ROOT_DIRS = {"dataset", "generator", "verifier", "visualizer"}
+ALLOWED_ROOT_DIRS = {"dataset", "generator", "verifier", "visualizer", "sources"}
 BANNED_CODE_SNIPPETS = {
     "sys.path.insert": "contains a sys.path hack",
     "from benchmarks.": "imports through the benchmarks package path",

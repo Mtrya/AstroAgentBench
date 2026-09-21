@@ -758,12 +758,7 @@ def test_build_task_entries_uses_adaptive_retry_budget(monkeypatch) -> None:
     assert sample_round["count"] == 13
 
 
-def test_get_celestrak_uses_vendored_snapshot(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(
-        sources.urllib.request,
-        "urlopen",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network should not be used")),
-    )
+def test_get_celestrak_uses_vendored_snapshot(tmp_path) -> None:
     legacy_raw_path = tmp_path / "celestrak" / "earth_resources_raw.tle"
     legacy_raw_path.parent.mkdir(parents=True, exist_ok=True)
     legacy_raw_path.write_text("legacy", encoding="utf-8")
@@ -781,12 +776,7 @@ def test_get_celestrak_uses_vendored_snapshot(tmp_path, monkeypatch) -> None:
     )
 
 
-def test_get_celestrak_uses_2022_vendored_snapshot(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(
-        sources.urllib.request,
-        "urlopen",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network should not be used")),
-    )
+def test_get_celestrak_uses_2022_vendored_snapshot(tmp_path) -> None:
 
     result = sources.get_celestrak(
         tmp_path,
@@ -800,13 +790,7 @@ def test_get_celestrak_uses_2022_vendored_snapshot(tmp_path, monkeypatch) -> Non
     assert csv_path.is_file()
 
 
-def test_download_world_cities_uses_vendored_snapshot(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr(
-        sources.urllib.request,
-        "urlopen",
-        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("network should not be used")),
-    )
-
+def test_download_world_cities_uses_vendored_snapshot(tmp_path) -> None:
     result = sources.download_world_cities(tmp_path, force_download=True)
     csv_path = tmp_path / "world_cities" / WORLD_CITIES_FILENAME
 

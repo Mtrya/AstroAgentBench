@@ -24,7 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--download-dir",
         type=Path,
-        help="Where downloaded/normalized source data should be stored; defaults to <output-dir>/source_data",
+        help="Where pinned source data should be staged; defaults to <output-dir>/source_data",
     )
     parser.add_argument(
         "--output-dir",
@@ -35,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--force-download",
         action="store_true",
-        help="Re-download source data even when normalized cached files already exist",
+        help="Restage the pinned source snapshots; never download newer upstream data",
     )
     parser.add_argument(
         "--jobs",
