@@ -221,6 +221,8 @@ def setup_sandbox(week: int, year: int, output_dir: Path, include_related_works:
         shutil.rmtree(sandbox_dir)
 
     shutil.copytree(SANDBOX_TEMPLATE, sandbox_dir, symlinks=True)
+    (sandbox_dir / ".local").symlink_to(Path.home() / ".local", target_is_directory=True)
+    (sandbox_dir / ".claude").mkdir(exist_ok=True)
 
     # Fix data symlink to be absolute, as relative links break when copied
     data_link = sandbox_dir / "data"

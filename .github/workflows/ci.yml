@@ -1,0 +1,32 @@
+name: Snapshot CI
+
+on:
+  pull_request:
+    branches: [acl-submission-2026]
+  push:
+    branches: [acl-submission-2026]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.23"
+      - uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+      - name: Install locked environment
+        run: uv sync --locked --all-groups
+      - name: Build sandboxes and run local checks
+        run: bash scripts/check_snapshot.sh
+      - name: Verify dependency inputs are unchanged
+        run: git diff --exit-code -- uv.lock pyproject.toml .gitmodules satnet

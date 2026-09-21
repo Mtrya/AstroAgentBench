@@ -206,6 +206,8 @@ def setup_sandbox(benchmark: str, case_id: str, output_dir: Path) -> Path:
         shutil.rmtree(sandbox_dir)
     
     shutil.copytree(SANDBOX_TEMPLATE, sandbox_dir, symlinks=True)
+    (sandbox_dir / ".local").symlink_to(Path.home() / ".local", target_is_directory=True)
+    (sandbox_dir / ".claude").mkdir(exist_ok=True)
     
     # Fix data symlink to point to case directory
     benchmark_slug = benchmark.replace("-", "_")

@@ -17,8 +17,8 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LIB_DIR="$SCRIPT_DIR/sandbox_template/lib"
 WORKSPACE_DIR="$SCRIPT_DIR/sandbox_template/workspace"
 
-# Use system Python (whichever version claude will use)
-PYTHON=${PYTHON:-python3}
+# Use the same interpreter as the locked project environment.
+PYTHON=${PYTHON:-"$PROJECT_ROOT/.venv/bin/python3"}
 
 echo "Building sandbox environment..."
 echo "Using Python: $PYTHON ($($PYTHON --version))"
@@ -30,8 +30,11 @@ echo "Installing MCP dependencies to lib/..."
 rm -rf "$LIB_DIR"
 mkdir -p "$LIB_DIR"
 
-# Install MCP and dependencies
-uv pip install --python "$PYTHON" --target="$LIB_DIR" --quiet "mcp>=1.19.0" pydantic pyyaml requests
+# Install the locked project runtime (without optional SatNet training groups)
+REQUIREMENTS=$(mktemp)
+trap 'rm -f "$REQUIREMENTS"' EXIT
+uv export --project "$PROJECT_ROOT" --locked --no-default-groups --no-emit-project --format requirements.txt --output-file "$REQUIREMENTS" --quiet
+uv pip sync --python "$PYTHON" --target="$LIB_DIR" --require-hashes --quiet "$REQUIREMENTS"
 
 # Clean and copy engine to workspace
 echo "Copying engine/ source to workspace/..."
@@ -65,31 +68,5 @@ PYTHONPATH="../lib" "$PYTHON" -c "from mcp.server.fastmcp import FastMCP; print(
 echo ""
 echo "Sandbox built successfully!"
 echo ""
-echo "=== Testing Instructions ==="
-echo ""
-echo "1. LOCAL TESTING (cd to workspace and run claude):"
-echo "   cd $WORKSPACE_DIR"
-echo "   export CASE_PATH=\"$PROJECT_ROOT/tests/fixtures/case_0001\""
-echo "   export HOME=\"\$(dirname \$(pwd))\""
-echo "   claude"
-echo ""
-echo "2. INTERACTIVE TESTING (using run_benchmark.py):"
-echo "   First, ensure test fixtures exist:"
-echo "   python src/benchmark/generate_benchmark_cases.py \\"
-echo "     --output-root src/benchmark/data/benchmark_cases \\"
-echo "     --num-cases 1 \\"
-echo "     --benchmarks revisit-optimization"
-echo ""
-echo "   Then run interactively:"
-echo "   python src/benchmark/run_benchmark.py \\"
-echo "     --benchmark revisit-optimization \\"
-echo "     --case case_0001 \\"
-echo "     --interactive"
-echo ""
-echo "3. AUTOMATED TESTING IN /tmp:"
-echo "   python src/benchmark/run_benchmark.py \\"
-echo "     --benchmark revisit-optimization \\"
-echo "     --case case_0001 \\"
-echo "     --model claude-sonnet-4 \\"
-echo "     --output-dir /tmp/astrox_test"
-echo ""
+echo "Run from the repository root with the project environment activated:"
+echo "  python src/benchmark/run_benchmark.py --help"

@@ -13,11 +13,12 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LIB_DIR="$SCRIPT_DIR/sandbox_template/lib"
 WORKSPACE_DIR="$SCRIPT_DIR/sandbox_template/workspace"
 
-# Use system Python (whichever version claude will use)
-PYTHON=${PYTHON:-python3}
+# Use the same interpreter as the locked project environment.
+PYTHON=${PYTHON:-"$PROJECT_ROOT/.venv/bin/python3"}
 
 echo "Building sandbox environment..."
 echo "Using Python: $PYTHON ($($PYTHON --version))"
@@ -28,8 +29,11 @@ echo "Installing MCP library to lib/..."
 rm -rf "$LIB_DIR"
 mkdir -p "$LIB_DIR"
 
-# Install ONLY MCP and dependencies (not satnet_agent)
-uv pip install --python "$PYTHON" --target="$LIB_DIR" --quiet "mcp>=1.19.0"
+# Install the locked project runtime (without optional SatNet training groups)
+REQUIREMENTS=$(mktemp)
+trap 'rm -f "$REQUIREMENTS"' EXIT
+uv export --project "$PROJECT_ROOT" --locked --no-default-groups --no-emit-project --format requirements.txt --output-file "$REQUIREMENTS" --quiet
+uv pip sync --python "$PYTHON" --target="$LIB_DIR" --require-hashes --quiet "$REQUIREMENTS"
 
 # Clean and copy satnet_agent to workspace
 echo "Installing satnet_agent source to workspace/..."
@@ -66,7 +70,5 @@ PYTHONPATH="../lib" "$PYTHON" -c "from mcp.server.fastmcp import FastMCP; print(
 echo ""
 echo "Sandbox built successfully!"
 echo ""
-echo "To test locally:"
-echo "  source .venv/bin/activate"
-echo "  cd $WORKSPACE_DIR"
-echo "  HOME=\$(dirname \$(pwd)) claude"
+echo "Run from the repository root with the project environment activated:"
+echo "  python src/satnet_agent/run_benchmark.py --help"
