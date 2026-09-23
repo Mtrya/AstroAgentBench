@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{enumitem}
+
+\setlist[itemize]{leftmargin=*, itemsep=0.25em, topsep=0.35em}
+
+\title{Explanations of Revisions}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+This document summarizes the changes made since the previous ARR submission. The revision is a substantial rewrite. It keeps the same core contribution, AstroReason-Bench, but reorganizes the paper (and the benchmark repo) around the previous reviews' main concerns: task formalization, baseline strength, ACL relevance, contamination risk, and readability for a general LLM-agent audience.
+
+\section*{Overview of Major Changes}
+
+The revision changes five parts of the submission. First, the benchmark is now defined as executable space mission planning for LLM agent systems: an agent receives a workspace containing a task brief, case files and libraries, then writes codes and iterates to submit a planning artifact for external verification. Second, the evaluated setting has changed from predefined MCP-style task tools to a coding-agent-style workspace in which agents inspect files, use available libraries, write code or artifacts, and submit outputs for checking. Third, the benchmark and evaluation are rebuilt around seven task families, 116 generated or normalized cases, 35 held-out test cases, validity-first checking, and mission-value scores. Fourth, the experiments now compare agent systems with task-specific specialized solver references, under a shared scoring convention. Fifth, the analysis now includes trace evidence, verifier-use statistics, prompt/workspace ablations, and a temporal-robustness check, while detailed physical models, task contracts, and domain-specific equations are moved to the appendices.
+
+\section*{Detailed Changes Since the Previous Submission}
+
+\paragraph{Planning formalism.}
+The revised paper defines the agentic task through the containerized workspace and the submitted artifact. An agent receives a workspace containing a task brief, case files and libraries; during solving, it reads files, writes code or planning artifacts, executes local commands, inspect outputs, and revise its solution. The final submitted artifact is then checked by an external verifier.
+
+\paragraph{Baseline discrepancy.}
+Section 4 now compares agent systems with task-specific specialized solver references and reports all rows on the same scoring rules. Appendix D describes the solver inventory, including implemented references for five families, SatNet references from the prior benchmark, and SPOT-5 archived challenge references. The conclusion reports both sides of the comparison: stronger systems can approach or exceed solver-reference quality on several families, while weaker systems and harden families still show brittle validity or low mission value.
+
+\paragraph{Language, prompt, and instruction interpretation.}
+The revised paper analyzes the prompt and workspace materials used by the evaluated agents: task briefs, local instructions, verifier availability, injected procedures, memory notes, and final-artifact requirements. This analysis is tied to the new coding-agent-style setting rather than the earlier predefined-tool interface. Section 5 studies how these materials affect task formulation, implementation calibration, and solution construction. Table 4 reports verifier-use statistics, Figure 3 reports prompt/workspace ablations, and Appendix I gives additional trace studies.
+
+\paragraph{Contamination and temporal robustness.}
+Appendix H adds a temporal-robustness check for AEOSSP. The check compares the default held-out split with a shifted orbital epoch while keeping the task family and scoring rule fixed. The agent and the solver-reference rows preserve their relative behaviour under the shifted horizon. This check tests whether the benchmark is robust to temporal contamination.
+
+\paragraph{Readability for NLP and LLM-agent reviewers.}
+The revised paper separates main-text explanation from technical detail. The main body now uses Table 1 and 2 to summarize input scale and evaluation layers, while physical equations, hard constraints, and metric definitions are moved to the appendices. The introduction and related work have also been rewritten around LLM agents, agent benchmarks, and emerging LLM-for-space systems.
+
+\paragraph{Scope and terminology.}
+The previous version used terminology that could be read as spatial reasoning or astrophysics broadly. The revised paper consistently uses ``space mission planning'' and describes the task families as scheduling, observation planning, constellation design, and relay support. The benchmark is no longer presented as an AstroAgent system paper or as a custom environment architecture; it is presented as an evaluation suite for LLM agent systems under physically grounded, verifiable mission-planning contracts.
+
+\paragraph{Presentation and minor corrections.}
+The paper has been reformatted and rewritten throughout. The previous task tables, interface-architecture section, and lengthy in-line equations have been replaced with a shorter main-body narrative and appendices. Formatting concerns from the previous reviews, such as table presentation and dense constraint notation in the main text, have been addressed as part of the rewrite.
+
+\paragraph{Evaluated model lineup.}
+The previous submission evaluated six systems built around mid-2025 models (Claude Sonnet 4.5, Gemini 3 Flash, DeepSeek V3.2, Qwen3 Coder, DeepSeek V3.1 Nex N1, Kat Coder Pro), which mixed flash-tier and frontier-tier capabilities. The revision replaces these with five current frontier-tier agent systems (Claude Code + Claude Opus 4.6, Codex CLI + GPT-5.4, Kimi CLI + Kimi K2.6, OpenCode + MiniMax M2.7, OpenCode + DeepSeek V4 Pro). This change reflects three goals: evaluating cutting-edge frontier agent systems rather than older or flash-level ones, adopting the system-level attribution frame where the harness and model are named together, and keeping the evaluation current with the state of the art at submission time.
+
+\paragraph{Benchmark-family evolution.}
+The previous submission contained five benchmarks. The revision contains seven task families. SatNet is unchanged. SPOT-5 is added as a second legacy benchmark alongside SatNet. AEOSSP is added as a standard agile Earth-observation scheduling formulation, mirroring AEOS-Bench and EOS-Bench in the literature. Regional Coverage and Stereo Imaging are carried forward but refactored with more realistic physical modeling, tighter constraints, and increased scale. The remaining two benchmarks are renamed to Revisit Constellation and Relay Constellation: they now include constellation-design variables in addition to operational scheduling, which stress-tests agents' ability to co-optimize architecture and operations rather than scheduling alone.
+
+\end{document}
