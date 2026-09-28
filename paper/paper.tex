@@ -1,6 +1,6 @@
 \documentclass[11pt]{article}
 
-\usepackage[review]{acl}
+\usepackage[final]{acl}
 
 \usepackage{times}
 \usepackage{latexsym}
@@ -50,57 +50,80 @@
 \setlength{\@dblfpbot}{0pt plus 1fil}
 \makeatother
 
+\hypersetup{
+  pdftitle={AstroAgentBench: Evaluating Agentic Planning on Space Mission Planning Tasks},
+  pdfauthor={Weiyi Wang, Xinchi Chen, Jingjing Gong, Xuanjing Huang, Xipeng Qiu}
+}
+
 \title{AstroAgentBench: Evaluating Agentic Planning on Space Mission Planning Tasks}
 
-\author{Anonymous EMNLP submission}
+\author{
+  \textbf{Weiyi Wang\textsuperscript{1,3}},
+  \textbf{Xinchi Chen\textsuperscript{1,3}},
+  \textbf{Jingjing Gong\textsuperscript{2,3}},
+  \textbf{Xuanjing Huang\textsuperscript{1}},
+  \textbf{Xipeng Qiu\textsuperscript{1,2,3}}
+\\
+\\
+  \textsuperscript{1}Fudan University, Shanghai, China \quad
+  \textsuperscript{2}Shanghai Innovation Institute, China
+\\
+  \textsuperscript{3}OpenMOSS Team
+\\
+  \small{
+    \textbf{Correspondence:} \href{mailto:xc_chen@fudan.edu.cn}{\texttt{\{xc\_chen,xpqiu\}@fudan.edu.cn}}
+  }
+}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-Recent LLM-for-Space systems address mission planning, scheduling, operations support, simulator control, and autonomy, but their evaluations use different task contracts, control settings, simulators, and success criteria. We introduce AstroAgentBench, a seven-family benchmark for executable space mission planning in the domains of scheduling, observation planning, constellation design, and relay support. For each case, an agent submits a planning artifact that is checked by an external verifier for schema, timing, geometry, resources, and mission value. Results report both validity and normalized quality against task-specific solver references. Across five LLM agent systems and 35 held-out cases, the strongest systems approach or exceed solver-reference quality on several families, while weaker systems often fail to produce high-value valid plans and even strong systems lose quality on geometric, product-level, or design-heavy tasks. Trace analyses separate two failure points: task-contract misformulation and weak solution construction. Successful runs instead calibrate agent-written implementations against verifier feedback and adapt search to case-specific structure. Ablations show that procedure injection and memory accumulation help selectively, when they supply the missing formulation, calibration, or search support.
+Recent LLM-for-Space systems address mission planning, scheduling, operations support, simulator control, and autonomy, but their evaluations use different task contracts, control settings, simulators, and success criteria. We introduce AstroAgentBench, a seven-family benchmark for executable space mission planning in the domains of scheduling, observation planning, constellation design, and relay support. For each case, an agent submits a planning artifact that is checked by an external verifier for schema, timing, geometry, resources, and mission value. Results report validity and normalized scores, with comparisons to task-specific solver references. Across five LLM agent systems and 35 held-out cases, the strongest systems approach or exceed solver-reference scores on several families, while weaker systems often fail to produce high-value valid plans and even strong systems lose quality on geometric, product-level, or design-heavy tasks. Trace analyses separate two failure points: task-contract misformulation and weak solution construction. Successful runs instead calibrate agent-written implementations against verifier feedback and adapt search to case-specific structure. Ablations show that procedure injection and memory accumulation help selectively, when they supply the missing formulation, calibration, or search support.
 \end{abstract}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/chapter1_overview_v10.png}
+\includegraphics[width=\textwidth]{figures/chapter1_overview_v10.pdf}
 \caption{Overview of AstroAgentBench. A case package and mission brief define the agent workspace; the agent constructs an executable planning artifact; an independent verifier checks feasibility and scores mission value.}
 \label{fig:overview}
 \end{figure*}
 
 \section{Introduction}
 
-Space mission planning is both consequential and difficult. It turns mission goals into executable decisions over spacecraft, ground assets, communication links, energy, data, and time. These decisions are coupled over long horizons and constrained by physical state, operational priorities, and limited resources. A plan that sounds plausible can still fail because it violates visibility, timing, or resource constraints. This difficulty is reflected in decades of work on AI planning, operations research, spacecraft autonomy, and satellite scheduling, which have produced specialised models and solvers for particular mission settings \citep{johnston2006automating,lemaitrea2002selecting,he2018improved,lee2024satellite}. Recent LLM-for-Space work extends the same ambition toward more flexible planning and operations support, including formation mission planning, satellite scheduling, simulated operations assistance, and orbital autonomy \citep{zhang2025large,chen2025large,campanelli_2025_llm_satellite_ops,mousist_2025_astrea}. These efforts remain fragmented across task formulations, simulators, and success criteria. General agentic planning under executable, physically grounded mission constraints remains an open evaluation problem.
+Space mission planning is both consequential and difficult. It turns mission goals into executable decisions over spacecraft, ground assets, communication links, energy, data, and time. These decisions are coupled over long horizons and constrained by physical state, operational priorities, and limited resources. A plan that sounds plausible can still fail because it violates visibility, timing, or resource constraints. This difficulty is reflected in decades of work on AI planning, operations research, spacecraft autonomy, and satellite scheduling, which have produced specialized models and solvers for particular mission settings \citep{johnston2006automating,lemaitrea2002selecting,he2018improved,lee2024satellite}. Recent LLM-for-Space work extends the same ambition toward more flexible planning and operations support, including formation mission planning, satellite scheduling, simulated operations assistance, and orbital autonomy \citep{zhang2025large,chen2025large,campanelli_2025_llm_satellite_ops,mousist_2025_astrea}. These efforts remain fragmented across task formulations, simulators, and success criteria. General agentic planning under executable, physically grounded mission constraints remains an open evaluation problem.
 
-Modern LLM agents have moved beyond single-turn answer generation toward systems that reason, act, and revise through interaction. Reasoning-and-acting frameworks interleave deliberation with tool use. Embodied and web agents extend this loop to persistent environments. Software agents expose repositories, command execution, and executable code as the action surface \citep{yao2022react,wangvoyager,zhouwebarena,yang2024sweagent,wang2024codeact,wang2024openhands}. Space mission planning has a similar executable surface: handoff documents, machine-readable cases, computational libraries, schedules, and checkers. This lets us ask whether an agent can assemble a working planning procedure, execute it, and revise it from feedback for heterogeneous space mission planning tasks.
+Modern LLM agents have moved beyond single-turn answer generation toward systems that reason, act, and revise through interaction. Reasoning-and-acting frameworks interleave deliberation with tool use. Embodied and web agents extend this loop to persistent environments. Software agents expose repositories, command execution, and executable code as the action surface \citep{yao2022react,wangvoyager,zhouwebarena,yang2024sweagent,wang2024codeact,wang2024openhands}. Space mission planning has a similar executable surface: handoff documents, machine-readable cases, computational libraries, schedules, and checkers. This lets us ask whether an agent can translate natural-language mission goals and technical documentation into an executable planning procedure, and revise it using feedback.
 
-We ask three questions about LLM agents in executable space mission planning. First, can they produce plans that pass external feasibility checks rather than merely describe plausible strategies? Second, when a submission is valid, how close is its quality to that of specialised solver references? Third, which system conditions explain variation in validity and solver-relative quality, including verifier use, domain guidance, and accumulated experience? The distinction matters because validity alone is too weak. A plan can satisfy a schema and still observe no valuable targets, serve no demand, or cover little area. A benchmark for this setting must therefore evaluate both feasibility and graded mission value.
+We ask three questions about LLM agents in executable space mission planning. First, can they produce plans that pass external feasibility checks rather than merely describe plausible strategies? Second, when a submission is valid, how close is its quality to that of specialized solver references? Third, which system conditions explain variation in validity and scores, including verifier use, domain guidance, and accumulated experience? The distinction matters because validity alone is too weak. A plan can satisfy a schema and still observe no valuable targets, serve no demand, or cover little area. A benchmark for this setting must therefore evaluate both feasibility and graded mission value.
 
-We introduce \textbf{AstroAgentBench}, a verifier-backed suite covering seven executable space mission-planning task families across scheduling, observation planning, constellation design, and relay support. Each case provides mission files, documentation, libraries, a solution schema, and a verifier. The agent must construct a planning procedure rather than call a pre-built domain planner. By combining heterogeneous task families, external feasibility checks, graded mission value, and system-level attribution, the benchmark tests agent construction of executable plans under physical constraints.
+We introduce \textbf{AstroAgentBench},\footnote{Cases, generators, verifiers, solver references, experiment code, and run traces are publicly available at \url{https://github.com/Mtrya/AstroAgentBench}.} a verifier-backed suite covering seven executable space mission-planning task families across scheduling, observation planning, constellation design, and relay support. Each case provides mission files, documentation, libraries, a solution schema, and a verifier (Figure~\ref{fig:overview}). The agent must construct a planning procedure rather than call a pre-built domain planner. By combining heterogeneous task families, external feasibility checks, graded mission value, and system-level attribution, the benchmark tests agent construction of executable plans under physical constraints.
 
-We evaluate five LLM agent systems on AstroAgentBench and compare their outputs with per-family solver references. The main pattern is uneven capability: stronger systems often produce verifier-valid plans and sometimes approach solver-reference quality, but their success is task- and system-dependent, while weaker systems often fail before producing valid executable artifacts. The same invalid or low-value outcome can arise from different parts of the run, from task interpretation to plan construction and final submission.
+We evaluate five LLM agent systems on AstroAgentBench and compare their outputs with per-family solver references. The main pattern is uneven capability: stronger systems often produce verifier-valid plans and sometimes approach solver-reference scores, but their success is task- and system-dependent, while weaker systems often fail before producing valid executable artifacts. The same invalid or low-value outcome can arise from different parts of the run, from task interpretation to plan construction and final submission.
 
 We further study two forms of workspace support for solution construction. Procedure injection tests whether compact domain guidance supplies useful abstractions or brittle templates. Memory accumulation tests whether prior run experience transfers across families. AstroAgentBench therefore treats grounded planning as an agent-system property rather than a model-only property.
 
-The paper makes three contributions. First, it introduces a seven-family verifier-backed benchmark for executable space mission planning, with schemas, instances, verifiers, and solver-reference comparisons. Second, it provides an empirical evaluation of contemporary LLM agent systems on this benchmark, measuring both feasibility and solver-relative quality. Third, it analyses how trace-level failure modes, verifier use, procedure injection, and memory accumulation shape performance. AstroAgentBench gives emerging LLM-for-Space work a controlled evaluation setting grounded in physical and astrodynamic checks of feasibility and mission value.
+The paper makes three contributions. First, it introduces a seven-family verifier-backed benchmark for executable space mission planning, with schemas, instances, verifiers, and solver-reference comparisons. Second, it provides an empirical evaluation of contemporary LLM agent systems on this benchmark, measuring feasibility and comparing normalized scores with task-specific solver references. Third, it analyzes how trace-level failure modes, verifier use, procedure injection, and memory accumulation shape performance. AstroAgentBench gives emerging LLM-for-Space work a controlled evaluation setting grounded in physical and astrodynamic checks of feasibility and mission value.
 
 
 \section{Related Work}
 
 \subsection{LLM-Based Agents}
 
-LLM agents extend language models into tool-using control loops. Reasoning-and-acting methods interleave natural-language deliberation with external actions, while embodied and web agents add persistent state, environment feedback, and multi-step interaction \citep{yao2022react,wangvoyager,zhouwebarena}. Scientific agents apply this pattern in file- and code-mediated settings: they inspect prompts and task materials, call tools, write programs, execute commands, and revise artifacts from feedback \citep{scicode_2024,scienceagentbench_2025}.
+% LLM agents extend language models into tool-using control loops. Reasoning-and-acting methods interleave natural-language deliberation with external actions, while embodied and web agents add persistent state, environment feedback, and multi-step interaction \citep{yao2022react,wangvoyager,zhouwebarena}. Scientific agents apply this pattern in file- and code-mediated settings: they inspect prompts and task materials, call tools, write programs, execute commands, and revise artifacts from feedback \citep{scicode_2024,scienceagentbench_2025}.
 
-Coding agents instantiate this loop around software artifacts. SWE-agent equips models with an agent-computer interface for repository navigation, editing, bash execution, and test-based repair, while CodeAct studies executable code as a unified action space for tool-using agents \citep{yang2024sweagent,wang2024codeact}. OpenHands builds a generalist software-agent platform, and AutoCodeRover combines LLM reasoning with fault localisation and program-structure search for autonomous program improvement \citep{wang2024openhands,zhang2024autocoderover}. SWE-bench supplies the benchmark setting for much of this work: agents receive real GitHub issues, inspect repository snapshots, modify code, and are judged by regression tests \citep{jimenezswe}.
+% Coding agents instantiate this loop around software artifacts. SWE-agent equips models with an agent-computer interface for repository navigation, editing, bash execution, and test-based repair, while CodeAct studies executable code as a unified action space for tool-using agents \citep{yang2024sweagent,wang2024codeact}. OpenHands builds a generalist software-agent platform, and AutoCodeRover combines LLM reasoning with fault localization and program-structure search for autonomous program improvement \citep{wang2024openhands,zhang2024autocoderover}. SWE-bench supplies the benchmark setting for much of this work: agents receive real GitHub issues, inspect repository snapshots, modify code, and are judged by regression tests \citep{jimenezswe}.
+
+LLM-based agents combine language-model reasoning with tool use and environment interaction \citep{yao2022react,wangvoyager}. Coding agents extend this approach to repository navigation, code editing, and execution, with systems such as SWE-agent, CodeAct, OpenHands, and AutoCodeRover providing different interfaces and scaffolds for these activities \citep{yang2024sweagent,wang2024codeact,wang2024openhands,zhang2024autocoderover}.
 
 \subsection{Space Mission Planning and LLM-for-Space Work}
 
-Classical space mission planning is organised around specialised optimisation problems. Deep Space Network allocation, agile satellite observation scheduling, stereo imaging, area coverage, constellation design, and satellite-network routing each define their own states, decision variables, physical constraints, and objective functions \citep{johnston2006automating,goh2021satnet,lemaitrea2002selecting,he2018improved,zezhong2023multiple,lee2024satellite,lyu2024dynamic}. This literature supplies mature solvers for individual mission-planning families, where candidate plans are meaningful only through domain-specific feasibility and value criteria.
+Classical space mission planning is organized around specialized optimization problems. Deep Space Network allocation, agile satellite observation scheduling, stereo imaging, area coverage, constellation design, and satellite-network routing each define their own states, decision variables, physical constraints, and objective functions \citep{johnston2006automating,goh2022satnet,lemaitrea2002selecting,he2018improved,zezhong2023multiple,lee2024satellite,lyu2024dynamic}. This literature supplies mature solvers for individual mission-planning families, where candidate plans are meaningful only through domain-specific feasibility and value criteria.
 
-LLM-for-Space work brings language-model systems into planning, scheduling, operations, and control workflows. Formation mission-planning work uses LLMs to decompose and organise spacecraft coordination tasks, while Earth-observation scheduling work uses multi-agent LLM systems or LLM-assisted search to design scheduling algorithms \citep{zhang2025large,chen2025large,evalns_2026_llm_satellite_scheduling}. Satellite-operations work uses LLM agents for telemetry monitoring, procedure retrieval, anomaly explanation, and human-confirmed command execution in simulated or operational settings \citep{campanelli_2025_llm_satellite_ops,esa_2024_a2i_roadmap}. Spacecraft-operation studies use LLMs or vision-language models as controllers in rendezvous and simulator environments, and on-orbit autonomy work explores LLM supervision of control policies under spacecraft resource constraints \citep{carrasco_2025_llm_autonomous_spacecraft,mousist_2025_astrea}. These studies span the mission lifecycle, but use different task scopes and control settings.
+LLM-for-Space work brings language-model systems into planning, scheduling, operations, and control workflows. Formation mission-planning work uses LLMs to decompose and organize spacecraft coordination tasks, while Earth-observation scheduling work uses multi-agent LLM systems or LLM-assisted search to design scheduling algorithms \citep{zhang2025large,chen2025large,evalns_2026_llm_satellite_scheduling}. Satellite-operations work uses LLM agents for telemetry monitoring, procedure retrieval, anomaly explanation, and human-confirmed command execution in simulated or operational settings \citep{campanelli_2025_llm_satellite_ops,esa_2024_a2i_roadmap}. Spacecraft-operation studies use LLMs or vision-language models as controllers in rendezvous and simulator environments, and on-orbit autonomy work explores LLM supervision of control policies under spacecraft resource constraints \citep{carrasco2025large,mousist_2025_astrea}. These studies span the mission lifecycle, but use different task scopes and control settings.
 
 \subsection{Agent Benchmarks}
 
-Agent benchmarks have expanded from symbolic planning tasks to interactive and code-grounded environments. PlanBench, planning-ability studies, and temporal-constraint benchmarks focus on action structure, state change, and goal satisfaction, while TravelPlanner studies itinerary construction under realistic travel constraints \citep{valmeekam2023planning,valmeekam2023planbench,ding2025tcp,xie2024travelplanner}. WebArena places agents in stateful digital environments where success depends on navigation, tool use, and recovery from partial observations \citep{zhouwebarena}. SWE-bench, SciCode, ScienceAgentBench, and BLADE require repository edits, executable programs, or scientific analyses that are checked by tests and programmatic metrics \citep{jimenezswe,scicode_2024,scienceagentbench_2025,blade_2024}. These benchmarks make agent evaluation interactive and externally checked through web-state success, software tests, scientific code tests, or analysis metrics. What remains uncommon is physically grounded planning whose submitted artifact is verifiable against a domain model.
+Agent benchmarks have expanded from symbolic planning tasks to interactive and code-grounded environments. PlanBench, planning-ability studies, and temporal-constraint benchmarks focus on action structure, state change, and goal satisfaction, while TravelPlanner studies itinerary construction under realistic travel constraints \citep{valmeekam2023planning,valmeekam2023planbench,ding2025tcp,xie2024travelplanner}. WebArena places agents in stateful digital environments where success depends on navigation, tool use, and recovery from partial observations \citep{zhouwebarena}. SWE-bench, SciCode, ScienceAgentBench, and BLADE require repository edits, executable programs, or scientific analyses that are checked by tests and programmatic metrics \citep{jimenezswe,scicode_2024,scienceagentbench_2025,gu2024blade}. These benchmarks make agent evaluation interactive and externally checked through web-state success, software tests, scientific code tests, or analysis metrics. What remains uncommon is physically grounded planning whose submitted artifact is verifiable against a domain model.
 
 \section{AstroAgentBench}
 \label{sec:benchmark}
@@ -159,7 +182,7 @@ Resources & The plan respects concurrency limits, stateful consumables, and capa
 \hline
 \multicolumn{2}{c}{\cellcolor{gray!18}\textit{Performance}} \\
 Native value & Family metrics are computed for valid artifacts, such as service, coverage, product quality, revisit gap, latency, or unmet demand. \\
-Normalized quality & Native values are mapped to a higher-is-better cross-family scale; missing or invalid submissions receive zero. \\
+Normalized score & Native values are mapped to a higher-is-better cross-family scale; missing or invalid submissions receive zero. \\
 \hline
 \end{tabular}
 \caption{Evaluation layers in AstroAgentBench. Validity is checked before mission value is interpreted.}
@@ -171,7 +194,7 @@ Normalized quality & Native values are mapped to a higher-is-better cross-family
 
 AstroAgentBench uses two construction routes. Five families are generated as new mission-planning cases, while SatNet and SPOT-5 are normalized from existing planning benchmarks. The generated route builds mission settings; the legacy route brings established instances into the same agent-facing setting.
 
-Generated cases begin from grounded source material. Earth-observation, stereo-imaging, and regional-coverage cases sample satellites from fixed CelesTrak TLE snapshots, so orbital motion comes from real catalogued objects. Ground targets, city targets, regions, and relay endpoints are drawn from public city, site, or region libraries with global coverage. Missing sensor, agility, power, and link parameters are assigned from representative ranges.
+Generated cases begin from grounded source material. Earth-observation, stereo-imaging, and regional-coverage cases sample satellites from fixed CelesTrak TLE snapshots, so orbital motion comes from real cataloged objects. Ground targets, city targets, regions, and relay endpoints are drawn from public city, site, or region libraries with global coverage. Missing sensor, agility, power, and link parameters are assigned from representative ranges.
 
 Difficulty controls shape the candidate before physical filtering. For each generated family, they set the scale of assets and service objects, mission-horizon length or placement, geographic spread, geometry thresholds, resource budgets, and demand density. The sampled candidate contains the assets available to the agent, the service objects that create mission value, and the family-specific parameters that define successful service.
 
@@ -184,7 +207,9 @@ SatNet and SPOT-5 contribute published communication-scheduling and photography-
 
 The main evaluation uses 35 held-out test cases, five from each task family. In each system-case run, the agent receives the task prompt, brief, case files, and construction materials. The submitted planning artifact is scored after the run by an external verifier.
 
-Evaluation follows the two-layer structure in Table~\ref{tab:evaluation-layers}: validity first, then performance. The validity layer asks whether the agent completed an executable handoff under the required schema and constraints. The performance layer preserves each family's native mission objective, then reports normalized quality for cross-family comparison. This separates whether an agent can produce a feasible mission plan from how much case-specific value the feasible plan recovers.
+Evaluation follows the two-layer structure in Table~\ref{tab:evaluation-layers}: validity first, then performance. The validity layer asks whether the agent completed an executable handoff under the required schema and constraints. The performance layer assesses solution quality using family-native metrics and summarizes performance with normalized scores. Agent and solver-reference results use the same family-specific scoring rules. This separates whether an agent can produce a feasible mission plan from how much case-specific value the feasible plan recovers.
+
+For example, on one AEOSSP test case, a valid schedule from Claude Code + Claude Opus 4.6 completes 1,415 of 1,947 tasks and recovers 68.54\% of the total task weight. Combining these completion measures with turnaround time and energy consumption yields a score of 70.87; the system's five-case mean is 58.45. Appendix~\ref{app:task-contracts} gives the numerical calculation.
 
 \subsection{Agent-System Setup}
 \label{sec:agent-system-setup}
@@ -201,6 +226,8 @@ Each run uses a controlled execution environment under a fixed budget. The proto
 We evaluate the five agent systems under a common execution budget. Each run uses the same case package, installed scientific, astrodynamics, and operations-research libraries, and a fixed two-hour wall-clock budget on 8 AMD Ryzen 7 9700X cores and 32 GB memory.
 
 The evaluated systems are Claude Code + Claude Opus 4.6, Codex CLI + GPT-5.4, Kimi CLI + Kimi K2.6, OpenCode + MiniMax M2.7, and OpenCode + DeepSeek V4 Pro. Appendix~\ref{app:agent-workspace} gives the full environment, workspace, and system-configuration details.
+
+We additionally report a SPOT-5 evaluation of OpenCode with self-hosted Qwen3.6-27B in Appendix~\ref{app:qwen-supplement}.
 
 \begin{table*}[!t]
 \centering
@@ -236,35 +263,14 @@ Second solver baseline & / & 71.65 & 76.26 & 58.20 & 63.33 & 55.95 & / & 92.00 \
 \subsection{Baselines}
 \label{sec:baselines}
 
-We compare agent systems with task-specific solver baselines. Each baseline is task-specific and evaluated under the same normalized scoring convention. Appendix~\ref{app:solver-baselines} details the baseline implementations and normalization convention, while Table~\ref{tab:main-results} reports the resulting family means.
-
-\paragraph{AEOSSP.}
-AEOSSP uses two agile Earth-observation scheduling baselines: maximum-weight independent set over conflicting observation candidates and greedy large-neighborhood search \citep{lemaitrea2002selecting,he2018improved}.
-
-\paragraph{SatNet.}
-SatNet uses mixed-integer programming and reinforcement-learning baselines for assigning communication requests to ground-station contacts \citep{goh2021satnet}.
-
-\paragraph{SPOT-5.}
-SPOT-5 uses the established agile-satellite photography challenge, which evaluates constrained image-selection quality under the published task formulation \citep{lemaitrea2002selecting}.
-
-\paragraph{Stereo Imaging.}
-Stereo Imaging uses constraint-programming local search and time-window-pruned mixed-integer scheduling for stereo-product selection \citep{lemaitrea2002selecting,kim2020task}.
-
-\paragraph{Regional Coverage.}
-Regional Coverage uses constraint-programming local search for acquisition planning and greedy submodular selection for weighted area service \citep{antuori2025solving,leskovec2007cost,nemhauser1978analysis,khuller1999budgeted}.
-
-\paragraph{Revisit Constellation.}
-Revisit Constellation uses J2 repeat-ground-track set cover and a constructive revisit-gap baseline \citep{lee2024satellite}.
-
-\paragraph{Relay Constellation.}
-Relay Constellation uses maximum-coverage contact planning, time-expanded contact scheduling, and multi-commodity-flow routing for relay service \citep{rogers2026optimal,gerard2026contact,grislain2022rethinking,lamothe2023dynamic}.
+We compare agent systems with task-specific solver references under the same family scoring rules. Five families use implemented solvers whose outputs are checked by the benchmark verifiers; SatNet uses literature-reported results, and SPOT-5 uses archived reference solutions. For each case, we select the best and, where available, second-best reference scores, then average them within each family to obtain the solver rows in Table~\ref{tab:main-results}. Appendix~\ref{app:solver-baselines} details the methods, reference sources, and aggregation procedure.
 
 \subsection{Main Results}
 \label{sec:main-results}
 
-Table~\ref{tab:main-results} summarizes the main result matrix. Every system has at least some verifier-valid plans, and two are valid on all 35 held-out cases. Normalized scores nevertheless remain far from saturated across several families, especially Regional Coverage and Stereo Imaging. Validity and mission value are therefore distinct measurements.
+Table~\ref{tab:main-results} summarizes the main result matrix. Every system has at least some verifier-valid plans, and two are valid on all 35 held-out cases. Normalized scores nevertheless remain far from saturated across several families, especially Regional Coverage and Stereo Imaging. Validity and mission value are therefore distinct measurements. With five held-out cases per family, these results provide an initial comparison of the evaluated systems. Appendix~\ref{app:score-uncertainty} reports 95\% case-bootstrap confidence intervals for the mean scores.
 
-Solver-relative quality is family-dependent. In AEOSSP, SPOT-5, Revisit Constellation, and Relay Constellation, the strongest agent row is within roughly three normalized points of the best available solver baseline. On SatNet, the strongest agent row exceeds the solver-baseline row under the normalized scorer. Regional Coverage and Stereo Imaging remain more separated: the best solver baselines average 86.44 and 96.05, while the strongest agent rows average 73.15 and 68.91.
+The score gap between agents and solver references varies across task families. In AEOSSP, SPOT-5, Revisit Constellation, and Relay Constellation, the strongest agent row is within roughly three normalized points of the best available solver baseline. On SatNet, the strongest agent row outscores the solver-baseline row under the normalized scorer. Regional Coverage and Stereo Imaging remain more separated: the best solver baselines average 86.44 and 96.05, while the strongest agent rows average 73.15 and 68.91.
 
 Scores also vary widely within systems. A row that is strong on one family can leave large gaps on geometry-heavy or design-heavy families, and the family leaders differ across agents.
 
@@ -275,7 +281,7 @@ The result matrix in Section~\ref{sec:experiments} shows uneven capability rathe
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/chapter5_case_study_v1.png}
+\includegraphics[width=\textwidth]{figures/chapter5_case_study_v1.pdf}
 \caption{Trace excerpts for three mechanisms in Section~\ref{sec:analysis}. Left: a Stereo Imaging run builds a self-imposed task contract, writes a product-level artifact, and accepts local validation even though the official result is invalid with zero score. Middle: a Revisit Constellation run uses verifier feedback to align propagation and frame handling with off-nadir and slew constraints. Right: a Relay Constellation run preserves a valid baseline and focuses search on unserved demand samples until service is complete.}
 \label{fig:case-study-traces}
 \end{figure*}
@@ -315,13 +321,13 @@ OC+DS & 6.0(0) & 47.2(0) & 10.0(0) & 18.2(0) & 12.4(0) \\
 \centering
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=\linewidth]{figures/chapter5_ablation_a_v3.png}\\[-0.5ex]
+\includegraphics[width=\linewidth]{figures/chapter5_ablation_a_v3.pdf}\\[-0.5ex]
 \small \textbf{(A)} Procedure injection
 \end{minipage}
 \vspace{1.0ex}
 \begin{minipage}[t]{\linewidth}
 \centering
-\includegraphics[width=\linewidth]{figures/chapter5_ablation_b_v3.png}\\[-0.5ex]
+\includegraphics[width=\linewidth]{figures/chapter5_ablation_b_v3.pdf}\\[-0.5ex]
 \small \textbf{(B)} Memory accumulation
 \end{minipage}
 \caption{Workspace-support ablations for two OpenCode systems on Regional Coverage and Relay Constellation. Bars show five-case mean normalized-score deltas relative to the system- and family-specific baseline: no procedure in Panel A and no memory in Panel B. Positive values indicate higher normalized score under the support condition.}
@@ -330,14 +336,14 @@ OC+DS & 6.0(0) & 47.2(0) & 10.0(0) & 18.2(0) & 12.4(0) \\
 
 The second mechanism is \textbf{case-adaptive search with incumbent preservation}. Strong systems do not only apply a family-level recipe; they infer the local structure of the particular instance. In Revisit Constellation, the useful search changes once the required revisit floor is reached: additional observations no longer improve the primary metric, so the run turns to reducing satellite count while preserving a verified incumbent. In Relay Constellation, Codex CLI + GPT-5.4 searches for bottleneck bridge relays and keeps verified service plans while testing higher-risk link activations. In Regional Coverage memory transfer, useful prior experience broadens the search across regions and helps preserve the best verified candidate when later variants regress.
 
-This case-adaptive behavior is consistent with the cases where agent rows exceed solver-reference rows. The baselines are specialised and systematic, but their adaptation policy is fixed before the run. In the inspected traces, strong runs synthesize a local search policy during the run, using case files and verifier feedback to identify the current bottleneck and choose the next repair or search move. The same loop can fail when verified incumbents are not preserved or submitted.
+This case-adaptive behavior is consistent with the cases where agent rows score above solver-reference rows. The baselines are specialized and systematic, but their adaptation policy is fixed before the run. In the inspected traces, strong runs synthesize a local search policy during the run, using case files and verifier feedback to identify the current bottleneck and choose the next repair or search move. The same loop can fail when verified incumbents are not preserved or submitted.
 
 The ablations below focus on whether workspace support improves the solution-construction side of this loop.
 
 \subsection{Ablations}
 \label{sec:ablations}
 
-We test two prompt/workspace supports that target solution construction for OpenCode + DeepSeek V4 Pro and OpenCode + MiniMax M2.7. We choose these two systems because they are the weaker pair in the evaluation, and these two families because they place OpenCode + DeepSeek V4 Pro in a middle band, well below the stronger systems yet short of total failure, where workspace support has room to register a measurable change. \textbf{Procedure injection} adds human-written task procedures to the workspace. \textbf{Memory accumulation} adds notes distilled from prior agent runs. Figure~\ref{fig:ablation-effects} reports five-case mean normalized-score deltas on Regional Coverage and Relay Constellation. The appendix reports the underlying system-level rows.
+We test two prompt/workspace supports that target solution construction for OpenCode + DeepSeek V4 Pro and OpenCode + MiniMax M2.7. We choose these two systems because they are the weaker pair in the evaluation, and these two families because they place OpenCode + DeepSeek V4 Pro in a middle band, well below the stronger systems but short of total failure, where workspace support has room to register a measurable change. \textbf{Procedure injection} adds human-written task procedures to the workspace. \textbf{Memory accumulation} adds notes distilled from prior agent runs. Figure~\ref{fig:ablation-effects} reports five-case mean normalized-score deltas on Regional Coverage and Relay Constellation. The appendix reports the underlying system-level rows.
 
 Human-written domain procedures help most when they turn construction into local verifier-guided search. For OpenCode + DeepSeek V4 Pro, the full procedure pack gives the largest Regional Coverage gain, consistent with a loop that generates candidate strips, scores marginal coverage, and preserves verified incumbents. Relay Constellation is more conjunctive: placement, routing, and scheduling must align before service appears, so procedure support gives only small gains for DeepSeek. For OpenCode + MiniMax M2.7, procedures produce smaller Regional gains and larger Relay gains from a zero-score baseline. This contrast suggests that procedures can reduce empty-service collapses, but they do not by themselves supply the coordinated search needed for high relay value.
 
@@ -348,7 +354,7 @@ Across both supports, the main pattern is conditional transfer rather than monot
 \section{Conclusion}
 \label{sec:conclusion}
 
-AstroAgentBench evaluates LLM agent systems on executable space mission planning tasks whose submissions are checked for feasibility and scored by mission value. Across seven task families, the results show nontrivial planning ability and clear brittleness: the best agent rows approach or exceed solver-reference quality on several families, but weaker systems often fail to produce high-value valid plans, and even strong systems lose quality on geometric, product-level, or design-heavy tasks.
+AstroAgentBench evaluates LLM agent systems on executable space mission planning tasks whose submissions are checked for feasibility and scored by mission value. Across seven task families, the results show nontrivial planning ability and clear brittleness: the best agent rows approach or exceed solver-reference scores on several families, but weaker systems often fail to produce high-value valid plans, and even strong systems lose quality on geometric, product-level, or design-heavy tasks.
 
 The trace and ablation results point to the same pattern. High-scoring runs calibrate agent-written implementations against verifier feedback, preserve verified incumbents, and adapt search to case-specific bottlenecks. Prompt/workspace support helps when it supplies the missing part of this loop. Current agent systems can sometimes build useful case-specific solvers, but their performance depends on keeping task formulation, physical-model calibration, search, and final handoff aligned.
 
@@ -356,13 +362,13 @@ The trace and ablation results point to the same pattern. High-scoring runs cali
 
 The main empirical limitation is scale. The reported evaluation covers five held-out cases for each of the seven task families, 35 cases in total, across five agent systems. Broader coverage over more cases, systems, seeds, and difficulty settings would require many more long interactive agent runs. LLM API cost is the primary constraint; wall-clock time and local compute are secondary.
 
-The solver-reference rows are quality anchors rather than certified optima. The underlying planning families are combinatorial and include hard scheduling, coverage, routing, and design subproblems, so finding universal optima at benchmark scale is often impractical. When an agent approaches or exceeds a solver row, the comparison is to the implemented reference set under the normalized scorer, not to a universal optimum.
+The solver-reference rows are quality anchors rather than certified optima. The underlying planning families are combinatorial and include hard scheduling, coverage, routing, and design subproblems, so finding universal optima at benchmark scale is often impractical. When an agent approaches or outscores a solver row, the comparison is to the implemented reference set under the normalized scorer, not to a universal optimum.
 
 The ablations are diagnostic rather than exhaustive. Procedure injection and memory accumulation target two plausible sources of workspace support, but they do not cover all harness designs, feedback channels, prompt structures, search tools, memory policies, or human-in-the-loop workflows. Their effects should therefore be read as evidence about the active failure layers in this setup.
 
 The benchmark reports one sampled difficulty regime. The generators could create larger constellations, denser demand patterns, longer horizons, and higher asset counts, potentially reaching hundreds or thousands of satellites. We do not report scaling curves across those regimes, so the results do not establish how the evaluated systems would behave as mission scale increases.
 
-\section*{Ethical considerations}
+\section*{Ethics Statement}
 
 Space mission-planning technology has dual-use potential. Better automated planning can support scientific observation, disaster response, communications, and operations analysis, but similar capabilities could also support surveillance, military planning, or strategic space operations. AstroAgentBench is designed as an evaluation benchmark rather than an operational autonomy stack: it uses compact physical models, public or representative inputs, and offline verifiers, and it does not provide procedures for commanding spacecraft or ground systems. Extensions toward full-fidelity mission simulation or direct operational interfaces would change this risk profile.
 
@@ -397,9 +403,9 @@ Table~\ref{tab:benchmark-landscape} compares AstroAgentBench with related benchm
 \rowcolor{solverrow}
 SPOT-5 / ROADEF \citep{lemaitrea2002selecting} & Agile-satellite photograph selection & One photography-selection family & Combinatorial constraints \\
 \rowcolor{solverrow}
-SatNet \citep{goh2021satnet} & Ground-station contact assignment & One communication-scheduling family & Contact windows, antenna occupancy, demand metrics \\
+SatNet \citep{goh2022satnet} & Ground-station contact assignment & One communication-scheduling family & Contact windows, antenna occupancy, demand metrics \\
 \rowcolor{solverrow}
-AEOS-Bench \citep{wang2026aeosbench} & Realistic Earth-observation constellation scheduling & One scheduling family at large scale & Orbital dynamics, resources, scheduling metrics \\
+AEOS-Bench \citep{wang2026towards} & Realistic Earth-observation constellation scheduling & One scheduling family at large scale & Orbital dynamics, resources, scheduling metrics \\
 \rowcolor{solverrow}
 EOS-Bench \citep{yin2026eosbench} & Earth-observation satellite scheduling & One scheduling family with scale regimes & Orbital dynamics, platform constraints, scheduling metrics \\
 \hline
@@ -456,9 +462,9 @@ Capacity resource & / & antenna occupancy & recorder cap & / & duty limit & / & 
 \label{tab:physical-contract-inventory}
 \end{table*}
 
-Three modeling regimes recur across the table. SatNet and SPOT-5 are abstraction-heavy: their physical history enters the task through view periods, maintenance windows, forbidden tuples, camera domains, and capacity fields. AEOSSP, Stereo Imaging, and Regional Coverage keep the satellite set fixed and compute observation geometry from submitted actions. Revisit and Relay expose architecture variables: a solution supplies satellite states, and the model propagates those states before evaluating target visibility or communication service.
+Three modeling regimes recur across Table~\ref{tab:physical-contract-inventory}. SatNet and SPOT-5 are abstraction-heavy: their physical history enters the task through view periods, maintenance windows, forbidden tuples, camera domains, and capacity fields. AEOSSP, Stereo Imaging, and Regional Coverage keep the satellite set fixed and compute observation geometry from submitted actions. Revisit and Relay expose architecture variables: a solution supplies satellite states, and the model propagates those states before evaluating target visibility or communication service.
 
-\paragraph{Propagation and Frames.} AEOSSP, Stereo Imaging, and Regional Coverage use two-line elements (TLEs): compact mean-element records for catalogued Earth satellites. Their satellite states are propagated with SGP4, the standard TLE propagator that returns time-indexed position and velocity in an Earth-centered inertial frame. Revisit and Relay instead propagate submitted or added GCRF states with deterministic J2 dynamics, which model central-body gravity plus the dominant oblateness perturbation. For all five of these families, the resulting GCRF state is transformed into ITRF/ECEF before it is compared with Earth-fixed targets, grid samples, ground stations, or relay endpoints.
+\paragraph{Propagation and Frames.} AEOSSP, Stereo Imaging, and Regional Coverage use two-line elements (TLEs): compact mean-element records for cataloged Earth satellites. Their satellite states are propagated with SGP4, the standard TLE propagator that returns time-indexed position and velocity in an Earth-centered inertial frame. Revisit and Relay instead propagate submitted or added GCRF states with deterministic J2 dynamics, which model central-body gravity plus the dominant oblateness perturbation. For all five of these families, the resulting GCRF state is transformed into ITRF/ECEF before it is compared with Earth-fixed targets, grid samples, ground stations, or relay endpoints.
 
 \paragraph{Access and Pointing.} For satellite \(i\), ground object \(j\), and time \(t\), let \(\epsilon_{ij}(t)\) be the elevation angle of the satellite above the local horizon at \(j\), \(R_{ij}(t)\) the slant range, and \(\theta_{ij}(t)\) the payload pointing angle away from the allowed boresight or nadir direction. Let \(\epsilon_j^{\min}\) be the required minimum elevation at the target or ground endpoint, \(R_j^{\max}\) the maximum usable range when a range cap is modeled, and \(\theta_i^{\max}\) the payload's maximum pointing angle. A target observation is feasible only if the line of sight satisfies
 \[
@@ -573,6 +579,21 @@ Turnaround time \(\mathrm{TAT}\) is the mean \(t^{\mathrm{done}}_j-r_j\) over \(
   &+0.15[1-\mathrm{PC}/E_{\mathrm{bud}}]_0^1).
   \end{aligned}
 \]
+
+Here \(E_{\mathrm{bud}}\) is the sum of satellite battery capacities, used as an energy normalization constant. If no task is completed, \(\mathrm{TAT}\) is undefined and the reporting score is zero.
+
+\emph{Worked example.} On AEOSSP test case 1, the verifier accepts the schedule from Claude Code + Claude Opus 4.6: it completes 1,415 of 1,947 tasks, with completed weight 3,669 out of 5,353. The verifier reports \(\mathrm{TAT}=1071.23\) s and \(\mathrm{PC}=18621.35\) Wh. With \(H=43200\) s and \(E_{\mathrm{bud}}=31000\) Wh, substitution gives
+\[
+\begin{aligned}
+N_{\mathrm{AEOSSP}}
+&\approx 100\Bigl(0.45\,\frac{3669}{5353}\\
+&\quad+0.20\,\frac{1415}{1947}\\
+&\quad+0.20\Bigl(1-\frac{1071.23}{43200}\Bigr)\\
+&\quad+0.15\Bigl(1-\frac{18621.35}{31000}\Bigr)\Bigr)\\
+&\approx 70.87.
+\end{aligned}
+\]
+The five case scores are 70.87, 74.45, 73.89, 73.05, and 0.00, whose arithmetic mean is 58.45 at the reported precision. The fifth submission is parsed as an empty schedule and receives zero.
 
 \paragraph{SatNet.} Let \(\mathcal{J}\) be the request set. Request \(j\) belongs to a subject group \(g(j)\), requests communication duration \(D_j\), and defines setup and teardown times \(\alpha_j\) and \(\beta_j\). A submitted track is
 \[
@@ -752,19 +773,19 @@ If \(s<1\), then \(N_{\mathrm{Relay}}=70q_{\mathrm{svc}}\). For \(s=1\), use add
 \hline
 \textbf{Family} & \textbf{Reference} & \textbf{Core abstraction} \\
 \hline
-AEOSSP & MWIS conflict graph & Enumerates feasible observation candidates, links incompatible candidates in a conflict graph, and selects a weighted independent set before verifier-facing repair. \\
-AEOSSP & Greedy LNS & Builds a satellite-local schedule by greedy candidate insertion, then reinserts bounded neighborhoods to improve completion and turnaround. \\
-SatNet & Delta-MILP & Uses a mixed-integer contact-assignment model to allocate antenna time while controlling request-level unsatisfied demand. \\
-SatNet & PPO & Uses a trained reinforcement-learning policy to choose contact assignments under the SatNet request-service metric. \\
-SPOT-5 & Reference lookup & Matches known held-out instances to archived challenge solutions and recomputes their profit under the benchmark verifier. \\
-Stereo Imaging & CP/local search & Constructs a library of pair and tri-stereo products, then inserts and repairs products as coupled scheduling objects. \\
-Stereo Imaging & Pruned MILP & Prunes observation windows and stereo products before solving a coverage-first mixed-integer selection model. \\
-Regional Coverage & CP local search & Generates roll-only strip candidates, scores marginal weighted coverage, and repairs sequence neighborhoods with bounded CP. \\
-Regional Coverage & CELF selection & Treats fixed strip candidates as a submodular coverage set and applies lazy marginal-gain selection with schedule filtering. \\
-Revisit Constellation & J2 RGT set cover & Searches J2 repeat-ground-track shells, expands RAAN candidates, and schedules confirmed target assignments to reduce revisit gaps. \\
-Revisit Constellation & RGT/APC constructive & Builds repeat-ground-track access profiles, selects gap-improving satellites, and schedules observations by target freshness. \\
-Relay Constellation & MCLP+TEG & Selects relay candidates by contact opportunity coverage, then emits route-aware link activations over a time-expanded graph. \\
-Relay Constellation & UMCF/SRR & Builds dynamic communication graphs, solves path-restricted flow relaxations, and rounds paths into verifier-compatible link intervals. \\
+AEOSSP & MWIS conflict graph \citep{eddy2021maximum} & Enumerates feasible observation candidates, links incompatible candidates in a conflict graph, and selects a weighted independent set before verifier-facing repair. \\
+AEOSSP & Greedy LNS \citep{antuori2025solving} & Builds a satellite-local schedule by greedy candidate insertion, then reinserts bounded neighborhoods to improve completion and turnaround. \\
+SatNet & Delta-MILP \citep{claudet2021delta} & Uses a mixed-integer contact-assignment model to allocate antenna time while controlling request-level unsatisfied demand. \\
+SatNet & PPO \citep{goh2022satnet} & Uses a trained reinforcement-learning policy to choose contact assignments under the SatNet request-service metric. \\
+SPOT-5 & Reference lookup \citep{lemaitrea2002selecting} & Matches known held-out instances to archived challenge solutions and recomputes their profit under the benchmark verifier. \\
+Stereo Imaging & CP/local search \citep{lemaitrea2002selecting} & Constructs a library of pair and tri-stereo products, then inserts and repairs products as coupled scheduling objects. \\
+Stereo Imaging & Pruned MILP \citep{kim2020task} & Prunes observation windows and stereo products before solving a coverage-first mixed-integer selection model. \\
+Regional Coverage & CP local search \citep{antuori2025solving} & Generates roll-only strip candidates, scores marginal weighted coverage, and repairs sequence neighborhoods with bounded CP. \\
+Regional Coverage & CELF selection \citep{leskovec2007cost,nemhauser1978analysis,khuller1999budgeted} & Treats fixed strip candidates as a submodular coverage set and applies lazy marginal-gain selection with schedule filtering. \\
+Revisit Constellation & J2 RGT set cover \citep{lee2024satellite} & Searches J2 repeat-ground-track shells, expands RAAN candidates, and schedules confirmed target assignments to reduce revisit gaps. \\
+Revisit Constellation & RGT/APC constructive \citep{zhang2018leo,lee2020apc,mercado2025scheduling} & Builds repeat-ground-track access profiles, selects gap-improving satellites, and schedules observations by target freshness. \\
+Relay Constellation & MCLP+TEG \citep{williams2026optimal,gerard2026contact} & Selects relay candidates by contact opportunity coverage, then emits route-aware link activations over a time-expanded graph. \\
+Relay Constellation & UMCF/SRR \citep{grislain2022rethinking,lamothe2023dynamic} & Builds dynamic communication graphs, solves path-restricted flow relaxations, and rounds paths into verifier-compatible link intervals. \\
 \hline
 \end{tabular}
 \caption{Solver-reference inventory for Table~\ref{tab:main-results}. The table names the public reference rows and states the core algorithmic idea for each row; evidence status and score mapping are described in the surrounding text.}
@@ -776,14 +797,14 @@ Relay Constellation & UMCF/SRR & Builds dynamic communication graphs, solves pat
 
 The solver-reference rows in Table~\ref{tab:main-results} are casewise quality anchors under the same normalization as the agent rows. For each held-out case, we score every available reference with the family rule in Appendix~\ref{app:task-contracts}. The first solver row averages the best reference per case; when a second reference exists, the second row averages the second-best reference. A row may therefore combine different named references across cases. SPOT-5 has one solver row because each held-out case uses one archived reference-solution source.
 
-Five families use implemented references that write the same submitted artifact type as agents and are checked by the family verifier. Table~\ref{tab:solver-baseline-inventory} lists these public rows and their core abstractions. SatNet uses literature-reported Delta-MILP and PPO values for the same oversubscribed weeks \citep{claudet2021delta,goh2021satnet}. SPOT-5 matches held-out instances to archived challenge solutions and recomputes their profit and resource weight before normalization.
+Five families use implemented references that write the same submitted artifact type as agents and are checked by the family verifier. Table~\ref{tab:solver-baseline-inventory} lists these public rows and their core abstractions. SatNet uses literature-reported Delta-MILP and PPO values for the same oversubscribed weeks \citep{claudet2021delta,goh2022satnet}. SPOT-5 matches held-out instances to archived challenge solutions and recomputes their profit and resource weight before normalization.
 
 \paragraph{Score Relationship.} Appendix~\ref{app:task-contracts} defines the family score \(N_f\). Higher-is-better native metrics map directly to higher normalized scores, lower-is-better metrics are inverted, and Revisit and Relay keep their gates: satellite-count or latency terms enter only after the revisit or service requirement is met.
 
 \section{Agent Environment}
 \label{app:agent-workspace}
 
-This appendix records the run configuration used for the agent rows in Table~\ref{tab:main-results}. An evaluated system consists of a configured model, a harness, and the prepared workspace in which the run occurs. The main-experiment workspace supplies the task brief, case files, output contract, agent-local instructions, and verifier helper before the harness is launched.
+This appendix records the run configuration used for the agent rows in Table~\ref{tab:main-results}. An evaluated system consists of a configured model, a harness, and the prepared workspace in which the run occurs. The main-experiment workspace supplies the task brief, case files, output contract, agent-local instructions, and verifier helper before the harness is launched. Table~\ref{tab:workspace-environment} summarizes the layers exposed to the run.
 
 \Needspace{13\baselineskip}
 The main-experiment workspace is initialized with the following structure:
@@ -818,7 +839,7 @@ Collected evidence & Final submitted artifact, official verifier output, aggrega
 \label{tab:workspace-environment}
 \end{table*}
 
-Table~\ref{tab:agent-system-versions} reports the harness package version and reasoning configuration for the five evaluated systems. The evaluated-system names carry the model identities.
+Table~\ref{tab:agent-system-versions} reports the harness package version and reasoning configuration for the five evaluated systems, and Table~\ref{tab:runtime-library-versions} records the pinned Python libraries in the base runtime. The evaluated-system names carry the model identities.
 
 \begin{table*}[!t]
 \centering
@@ -1070,6 +1091,58 @@ computed_weight <= 200
 ...
 \end{promptblockcompact}
 
+\section{Uncertainty in the Main Results}
+\label{app:score-uncertainty}
+
+Table~\ref{tab:score-uncertainty} reports 95\% percentile case-bootstrap confidence intervals for the agent-system mean scores. For each family, we enumerate all \(5^5=3125\) ordered samples of five cases drawn with replacement, using the same case indices across systems. We recompute the mean for each sample and take the 2.5th and 97.5th percentiles, with linear interpolation, as the interval endpoints. All original zero-score outcomes are retained. The recorded run for each system--case pair is held fixed, so these intervals summarize case-resampling variation and do not estimate variability across repeated agent runs. With only five cases per family, they provide a limited uncertainty summary; an all-zero interval reflects five observed zero scores and does not establish zero performance on unseen cases.
+
+\begin{table*}[!t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccccc}
+\hline
+\rowcolor{headerrow}
+Family & Claude & Codex & Kimi & OC+MM & OC+DS \\
+\hline
+AEOSSP & \shortstack{58.45\\{\scriptsize [29.06, 73.95]}} & \shortstack{72.91\\{\scriptsize [69.87, 76.15]}} & \shortstack{72.03\\{\scriptsize [69.43, 74.14]}} & \shortstack{36.44\\{\scriptsize [16.60, 52.71]}} & \shortstack{71.44\\{\scriptsize [69.15, 73.73]}} \\
+Regional & \shortstack{21.22\\{\scriptsize [20.71, 22.22]}} & \shortstack{72.08\\{\scriptsize [60.04, 80.37]}} & \shortstack{73.15\\{\scriptsize [67.40, 77.38]}} & \shortstack{17.73\\{\scriptsize [9.98, 24.82]}} & \shortstack{35.79\\{\scriptsize [24.15, 44.92]}} \\
+Relay & \shortstack{12.25\\{\scriptsize [0.00, 36.75]}} & \shortstack{64.91\\{\scriptsize [55.81, 77.71]}} & \shortstack{57.77\\{\scriptsize [42.85, 72.63]}} & \shortstack{0.00\\{\scriptsize [0.00, 0.00]}} & \shortstack{35.67\\{\scriptsize [11.55, 59.78]}} \\
+Revisit & \shortstack{76.50\\{\scriptsize [73.72, 78.85]}} & \shortstack{69.58\\{\scriptsize [61.90, 76.01]}} & \shortstack{73.36\\{\scriptsize [69.78, 78.13]}} & \shortstack{0.00\\{\scriptsize [0.00, 0.00]}} & \shortstack{70.95\\{\scriptsize [69.98, 71.93]}} \\
+SatNet & \shortstack{60.36\\{\scriptsize [29.25, 79.41]}} & \shortstack{69.45\\{\scriptsize [61.78, 77.13]}} & \shortstack{66.14\\{\scriptsize [58.88, 74.96]}} & \shortstack{37.54\\{\scriptsize [16.55, 55.85]}} & \shortstack{60.23\\{\scriptsize [50.07, 70.39]}} \\
+SPOT-5 & \shortstack{43.96\\{\scriptsize [11.09, 76.83]}} & \shortstack{61.92\\{\scriptsize [44.58, 82.18]}} & \shortstack{61.92\\{\scriptsize [44.58, 82.18]}} & \shortstack{37.47\\{\scriptsize [7.15, 71.09]}} & \shortstack{60.91\\{\scriptsize [43.99, 82.17]}} \\
+Stereo & \shortstack{19.16\\{\scriptsize [0.31, 55.67]}} & \shortstack{68.91\\{\scriptsize [33.64, 93.67]}} & \shortstack{0.25\\{\scriptsize [0.00, 0.75]}} & \shortstack{0.00\\{\scriptsize [0.00, 0.00]}} & \shortstack{13.00\\{\scriptsize [0.00, 38.99]}} \\
+
+\hline
+\end{tabular}
+\caption{Mean normalized scores with 95\% case-bootstrap confidence intervals beneath them, computed from five held-out cases per family. Systems and model versions are those in Table~\ref{tab:main-results}; OC+MM and OC+DS denote OpenCode with MiniMax and DeepSeek, respectively. Intervals describe each system's mean and are not pairwise significance tests.}
+\label{tab:score-uncertainty}
+\end{table*}
+
+\section{Supplementary Self-Hosted System Evaluation}
+\label{app:qwen-supplement}
+
+We evaluated OpenCode 1.14.19 with self-hosted Qwen3.6-27B through an OpenAI-compatible endpoint on the five held-out SPOT-5 cases in three batches. Each agent workspace was configured with 8 CPUs, 32 GB memory, and a 7,200-second run budget. Table~\ref{tab:qwen-supplement} reports the normalized scores under the same validity and scoring rules as the main evaluation. Eight of the 15 recorded attempts produced verifier-valid submissions; six produced no submission and one produced an invalid submission. This supplement is limited to the tested system configuration and SPOT-5 cases.
+
+\begin{table*}[!t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{crrrrrcr}
+\hline
+\rowcolor{headerrow}
+Repetition & Case 8 & Case 28 & Case 1021 & Case 1403 & Case 1506 & Valid & Mean \\
+\hline
+1 & 100.00 & 0.00 & 54.80 & \(0.00^{\dagger}\) & 64.36 & 3/5 & 43.83 \\
+2 & 100.00 & 34.37 & 0.00 & 0.00 & 0.00 & 2/5 & 26.87 \\
+3 & 100.00 & 34.37 & 0.00 & 35.60 & 0.00 & 3/5 & 33.99 \\
+\hline
+\end{tabular}
+\caption{Supplementary SPOT-5 normalized scores for OpenCode with self-hosted Qwen3.6-27B. Missing or invalid submissions receive zero, and each mean includes all five cases. \(\dagger\) The recorded attempt failed during provider/model lookup before inference and produced no submission; its zero is retained under the missing-submission rule.}
+\label{tab:qwen-supplement}
+\end{table*}
+
 \clearpage
 \section{Family-Native Metrics and Ablations}
 \label{app:ablation-results}
@@ -1206,14 +1279,14 @@ This check isolates one source of temporal sensitivity: the orbital epoch used t
 \section{Additional Case Studies}
 \label{app:additional-case-studies}
 
-This appendix gives trace-level evidence for the mechanisms summarized in Section~\ref{sec:analysis} and Figure~\ref{fig:case-study-traces}. Each example links an agent-facing material choice, such as task wording, workspace packaging, injected procedure, memory note, or final-artifact convention, to an observed run behavior and official outcome. The examples cover prompt salience, signed-frame binding, procedure granularity, memory-prior transfer, and canonical deliverable handoff.
+This appendix gives trace-level evidence for the mechanisms summarized in Section~\ref{sec:analysis} and Figure~\ref{fig:case-study-traces}. Each example links an agent-facing material choice, such as task wording, workspace packaging, injected procedure, memory note, or final-artifact convention, to an observed run behavior and official outcome. The examples cover prompt salience, signed-frame binding, procedure granularity, memory-prior transfer, and canonical deliverable handoff. Figure~\ref{fig:appendix-case-study-materials} previews the prompt-salience, signed-frame, and memory-transfer examples.
 
 Each case study starts from the official outcome and reconstructs which source the evaluated system treated as defining the task: the short task prompt, root task document, local verifier, injected procedure, memory note, or self-written checker. Prompt fragments are shown before interpretation because the prompt contract is part of the evidence. The interpretations then explain how the observed trace behavior follows from those fragments.
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=\textwidth]{figures/appendix_case_study_prompt_material_v1.png}
-\caption{Selected Appendix~\ref{app:additional-case-studies} mechanisms connecting agent-facing material, trace behavior, and final outcome. Left: prompt salience leads a Regional Coverage run to bind to case files and an agent-inferred \texttt{roll\_angle\_deg} schema, yielding a valid empty schedule under the official parser. Middle: a Stereo Imaging run produces hard-valid actions but loses product overlap because the signed cross-track convention is not bound. Right: memory transfers concrete search priors that help under structural match and regress under mismatch.}
+\includegraphics[width=\textwidth]{figures/appendix_case_study_prompt_material_v1.pdf}
+\caption{Selected Appendix~\ref{app:additional-case-studies} mechanisms connecting agent-facing material, trace behavior, and final outcome. Left: prompt salience leads a Regional Coverage run to bind to case files and an agent-inferred \texttt{roll\_angle\_deg} schema, producing a valid empty schedule under the official parser. Middle: a Stereo Imaging run produces hard-valid actions but loses product overlap because the signed cross-track convention is not bound. Right: memory transfers concrete search priors that help under structural match and regress under mismatch.}
 \label{fig:appendix-case-study-materials}
 \end{figure*}
 

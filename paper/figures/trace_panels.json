@@ -1,0 +1,76 @@
+{
+  "chapter5_case_study_v1": [
+    {
+      "title": "Private World",
+      "text": "Mission: Submit an {\"actions\": []} observation schedule that forms valid stereo products.\n\nTrace:\nAction: \"Bash(ls case/)\"\nObservation: stereo files expose product geometry and pair-quality fields.\nThought: \"Now I understand this problem. I need to build a stereo_imaging scheduler.\"\n...\nAction: solution = {\"stereo_observations\": []}\nObservation: \"Stereo pairs: 98/141; Coverage: 69.5%; Total conflicts: 35; Cross target: 19\"\nThought: \"the evaluation framework might only care about geometric validity\"\nAnnotation: local validation accepts what the official verifier rejects.\nObservation: \"Issues found: 0\"\n\nFinal Result: Invalid, zero score",
+      "highlights": [
+        "{\"actions\": []}",
+        "understand",
+        "\"stereo_observations\"",
+        "35",
+        "might only care",
+        "Issues found: 0"
+      ]
+    },
+    {
+      "title": "Calibration",
+      "text": "Mission: Design a revisit constellation under off-nadir and slew constraints.\n\nTrace:\n...\nObservation: \"Diff: 17601.56 m; Estimated score: 6.00 hours\"\nThought: \"Let me run the verifier to check validity\"\nAction: \"Bash(./verifier solution.json)\"\nObservation: \"off-nadir angle 30.041 deg exceeds 30.000 deg\"\nThought: \"my propagator doesn't match the verifier exactly\"\nAction: Uses brahe J2 numerical propagator and exact frame rotations\n...\nObservation: \"errors: []; num_satellites: 10; threshold_violation_count: 0\"\n\nFinal Result: Valid, high score",
+      "highlights": [
+        "Diff: 17601.56 m",
+        "run the verifier",
+        "30.041 deg exceeds 30.000 deg",
+        "doesn't match",
+        "Uses brahe J2 numerical propagator and exact frame rotations"
+      ]
+    },
+    {
+      "title": "Adaptive Search",
+      "text": "Mission: Add relay assets and link actions to serve all communication demands.\n\nTrace:\nThought: \"writing an empty but valid `solution.json` first\"\nAction: {\"added_satellites\": [], \"actions\": []}\nObservation: \"...\ndemand_003 76 / 90 0.844444...\ndemand_001 30 / 60 0.5\n...\"\nThought: \"misses come from brief disconnected periods in the ISL graph\"\n...\nObservation: \"unserved_demand_sample_count: 55\"\nThought: \"...rank candidate relays only on the 55 currently unserved samples\"\n...\nObservation: \"service_fraction = 1.0; worst_demand_service_fraction = 1.0\"\n\nFinal Result: Valid, perfect service",
+      "highlights": [
+        "misses come from brief disconnected periods in the ISL graph",
+        "rank candidate relays only on the 55 currently unserved samples"
+      ]
+    }
+  ],
+  "appendix_case_study_prompt_material_v1": [
+    {
+      "title": "Prompt Salience",
+      "text": "Mission: Submit regional strip_observation actions.\nMaterial: prompt says \"using the files in `case/`\";\nroot contract requires type=\"strip_observation\"\nand roll_deg.\n\nTrace:\nAction: \"ls /app/workspace/case/\"\nObservation: coverage_grid.json, manifest.json,\n  regions.geojson, satellites.yaml\nThought: \"I'll start by understanding the problem\n  by reading the case files.\"\n...\nAction: validates a schema with roll_angle_deg\nObservation: \"Validation passed! Total actions: 64\"\nAnnotation: private checks never query the root verifier.\nObservation: official parser reads num_actions = 0;\n  weighted coverage = 0.0000\n\nFinal Result: valid empty schedule",
+      "highlights": [
+        "using the files in `case/`",
+        "type=\"strip_observation\"",
+        "roll_deg",
+        "roll_angle_deg",
+        "Validation passed! Total actions: 64",
+        "num_actions = 0",
+        "0.0000"
+      ]
+    },
+    {
+      "title": "Signed Frame",
+      "text": "Mission: Raw observations include signed\noff_nadir_across_deg.\nMaterial: the prompt names a cross-track field\nand boresight formula,\nbut not the handedness of across_hat.\n\nTrace:\nObservation: valid=true while coverage_ratio = 0.0000\nObservation: repeated product diagnostics show\n  overlap_fraction=0.0\nThought: \"across = np.cross(along, nadir) NOT\n  np.cross(nadir, along)!\"\n...\nAction: negate submitted off_nadir_across_deg\n  in diagnostic replays\nObservation: case_0002 coverage 0.0165 -> 0.8926\nObservation: case_0005 coverage 0.0071 -> 0.9716\nAnnotation: syntax validity did not bind the signed frame.\n\nFinal Result: hard-valid, low-value products",
+      "highlights": [
+        "off_nadir_across_deg",
+        "handedness of across_hat",
+        "coverage_ratio = 0.0000",
+        "overlap_fraction=0.0",
+        "np.cross(along, nadir) NOT np.cross(nadir, along)",
+        "negate submitted off_nadir_across_deg",
+        "0.0165 -> 0.8926",
+        "0.0071 -> 0.9716"
+      ]
+    },
+    {
+      "title": "Memory Transfer",
+      "text": "Mission: Use prior notes, then check\nthe current verifier.\nMaterial: \"Treat memory and skills as\nguidance, not authority.\"\n\nTrace:\nObservation: prior regional note records verified\n  weighted coverage 0.9235\nAction: read the note before solver construction\nObservation: valid 64-action incumbent;\n  weighted coverage = 0.8832\n...\nObservation: relay memory rescues a zero-service case\n  to service_fraction = 1.0\nObservation: the same relay prior can regress:\n  0.1852 vs no-memory 0.9222\nAnnotation: memory transfers priors, not guarantees.\n\nFinal Result: selective transfer",
+      "highlights": [
+        "guidance, not authority",
+        "weighted coverage 0.9235",
+        "weighted coverage = 0.8832",
+        "service_fraction = 1.0",
+        "0.1852",
+        "0.9222"
+      ]
+    }
+  ]
+}

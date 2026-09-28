@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="160mm" height="117.0667mm" viewBox="0 0 1200 878" role="img" aria-labelledby="title description">
+<title id="title">Agent trace mechanisms</title>
+<desc id="description">Private World
+Mission: Submit an {&quot;actions&quot;: []} observation schedule that forms valid stereo products.
+
+Trace:
+Action: &quot;Bash(ls case/)&quot;
+Observation: stereo files expose product geometry and pair-quality fields.
+Thought: &quot;Now I understand this problem. I need to build a stereo_imaging scheduler.&quot;
+...
+Action: solution = {&quot;stereo_observations&quot;: []}
+Observation: &quot;Stereo pairs: 98/141; Coverage: 69.5%; Total conflicts: 35; Cross target: 19&quot;
+Thought: &quot;the evaluation framework might only care about geometric validity&quot;
+Annotation: local validation accepts what the official verifier rejects.
+Observation: &quot;Issues found: 0&quot;
+
+Final Result: Invalid, zero score
+
+Calibration
+Mission: Design a revisit constellation under off-nadir and slew constraints.
+
+Trace:
+...
+Observation: &quot;Diff: 17601.56 m; Estimated score: 6.00 hours&quot;
+Thought: &quot;Let me run the verifier to check validity&quot;
+Action: &quot;Bash(./verifier solution.json)&quot;
+Observation: &quot;off-nadir angle 30.041 deg exceeds 30.000 deg&quot;
+Thought: &quot;my propagator doesn&#x27;t match the verifier exactly&quot;
+Action: Uses brahe J2 numerical propagator and exact frame rotations
+...
+Observation: &quot;errors: []; num_satellites: 10; threshold_violation_count: 0&quot;
+
+Final Result: Valid, high score
+
+Adaptive Search
+Mission: Add relay assets and link actions to serve all communication demands.
+
+Trace:
+Thought: &quot;writing an empty but valid `solution.json` first&quot;
+Action: {&quot;added_satellites&quot;: [], &quot;actions&quot;: []}
+Observation: &quot;...
+demand_003 76 / 90 0.844444...
+demand_001 30 / 60 0.5
+...&quot;
+Thought: &quot;misses come from brief disconnected periods in the ISL graph&quot;
+...
+Observation: &quot;unserved_demand_sample_count: 55&quot;
+Thought: &quot;...rank candidate relays only on the 55 currently unserved samples&quot;
+...
+Observation: &quot;service_fraction = 1.0; worst_demand_service_fraction = 1.0&quot;
+
+Final Result: Valid, perfect service</desc>
+<rect x="0" y="0" width="1200" height="878" rx="0" fill="#ffffff" stroke="none" stroke-width="1.5"/>
+<rect x="8" y="28" width="384" height="840" rx="0" fill="#f4f8ef" stroke="#8e98a3" stroke-width="1.5"/>
+<rect x="95.0625" y="8" width="209.875" height="46" rx="7" fill="#655fa5" stroke="none" stroke-width="1.5"/>
+<text x="200.000" y="40.000" font-family="Liberation Serif" font-size="29" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle" xml:space="preserve">Private World</text>
+<text x="23.000" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Mission:</text>
+<text x="103.672" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Submit an </text>
+<rect x="203.5" y="73.96000000000001" width="129.671875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="204.500" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">{&quot;actions&quot;: []}</text>
+<text x="23.000" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">observation schedule that forms valid</text>
+<text x="23.000" y="143.920" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">stereo products.</text>
+<line x1="23" y1="178.88" x2="377" y2="178.88" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="23.000" y="201.880" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Trace:</text>
+<text x="23.000" y="234.840" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="92.656" y="234.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;Bash(ls case/)&quot;</text>
+<text x="23.000" y="267.800" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="146.438" y="267.800" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> stereo files expose</text>
+<text x="23.000" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">product geometry and pair-quality</text>
+<text x="23.000" y="319.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">fields.</text>
+<text x="23.000" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="111.031" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;Now I </text>
+<rect x="185.625" y="334.63999999999993" width="98.53125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="186.625" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">understand</text>
+<text x="283.156" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> this</text>
+<text x="23.000" y="378.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">problem. I need to build a</text>
+<text x="23.000" y="404.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">stereo_imaging scheduler.&quot;</text>
+<text x="23.000" y="437.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="23.000" y="470.520" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="92.656" y="470.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> solution =</text>
+<text x="23.000" y="496.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">{</text>
+<rect x="32.5625" y="478.4399999999998" width="194.703125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="33.562" y="496.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;stereo_observations&quot;</text>
+<text x="226.266" y="496.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">: []}</text>
+<text x="23.000" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="146.438" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;Stereo pairs: 98/141;</text>
+<text x="23.000" y="555.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Coverage: 69.5%; Total conflicts: </text>
+<rect x="323.703125" y="537.3599999999999" width="24.0" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="324.703" y="555.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">35</text>
+<text x="346.703" y="555.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">;</text>
+<text x="23.000" y="581.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Cross target: 19&quot;</text>
+<text x="23.000" y="614.320" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="111.031" y="614.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;the evaluation framework</text>
+<rect x="22" y="622.24" width="140.0625" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="640.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">might only care</text>
+<text x="161.062" y="640.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> about geometric</text>
+<text x="23.000" y="666.240" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">validity&quot;</text>
+<text x="23.000" y="699.200" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">Annotation: local validation accepts</text>
+<text x="23.000" y="725.160" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">what the official verifier rejects.</text>
+<text x="23.000" y="758.120" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="146.438" y="758.120" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;</text>
+<rect x="159.921875" y="740.0800000000002" width="135.21875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="160.922" y="758.120" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Issues found: 0</text>
+<text x="294.141" y="758.120" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;</text>
+<line x1="23" y1="792.0800000000002" x2="377" y2="792.0800000000002" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="18" y="800.0800000000002" width="364" height="60.960000000000036" rx="0" fill="#fce5e5" stroke="#bfc6c9" stroke-width="1.5"/>
+<text x="29.000" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Final Result:</text>
+<text x="150.609" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Invalid, zero score</text>
+<rect x="408" y="28" width="384" height="840" rx="0" fill="#eef6fc" stroke="#8e98a3" stroke-width="1.5"/>
+<rect x="511.296875" y="8" width="177.40625" height="46" rx="7" fill="#655fa5" stroke="none" stroke-width="1.5"/>
+<text x="600.000" y="40.000" font-family="Liberation Serif" font-size="29" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle" xml:space="preserve">Calibration</text>
+<text x="423.000" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Mission:</text>
+<text x="503.672" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Design a revisit constellation</text>
+<text x="423.000" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">under off-nadir and slew constraints.</text>
+<line x1="423" y1="178.88" x2="777" y2="178.88" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="423.000" y="201.880" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Trace:</text>
+<text x="423.000" y="234.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="423.000" y="267.800" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="267.800" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;</text>
+<rect x="559.921875" y="249.76000000000002" width="154.984375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="560.922" y="267.800" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Diff: 17601.56 m</text>
+<text x="713.906" y="267.800" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">;</text>
+<text x="423.000" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Estimated score: 6.00 hours&quot;</text>
+<text x="423.000" y="326.720" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="511.031" y="326.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;Let me </text>
+<rect x="591.703125" y="308.67999999999995" width="133.9375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="592.703" y="326.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">run the verifier</text>
+<text x="724.641" y="326.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> to</text>
+<text x="423.000" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">check validity&quot;</text>
+<text x="423.000" y="385.640" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="492.656" y="385.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;Bash(./verifier solution.json)&quot;</text>
+<text x="423.000" y="418.600" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="418.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;off-nadir angle </text>
+<rect x="696.359375" y="400.5599999999999" width="62.5" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="697.359" y="418.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">30.041</text>
+<rect x="422" y="426.51999999999987" width="212.15625" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="444.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">deg exceeds 30.000 deg</text>
+<text x="633.156" y="444.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;</text>
+<text x="423.000" y="477.520" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="511.031" y="477.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;my propagator </text>
+<rect x="658.921875" y="459.47999999999985" width="63.40625" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="659.922" y="477.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">doesn&#x27;t</text>
+<rect x="422" y="485.4399999999998" width="55.75" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">match</text>
+<text x="476.750" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> the verifier exactly&quot;</text>
+<text x="423.000" y="536.440" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="492.656" y="536.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> </text>
+<rect x="497.15625" y="518.3999999999999" width="217.65625" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="498.156" y="536.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Uses brahe J2 numerical</text>
+<rect x="422" y="544.3599999999999" width="325.75" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="562.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">propagator and exact frame rotations</text>
+<text x="423.000" y="595.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="423.000" y="628.320" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="628.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;errors: [];</text>
+<text x="423.000" y="654.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">num_satellites: 10;</text>
+<text x="423.000" y="680.240" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">threshold_violation_count: 0&quot;</text>
+<line x1="423" y1="792.0800000000002" x2="777" y2="792.0800000000002" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="418" y="800.0800000000002" width="364" height="60.960000000000036" rx="0" fill="#e0f0e0" stroke="#bfc6c9" stroke-width="1.5"/>
+<text x="429.000" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Final Result:</text>
+<text x="550.609" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Valid, high score</text>
+<rect x="808" y="28" width="384" height="840" rx="0" fill="#fff6eb" stroke="#8e98a3" stroke-width="1.5"/>
+<rect x="880.5625" y="8" width="238.875" height="46" rx="7" fill="#655fa5" stroke="none" stroke-width="1.5"/>
+<text x="1000.000" y="40.000" font-family="Liberation Serif" font-size="29" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle" xml:space="preserve">Adaptive Search</text>
+<text x="823.000" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Mission:</text>
+<text x="903.672" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Add relay assets and link</text>
+<text x="823.000" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">actions to serve all communication</text>
+<text x="823.000" y="143.920" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">demands.</text>
+<line x1="823" y1="178.88" x2="1177" y2="178.88" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="823.000" y="201.880" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Trace:</text>
+<text x="823.000" y="234.840" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="911.031" y="234.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;writing an empty but valid</text>
+<text x="823.000" y="260.800" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">`solution.json` first&quot;</text>
+<text x="823.000" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="892.656" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> {&quot;added_satellites&quot;: [],</text>
+<text x="823.000" y="319.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;actions&quot;: []}</text>
+<text x="823.000" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="946.438" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;...</text>
+<text x="823.000" y="385.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">demand_003 76 / 90 0.844444...</text>
+<text x="823.000" y="418.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">demand_001 30 / 60 0.5</text>
+<text x="823.000" y="451.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...&quot;</text>
+<text x="823.000" y="484.520" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="911.031" y="484.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;</text>
+<rect x="924.515625" y="466.47999999999985" width="209.109375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="925.516" y="484.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">misses come from brief</text>
+<rect x="822" y="492.4399999999998" width="335.375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="823.000" y="510.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">disconnected periods in the ISL graph</text>
+<text x="1156.375" y="510.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;</text>
+<text x="823.000" y="543.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="823.000" y="576.400" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="823.000" y="602.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;unserved_demand_sample_count: 55&quot;</text>
+<text x="823.000" y="635.320" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="911.031" y="635.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;...</text>
+<rect x="941.015625" y="617.28" width="233.515625" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="942.016" y="635.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">rank candidate relays only</text>
+<rect x="822" y="643.24" width="330.078125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="823.000" y="661.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">on the 55 currently unserved samples</text>
+<text x="1151.078" y="661.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;</text>
+<text x="823.000" y="694.240" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="823.000" y="727.200" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="946.438" y="727.200" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;service_fraction = 1.0;</text>
+<text x="823.000" y="753.160" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">worst_demand_service_fraction = 1.0&quot;</text>
+<line x1="823" y1="792.0800000000002" x2="1177" y2="792.0800000000002" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="818" y="800.0800000000002" width="364" height="60.960000000000036" rx="0" fill="#e0f0e0" stroke="#bfc6c9" stroke-width="1.5"/>
+<text x="829.000" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Final Result:</text>
+<text x="950.609" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Valid, perfect service</text>
+</svg>

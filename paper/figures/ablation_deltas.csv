@@ -1,0 +1,17 @@
+panel,family,system,condition,mean_score_delta
+procedure,Regional,OC+DS,Compact,4.6
+procedure,Regional,OC+DS,Procedure pack,19.5
+procedure,Regional,OC+MM,Compact,3.2
+procedure,Regional,OC+MM,Procedure pack,6.9
+procedure,Relay,OC+DS,Compact,3.5
+procedure,Relay,OC+DS,Procedure pack,0.4
+procedure,Relay,OC+MM,Compact,6.5
+procedure,Relay,OC+MM,Procedure pack,9.3
+memory,Regional,OC+DS,Codex-derived,24.3
+memory,Regional,OC+DS,DeepSeek-derived,17.2
+memory,Regional,OC+MM,Codex-derived,3.2
+memory,Regional,OC+MM,DeepSeek-derived,8.5
+memory,Relay,OC+DS,Codex-derived,9.4
+memory,Relay,OC+DS,DeepSeek-derived,18.5
+memory,Relay,OC+MM,Codex-derived,2.3
+memory,Relay,OC+MM,DeepSeek-derived,5.8

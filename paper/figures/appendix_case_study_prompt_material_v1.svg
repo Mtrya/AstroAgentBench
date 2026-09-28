@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="160mm" height="117.0667mm" viewBox="0 0 1200 878" role="img" aria-labelledby="title description">
+<title id="title">Prompt and material mechanisms</title>
+<desc id="description">Prompt Salience
+Mission: Submit regional strip_observation actions.
+Material: prompt says &quot;using the files in `case/`&quot;;
+root contract requires type=&quot;strip_observation&quot;
+and roll_deg.
+
+Trace:
+Action: &quot;ls /app/workspace/case/&quot;
+Observation: coverage_grid.json, manifest.json,
+  regions.geojson, satellites.yaml
+Thought: &quot;I&#x27;ll start by understanding the problem
+  by reading the case files.&quot;
+...
+Action: validates a schema with roll_angle_deg
+Observation: &quot;Validation passed! Total actions: 64&quot;
+Annotation: private checks never query the root verifier.
+Observation: official parser reads num_actions = 0;
+  weighted coverage = 0.0000
+
+Final Result: valid empty schedule
+
+Signed Frame
+Mission: Raw observations include signed
+off_nadir_across_deg.
+Material: the prompt names a cross-track field
+and boresight formula,
+but not the handedness of across_hat.
+
+Trace:
+Observation: valid=true while coverage_ratio = 0.0000
+Observation: repeated product diagnostics show
+  overlap_fraction=0.0
+Thought: &quot;across = np.cross(along, nadir) NOT
+  np.cross(nadir, along)!&quot;
+...
+Action: negate submitted off_nadir_across_deg
+  in diagnostic replays
+Observation: case_0002 coverage 0.0165 -&gt; 0.8926
+Observation: case_0005 coverage 0.0071 -&gt; 0.9716
+Annotation: syntax validity did not bind the signed frame.
+
+Final Result: hard-valid, low-value products
+
+Memory Transfer
+Mission: Use prior notes, then check
+the current verifier.
+Material: &quot;Treat memory and skills as
+guidance, not authority.&quot;
+
+Trace:
+Observation: prior regional note records verified
+  weighted coverage 0.9235
+Action: read the note before solver construction
+Observation: valid 64-action incumbent;
+  weighted coverage = 0.8832
+...
+Observation: relay memory rescues a zero-service case
+  to service_fraction = 1.0
+Observation: the same relay prior can regress:
+  0.1852 vs no-memory 0.9222
+Annotation: memory transfers priors, not guarantees.
+
+Final Result: selective transfer</desc>
+<rect x="0" y="0" width="1200" height="878" rx="0" fill="#ffffff" stroke="none" stroke-width="1.5"/>
+<rect x="8" y="28" width="384" height="840" rx="0" fill="#f4f8ef" stroke="#8e98a3" stroke-width="1.5"/>
+<rect x="81.375" y="8" width="237.25" height="46" rx="7" fill="#655fa5" stroke="none" stroke-width="1.5"/>
+<text x="200.000" y="40.000" font-family="Liberation Serif" font-size="29" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle" xml:space="preserve">Prompt Salience</text>
+<text x="23.000" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Mission:</text>
+<text x="103.672" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Submit regional</text>
+<text x="23.000" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">strip_observation actions.</text>
+<text x="23.000" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Material:</text>
+<text x="112.172" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> prompt says &quot;</text>
+<rect x="238.09375" y="132.88" width="125.421875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="239.094" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">using the files</text>
+<rect x="22" y="158.84" width="83.234375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="176.880" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">in `case/`</text>
+<text x="104.234" y="176.880" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;; root contract requires</text>
+<rect x="22" y="184.8" width="223.0" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">type=&quot;strip_observation&quot;</text>
+<text x="244.000" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> and </text>
+<rect x="285.765625" y="184.8" width="75.3125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="286.766" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">roll_deg</text>
+<text x="360.078" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">.</text>
+<line x1="23" y1="237.8" x2="377" y2="237.8" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="23.000" y="260.800" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Trace:</text>
+<text x="23.000" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="92.656" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;ls /app/workspace/case/&quot;</text>
+<text x="23.000" y="326.720" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="146.438" y="326.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> coverage_grid.json,</text>
+<text x="23.000" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">manifest.json, regions.geojson,</text>
+<text x="23.000" y="378.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">satellites.yaml</text>
+<text x="23.000" y="411.600" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="111.031" y="411.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;I&#x27;ll start by understanding</text>
+<text x="23.000" y="437.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">the problem by reading the case files.&quot;</text>
+<text x="23.000" y="470.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="23.000" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="92.656" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> validates a schema with</text>
+<rect x="22" y="511.3999999999998" width="133.953125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">roll_angle_deg</text>
+<text x="23.000" y="562.400" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="146.438" y="562.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;</text>
+<rect x="159.921875" y="544.3599999999999" width="213.90625" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="160.922" y="562.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Validation passed! Total</text>
+<rect x="22" y="570.3199999999999" width="97.921875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="588.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">actions: 64</text>
+<text x="118.922" y="588.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">&quot;</text>
+<text x="23.000" y="621.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">Annotation: private checks never query</text>
+<text x="23.000" y="647.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">the root verifier.</text>
+<text x="23.000" y="680.240" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="146.438" y="680.240" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> official parser reads</text>
+<rect x="22" y="688.1600000000001" width="148.828125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="706.200" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">num_actions = 0</text>
+<text x="169.828" y="706.200" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">; weighted coverage =</text>
+<rect x="22" y="714.1200000000001" width="62.5" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="23.000" y="732.160" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">0.0000</text>
+<line x1="23" y1="766.1200000000001" x2="377" y2="766.1200000000001" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="18" y="774.1200000000001" width="364" height="86.92000000000007" rx="0" fill="#fce5e5" stroke="#bfc6c9" stroke-width="1.5"/>
+<text x="29.000" y="795.120" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Final Result:</text>
+<text x="150.609" y="795.120" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> valid empty schedule</text>
+<rect x="408" y="28" width="384" height="840" rx="0" fill="#eef6fc" stroke="#8e98a3" stroke-width="1.5"/>
+<rect x="496.40625" y="8" width="207.1875" height="46" rx="7" fill="#655fa5" stroke="none" stroke-width="1.5"/>
+<text x="600.000" y="40.000" font-family="Liberation Serif" font-size="29" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle" xml:space="preserve">Signed Frame</text>
+<text x="423.000" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Mission:</text>
+<text x="503.672" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Raw observations include</text>
+<text x="423.000" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">signed </text>
+<rect x="484.9375" y="99.91999999999999" width="192.21875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="485.938" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">off_nadir_across_deg</text>
+<text x="676.156" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">.</text>
+<text x="423.000" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Material:</text>
+<text x="512.172" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> the prompt names a</text>
+<text x="423.000" y="176.880" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">cross-track field and boresight formula,</text>
+<text x="423.000" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">but not the </text>
+<rect x="521.59375" y="184.8" width="225.609375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="522.594" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">handedness of across_hat</text>
+<text x="746.203" y="202.840" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">.</text>
+<line x1="423" y1="237.8" x2="777" y2="237.8" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="423.000" y="260.800" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Trace:</text>
+<text x="423.000" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> valid=true while</text>
+<rect x="422" y="301.67999999999995" width="216.609375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="319.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">coverage_ratio = 0.0000</text>
+<text x="423.000" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="352.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> repeated product</text>
+<text x="423.000" y="378.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">diagnostics show </text>
+<rect x="578.4375" y="360.5999999999999" width="187.28125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="579.438" y="378.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">overlap_fraction=0.0</text>
+<text x="423.000" y="411.600" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Thought:</text>
+<text x="511.031" y="411.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;across = </text>
+<rect x="602.90625" y="393.5599999999999" width="136.421875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="603.906" y="411.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">np.cross(along,</text>
+<rect x="422" y="419.51999999999987" width="301.9375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="437.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">nadir) NOT np.cross(nadir, along)</text>
+<text x="722.938" y="437.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">!&quot;</text>
+<text x="423.000" y="470.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="423.000" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="492.656" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> </text>
+<rect x="497.15625" y="485.4399999999998" width="151.671875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="498.156" y="503.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">negate submitted</text>
+<rect x="422" y="511.3999999999998" width="192.21875" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">off_nadir_across_deg</text>
+<text x="613.219" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> in diagnostic</text>
+<text x="423.000" y="555.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">replays</text>
+<text x="423.000" y="588.360" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="588.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> case_0002 coverage</text>
+<rect x="422" y="596.28" width="153.734375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="614.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">0.0165 -&gt; 0.8926</text>
+<text x="423.000" y="647.280" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="546.438" y="647.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> case_0005 coverage</text>
+<rect x="422" y="655.2" width="153.734375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="423.000" y="673.240" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">0.0071 -&gt; 0.9716</text>
+<text x="423.000" y="706.200" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">Annotation: syntax validity did not bind</text>
+<text x="423.000" y="732.160" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">the signed frame.</text>
+<line x1="423" y1="766.1200000000001" x2="777" y2="766.1200000000001" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="418" y="774.1200000000001" width="364" height="86.92000000000007" rx="0" fill="#fce5e5" stroke="#bfc6c9" stroke-width="1.5"/>
+<text x="429.000" y="795.120" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Final Result:</text>
+<text x="550.609" y="795.120" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> hard-valid, low-value</text>
+<text x="429.000" y="821.080" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">products</text>
+<rect x="808" y="28" width="384" height="840" rx="0" fill="#fff6eb" stroke="#8e98a3" stroke-width="1.5"/>
+<rect x="872.8125" y="8" width="254.375" height="46" rx="7" fill="#655fa5" stroke="none" stroke-width="1.5"/>
+<text x="1000.000" y="40.000" font-family="Liberation Serif" font-size="29" font-weight="bold" font-style="normal" fill="#ffffff" text-anchor="middle" xml:space="preserve">Memory Transfer</text>
+<text x="823.000" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Mission:</text>
+<text x="903.672" y="92.000" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> Use prior notes, then check</text>
+<text x="823.000" y="117.960" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">the current verifier.</text>
+<text x="823.000" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Material:</text>
+<text x="912.172" y="150.920" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> &quot;Treat memory and skills as</text>
+<rect x="822" y="158.84" width="205.4375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="823.000" y="176.880" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">guidance, not authority</text>
+<text x="1026.438" y="176.880" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">.&quot;</text>
+<line x1="823" y1="237.8" x2="1177" y2="237.8" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="823.000" y="260.800" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Trace:</text>
+<text x="823.000" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="946.438" y="293.760" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> prior regional note</text>
+<text x="823.000" y="319.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">records verified </text>
+<rect x="966.15625" y="301.67999999999995" width="167.53125" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="967.156" y="319.720" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">weighted coverage</text>
+<rect x="822" y="327.63999999999993" width="62.5" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="823.000" y="345.680" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">0.9235</text>
+<text x="823.000" y="378.640" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Action:</text>
+<text x="892.656" y="378.640" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> read the note before solver</text>
+<text x="823.000" y="404.600" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">construction</text>
+<text x="823.000" y="437.560" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="946.438" y="437.560" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> valid 64-action</text>
+<text x="823.000" y="463.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">incumbent; </text>
+<rect x="926.46875" y="445.47999999999985" width="251.4375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="927.469" y="463.520" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">weighted coverage = 0.8832</text>
+<text x="823.000" y="496.480" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">...</text>
+<text x="823.000" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="946.438" y="529.440" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> relay memory rescues a</text>
+<text x="823.000" y="555.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">zero-service case to </text>
+<rect x="1000.953125" y="537.3599999999999" width="161.609375" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="1001.953" y="555.400" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">service_fraction =</text>
+<rect x="822" y="563.3199999999999" width="29.5" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="823.000" y="581.360" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">1.0</text>
+<text x="823.000" y="614.320" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Observation:</text>
+<text x="946.438" y="614.320" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> the same relay prior can</text>
+<text x="823.000" y="640.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">regress: </text>
+<rect x="895.921875" y="622.24" width="62.5" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="896.922" y="640.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">0.1852</text>
+<text x="957.422" y="640.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> vs no-memory </text>
+<rect x="1095.125" y="622.24" width="62.5" height="23.1" rx="1" fill="#ffed99" stroke="none" stroke-width="1.5"/>
+<text x="1096.125" y="640.280" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">0.9222</text>
+<text x="823.000" y="673.240" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">Annotation: memory transfers priors,</text>
+<text x="823.000" y="699.200" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="italic" fill="#53606a" text-anchor="start" xml:space="preserve">not guarantees.</text>
+<line x1="823" y1="766.1200000000001" x2="1177" y2="766.1200000000001" stroke="#a4afba" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="818" y="774.1200000000001" width="364" height="86.92000000000007" rx="0" fill="#e0f0e0" stroke="#bfc6c9" stroke-width="1.5"/>
+<text x="829.000" y="795.120" font-family="Liberation Serif" font-size="22" font-weight="bold" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve">Final Result:</text>
+<text x="950.609" y="795.120" font-family="Liberation Serif" font-size="22" font-weight="normal" font-style="normal" fill="#16293d" text-anchor="start" xml:space="preserve"> selective transfer</text>
+</svg>
