@@ -291,7 +291,7 @@ The result matrix in Section~\ref{sec:experiments} shows uneven capability rathe
 
 Trace evidence separates two failure layers: formulating the task from the available materials, and constructing a high-value plan after the task has been formulated. In \textbf{task-formulation failures}, the system may read the task document but fail to integrate the physical model, coupled constraints, scored objective, and required submitted artifact. Stereo Imaging gives the most compact example. Access-window selection is only the first step: raw observations must remain valid under hard constraints, form eligible stereo products, satisfy footprint overlap, convergence, and pixel-scale checks, and preserve final validity. The observed failures break different links in this pipeline. Kimi CLI + Kimi K2.6 produces valid observations whose footprints often do not create products. Claude Code + Claude Opus 4.6 sometimes treats rich case files as a complete task definition, builds a plausible self-imposed problem, and optimizes an inferred product-level schema and hallucinated objective.
 
-In \textbf{solution-construction failures}, the system has enough of the task contract to generate candidates, but cannot reliably build, improve, and preserve a high-value executable plan. The failure appears as weak search, brittle code, late verifier use, or silent goal drift during optimization. OpenCode + MiniMax M2.7 is representative. It often contacts the task document or verifier, yet still accepts valid but zero-value relay submissions, trusts agent-written simulators after verifier disagreement, or treats feasibility as the stopping condition. OpenCode + DeepSeek V4 Pro shows a related pattern on Stereo Imaging: a run may find useful product geometry, but lose the final score by failing to preserve both product value and hard-constraint validity. Table~\ref{tab:verifier-calls} shows the aggregate counterpart for selected families: Claude Code + Claude Opus 4.6 and OpenCode + MiniMax M2.7 include several no-call cases, so those runs could not use verifier feedback to correct an agent-inferred task model or simulator during construction.
+In \textbf{solution-construction failures}, the system has enough of the task contract to generate candidates, but cannot reliably build, improve, and preserve a high-value executable plan. The failure appears as weak search, brittle code, late verifier use, or silent goal drift during optimization. OpenCode + MiniMax M2.7 is representative. It often contacts the task document or verifier, yet still accepts valid but zero-value relay submissions, trusts agent-written simulators after verifier disagreement, or treats feasibility as the stopping condition. OpenCode + DeepSeek V4 Pro shows a related pattern on Stereo Imaging: a run may find useful product geometry, but lose the final score by failing to preserve both product value and hard-constraint validity. Table~\ref{tab:verifier-calls} shows the aggregate counterpart for selected families: Claude Code + Claude Opus 4.6 and OpenCode + MiniMax M2.7 include several no-call cases, so those runs could not use verifier feedback to correct an agent-inferred task model or simulator during construction. Appendix~\ref{app:hallucination-metrics} quantifies the process-level counterparts of these failures across all 175 main-experiment runs: 12.6\% end with an invalid submission, 9.1\% submit a valid artifact that scores zero, and 22.3\% commit to a durable artifact before reading the root workspace contract.
 
 \subsection{Success Mechanisms}
 \label{sec:what-succeeds}
@@ -366,7 +366,7 @@ The solver-reference rows are quality anchors rather than certified optima. The 
 
 The ablations are diagnostic rather than exhaustive. Procedure injection and memory accumulation target two plausible sources of workspace support, but they do not cover all harness designs, feedback channels, prompt structures, search tools, memory policies, or human-in-the-loop workflows. Their effects should therefore be read as evidence about the active failure layers in this setup.
 
-The benchmark reports one sampled difficulty regime. The generators could create larger constellations, denser demand patterns, longer horizons, and higher asset counts, potentially reaching hundreds or thousands of satellites. We do not report scaling curves across those regimes, so the results do not establish how the evaluated systems would behave as mission scale increases.
+The benchmark reports one sampled difficulty regime. The generators could create larger constellations, denser demand patterns, longer horizons, and higher asset counts. We do not report scaling curves across those regimes, so the results do not establish how the evaluated systems would behave as mission scale increases.
 
 \section*{Ethics Statement}
 
@@ -374,9 +374,13 @@ Space mission-planning technology has dual-use potential. Better automated plann
 
 The results also argue against direct operational reliance on current LLM agents. Several systems produce plausible artifacts that fail external checks or recover little mission value. Any use of agent-generated plans in real missions would require domain-expert review, certified planning software, independent verification, and human authority over operational decisions.
 
-The benchmark uses generated cases, public source material, and normalized public planning instances, and its curation respects the applicable licenses for public sources. It does not collect personal data or human-subject annotations. Future releases should maintain these boundaries and avoid including operationally sensitive mission data or artifacts that could enable unreviewed deployment.
+The benchmark uses generated cases, public source material, and normalized public planning instances, and its curation respects the applicable licenses for public sources. The released code and data are under the MIT License, and normalized instances remain under their original distribution terms. It does not collect personal data or human-subject annotations. Future releases should maintain these boundaries.
 
-To enhance engineering efficiency and the clarity of our writing, we employ AI-powered tools such as automated code completion and language refinement. Nevertheless, all benchmark implementations, experimental scripts, and published results undergo thorough manual verification by the authors. Additionally, we perform random audits to confirm that publicly released materials are free of sensitive information, personally identifiable data, and harmful content.
+To improve engineering efficiency and writing clarity, we use AI-powered tools for automated code completion and language refinement. Nevertheless, all benchmark implementations, experimental scripts, and published results undergo thorough manual verification by the authors. We also perform random audits to confirm that released materials are free of sensitive information, personally identifiable data, and harmful content.
+
+\section*{Acknowledgments}
+
+This work is in part supported by the New Generation Artificial Intelligence-National Science and Technology Major Project (2025ZD0123502).
 
 \bibliography{references}
 
@@ -1353,5 +1357,32 @@ The useful side is concrete: regional memory can transfer exact candidate-genera
   and is at least as likely to verify.
 \end{promptblock}
 Kimi CLI + Kimi K2.6 on Revisit Constellation shows why this matters. The trace can find verified lower-satellite variants while the collected file remains weaker. Another run reaches the revisit floor, starts a riskier lower-satellite search, and terminates with a collected file that loses the primary gate. This is final-state management under a timeout, not weak physical reasoning: each improvement must be copied back before the next risky branch.
+
+\section{Hallucination and Ungrounded-Submission Metrics}
+\label{app:hallucination-metrics}
+
+The failure modes in Section~\ref{sec:what-fails} and the case studies in Appendix~\ref{app:additional-case-studies} include hallucination-type behaviors: agents build self-imposed task contracts, optimize hallucinated objectives, trust agent-written validators over the official verifier, or hand off confident but empty artifacts. Table~\ref{tab:hallucination-metrics} quantifies three process-level counterparts over the full main-experiment matrix (175 runs, 35 per system). \emph{Invalid submissions} are runs whose final collected artifact is rejected by the official verifier, typically through fabricated schema fields or malformed artifacts; 22 runs (12.6\%) end this way. \emph{Valid-but-zero submissions} pass the official verifier but score zero: the artifact is real but operationally empty; 16 runs (9.1\%). \emph{Ungrounded commitments} are runs that write a durable candidate or deliverable artifact before reading the root workspace contract, the behavioral precondition for self-imposed task models; 39 runs (22.3\%), and 8 further runs make no detectable durable commitment.
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabular}{lrrr}
+\hline
+System & Invalid & Valid-but-zero & Ungrounded \\
+\hline
+Claude & 9 & 1 & 17 \\
+Codex & 0 & 0 & 1 \\
+Kimi & 0 & 4 & 6 \\
+OC+MM & 12 & 6 & 15 \\
+OC+DS & 1 & 5 & 0 \\
+\hline
+All & 22 & 16 & 39 \\
+\hline
+\end{tabular}
+\caption{Hallucination-related process metrics over the 175 main-experiment runs (35 per system). Invalid: the final collected artifact is rejected by the official verifier. Valid-but-zero: the artifact verifies but scores zero. Ungrounded: a durable artifact commitment occurs before the root workspace contract is read. Abbreviations follow Table~\ref{tab:main-results}.}
+\label{tab:hallucination-metrics}
+\end{table}
+
+Two qualifications accompany these counts. First, valid-but-zero submissions have mixed causes: the four Kimi CLI + Kimi K2.6 cases on Stereo Imaging stem from an across-track sign-convention mismatch that leaves the artifact valid but with zero footprint overlap, whereas the Relay Constellation cases are zero-service handoffs. Second, an ungrounded commitment is a risk factor, not a verdict: runs can still recover once they acquire the workspace contract and let the official verifier override the private model. Even so, these metrics separate systems whose outcome scores are otherwise close. Codex CLI + GPT-5.4 and OpenCode + DeepSeek V4 Pro almost never commit before reading the contract (1 and 0 of 35 runs, respectively), while Claude Code + Claude Opus 4.6 and OpenCode + MiniMax M2.7 do so in roughly half of their runs, consistent with the trace evidence in Section~\ref{sec:what-fails}.
 
 \end{document}
