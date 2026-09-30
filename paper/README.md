@@ -15,3 +15,13 @@ The compiled document is `build/paper.pdf`. The included bibliography, ACL style
 Only the manuscript's required figure versions are included. The result tables remain in the source. The ACL style files retain their upstream notices.
 
 The five figures have editable SVG masters and matching PDF exports, with the original PNGs preserved. See [figure sources and regeneration](figures/README.md).
+
+## arXiv variant
+
+`arxiv/` holds the frozen arXiv variant of the paper on the `mosi.cls` template (copied from the original AstroAgent arXiv source). It is built independently from this directory:
+
+```bash
+cd arxiv && latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build paper.tex
+```
+
+Its `build/` output is covered by this directory's `.gitignore`. Figures are referenced from the canonical `figures/` directory rather than duplicated.
