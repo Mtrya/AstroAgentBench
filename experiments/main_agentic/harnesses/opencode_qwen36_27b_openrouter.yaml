@@ -1,0 +1,27 @@
+harness: opencode_qwen36_27b_openrouter
+runtime: base
+
+assemble:
+  - source: experiments/_fragments/configs/opencode_qwen36_27b_openrouter/opencode
+    target: /home/korolev/.config/opencode
+    example: experiments/_fragments/configs/opencode_qwen36_27b_openrouter/opencode.example
+  - source: .agents/skills/brahe
+    target: /home/korolev/.config/opencode/skills/brahe
+
+commands:
+  headless_shell_command: >-
+    opencode run --dangerously-skip-permissions "$(cat ~/PROMPT.md)"
+
+collect:
+  - source: /home/korolev/.local/share/opencode
+    target: results_root/session_logs/opencode
+  - source: /home/korolev/.local/state/opencode
+    target: results_root/session_logs/opencode_state
+
+forward_env_keys:
+  - OPENROUTER_API_KEY
+
+notes:
+  - Qwen3.6-27B is served through OpenRouter for the isolated SPOT-5 recovery run.
+  - The OpenRouter API key is forwarded only to the runtime environment.
+  - The Brahe skill is assembled into /home/korolev/.config/opencode/skills/brahe for OpenCode skill discovery.

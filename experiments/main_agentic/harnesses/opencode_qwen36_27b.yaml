@@ -1,0 +1,26 @@
+harness: opencode_qwen36_27b
+runtime: base
+
+assemble:
+  - source: experiments/_fragments/configs/opencode_qwen36_27b/opencode
+    target: /home/korolev/.config/opencode
+    example: experiments/_fragments/configs/opencode_qwen36_27b/opencode.example
+  - source: .agents/skills/brahe
+    target: /home/korolev/.config/opencode/skills/brahe
+
+commands:
+  headless_shell_command: >-
+    AR_QWEN_API_KEY="$(cat ~/.config/opencode/api_key)" opencode run --dangerously-skip-permissions "$(cat ~/PROMPT.md)"
+
+collect:
+  - source: /home/korolev/.local/share/opencode
+    target: results_root/session_logs/opencode
+  - source: /home/korolev/.local/state/opencode
+    target: results_root/session_logs/opencode_state
+
+forward_env_keys: []
+
+notes:
+  - Qwen3.6-27B is served through the institutional OpenAI-compatible endpoint documented for the unquantized 1M-context deployment.
+  - The runnable provider config and API key are ignored; the harness injects the local key into AR_QWEN_API_KEY only for the OpenCode process.
+  - The Brahe skill is assembled into /home/korolev/.config/opencode/skills/brahe for OpenCode skill discovery.

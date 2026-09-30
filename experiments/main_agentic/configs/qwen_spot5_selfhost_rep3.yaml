@@ -1,0 +1,31 @@
+name: qwen_spot5_selfhost_rep3
+mode: batch
+
+benchmarks:
+  - spot5
+
+harnesses:
+  - opencode_qwen36_27b
+
+defaults:
+  split: test
+  timeout_seconds: 7200
+
+batch:
+  max_concurrency: 5
+  max_retries: 1
+  harness_cooldown_seconds: 0
+  skip_completed: true
+  retry_statuses:
+    - runner_error
+    - timeout
+    - agent_failed
+
+resources:
+  cpus: 8
+  memory: 32g
+  shm_size: 16g
+
+results:
+  root: results/agent_runs/experiments/main_agentic
+  aggregate_dir: summaries

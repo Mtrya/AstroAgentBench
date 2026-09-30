@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "share": "disabled",
+  "enabled_providers": [
+    "openrouter"
+  ],
+  "model": "openrouter/qwen/qwen3.6-27b",
+  "small_model": "openrouter/qwen/qwen3.6-27b",
+  "permission": "allow",
+  "provider": {
+    "openrouter": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenRouter",
+      "options": {
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_API_KEY}"
+      },
+      "models": {
+        "qwen/qwen3.6-27b": {
+          "name": "Qwen3.6-27B",
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        }
+      }
+    }
+  }
+}
