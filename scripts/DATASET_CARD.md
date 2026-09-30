@@ -63,7 +63,7 @@ Every example in every config follows the same schema:
 from datasets import load_dataset
 
 # Load the aeossp_standard benchmark
-ds = load_dataset("YOUR_DATASET_REPO_ID", "aeossp_standard")
+ds = load_dataset("kaupane/AstroAgentBench", "aeossp_standard")
 print(ds["test"][0]["case_id"])
 ```
 
@@ -81,9 +81,9 @@ for file in case["files"]:
 ```python
 from datasets import get_dataset_config_names
 
-configs = get_dataset_config_names("YOUR_DATASET_REPO_ID")
+configs = get_dataset_config_names("kaupane/AstroAgentBench")
 for config in configs:
-    ds = load_dataset("YOUR_DATASET_REPO_ID", config)
+    ds = load_dataset("kaupane/AstroAgentBench", config)
     for split_name, split_ds in ds.items():
         print(f"{config}/{split_name}: {len(split_ds)} cases")
 ```

@@ -4,6 +4,8 @@ AstroAgentBench evaluates complete LLM agent systems on seven space mission plan
 
 This branch, `aacl-ijcnlp-2026`, maintains the experimental baseline used for the May EMNLP submission and the subsequent AACL-IJCNLP paper. The evolving implementation is on [`main`](https://github.com/Mtrya/AstroAgentBench/tree/main). The original AstroReason-Bench implementation is preserved separately in [`acl-submission-2026`](https://github.com/Mtrya/AstroAgentBench/tree/acl-submission-2026).
 
+The benchmark datasets are also published on Hugging Face as [`kaupane/AstroAgentBench`](https://huggingface.co/datasets/kaupane/AstroAgentBench); the AACL-IJCNLP 2026 release is tagged [`v1.0.0`](https://huggingface.co/datasets/kaupane/AstroAgentBench/tree/v1.0.0).
+
 ## Task families
 
 | Benchmark | Problem |
