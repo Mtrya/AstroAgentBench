@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "brahe[plots]>=1.7.0",
-    "huggingface-hub>=2.0.0",
+    "huggingface-hub>=1.29.0,<2.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.3",
     "plotly>=7.1.0",

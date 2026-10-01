@@ -14,6 +14,7 @@ import brahe
 import matplotlib
 import numpy as np
 import plotly.graph_objects as go
+from plotly.basedatatypes import BaseTraceType
 from plotly.subplots import make_subplots
 from brahe.plots.texture_utils import load_body_texture
 from matplotlib.lines import Line2D
@@ -41,7 +42,7 @@ _DEFAULT_OUTPUT_ROOT = _VISUALIZER_DIR / "plots"
 _EARTH_RADIUS_M = float(brahe.R_EARTH)
 _WORLD_TEXTURE_EXTENT = (-180.0, 180.0, -90.0, 90.0)
 _WORLD_TEXTURE: np.ndarray | None = None
-_EARTH_TRACE_CACHE: dict[str, go.BaseTraceType] = {}
+_EARTH_TRACE_CACHE: dict[str, BaseTraceType] = {}
 _COLOR_CYCLE = [
     "#f97316",
     "#06b6d4",
@@ -166,7 +167,7 @@ def _draw_world_texture(ax: plt.Axes) -> None:
     )
 
 
-def _earth_surface_trace() -> go.BaseTraceType:
+def _earth_surface_trace() -> BaseTraceType:
     cached = _EARTH_TRACE_CACHE.get("default")
     if cached is not None:
         return cached
