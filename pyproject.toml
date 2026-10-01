@@ -6,15 +6,15 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "brahe[plots]>=1.7.0",
-    "huggingface-hub>=1.29.0",
-    "matplotlib>=3.11.1",
-    "numpy>=2.5.2",
-    "plotly>=6.6.0",
+    "huggingface-hub>=2.0.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
+    "plotly>=7.1.0",
     "pyyaml>=6.0.3",
     "pytest>=9.1.1",
     "skyfield>=1.55",
     "shapely>=2.1.2",
-    "pyproj>=3.7.2",
+    "pyproj>=3.8.0",
 ]
 
 [project.optional-dependencies]
