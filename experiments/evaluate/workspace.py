@@ -8,18 +8,23 @@ import os
 from pathlib import Path
 import re
 import subprocess
-import tomllib
 
-from experiments.evaluate.prepare import HERE, prepare
+from experiments.evaluate.prepare import HERE, prepare, tree_hash
 
 SOLUTION_MOUNT = "/workspace/solution"
 IMAGE_PREFIX = "astroagentbench/workspace"
 
 
-def image_tag(benchmark: str, split: str, case_id: str, case_sha256: str) -> str:
-    """Return a tag that changes whenever the prepared case contents change."""
-    fields = [benchmark, split, case_id, case_sha256[:12]]
-    return f"{IMAGE_PREFIX}-{'-'.join(re.sub(r'[^A-Za-z0-9_.-]', '-', f) for f in fields)}"
+def image_tag(benchmark: str, split: str, case_id: str, environment_sha256: str) -> str:
+    """Return a tag that changes whenever the built environment changes.
+
+    The environment digest covers the base image and the case together, so two
+    preparations of one case cannot share a tag. Docker repository names are
+    lowercase-only and case identifiers such as SatNet's ``W20_2018`` are not,
+    so every field is normalized before it reaches the reference.
+    """
+    fields = [benchmark, split, case_id, environment_sha256[:12]]
+    return f"{IMAGE_PREFIX}-" + "-".join(re.sub(r"[^A-Za-z0-9_.-]", "-", f).lower() for f in fields)
 
 
 def build_command(tag: str, context: Path) -> list[str]:
@@ -82,8 +87,8 @@ def workspace(
         network=network,
         solution_filename=solution_filename,
     )
-    case_sha256 = tomllib.loads((task / "task.toml").read_text())["metadata"]["case_sha256"]
-    tag = image_tag(benchmark, split, case_id, case_sha256)
+    environment_sha256 = tree_hash(task / "environment")
+    tag = image_tag(benchmark, split, case_id, environment_sha256)
     if build:
         subprocess.run(build_command(tag, task / "environment"), check=True)
     solution = task / "solution"
