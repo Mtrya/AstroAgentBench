@@ -146,12 +146,14 @@ line2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537"
 
 # Create with ECEF Cartesian output
 prop_ecef = bh.SGPPropagator.from_tle(line1, line2, 60.0)
-prop_ecef.set_output_format(bh.OrbitFrame.ECEF, bh.OrbitRepresentation.CARTESIAN, None)
+prop_ecef.set_output_format(
+    bh.CelestialFrame.ECEF, bh.OrbitRepresentation.CARTESIAN, None
+)
 
-# Or with Keplerian output (ECI only)
+# Or with Keplerian output (available in GCRF and EME2000)
 prop_kep = bh.SGPPropagator.from_tle(line1, line2, 60.0)
 prop_kep.set_output_format(
-    bh.OrbitFrame.ECI, bh.OrbitRepresentation.KEPLERIAN, bh.AngleFormat.DEGREES
+    bh.CelestialFrame.ECI, bh.OrbitRepresentation.KEPLERIAN, bh.AngleFormat.DEGREES
 )
 
 # Propagate to 1 hour after epoch
@@ -295,6 +297,42 @@ prop = bh.SGPPropagator.from_tle(line1, line2, 60.0)
 # Get state in PEF frame (TEME rotated by GMST)
 state_pef = prop.state_pef(prop.epoch)
 print(f"PEF position: {state_pef[:3] / 1e3}")
+```
+
+
+### TEME Output
+
+`state` returns the raw SGP4 output in TEME. `state_gcrf`, `state_itrf`, and `state_in_frame` convert it into GCRF, ITRF, or any other router frame; see [GCRF ↔ TEME ↔ ITRF Transformations](../frames/teme.md).
+
+
+```python
+import numpy as np
+
+import brahe as bh
+
+bh.initialize_eop()
+
+line1 = "1 25544U 98067A   08264.51782528 -.00002182  00000-0 -11606-4 0  2927"
+line2 = "2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.72125391563537"
+prop = bh.SGPPropagator.from_tle(line1, line2, 60.0)
+
+epc = prop.epoch + 600.0
+state_tod = prop.state_in_frame(bh.CelestialFrame.TOD, epc)
+state_gcrf = prop.state_gcrf(epc)
+
+print(f"Epoch: {epc}")
+print("TOD state vector:")
+print(f"  Position: [{state_tod[0]:.3f}, {state_tod[1]:.3f}, {state_tod[2]:.3f}] m")
+print(f"  Velocity: [{state_tod[3]:.6f}, {state_tod[4]:.6f}, {state_tod[5]:.6f}] m/s\n")
+
+print("GCRF state vector:")
+print(f"  Position: [{state_gcrf[0]:.3f}, {state_gcrf[1]:.3f}, {state_gcrf[2]:.3f}] m")
+print(
+    f"  Velocity: [{state_gcrf[3]:.6f}, {state_gcrf[4]:.6f}, {state_gcrf[5]:.6f}] m/s\n"
+)
+
+pos_diff = np.linalg.norm(state_tod[0:3] - state_gcrf[0:3])
+print(f"Position difference norm: {pos_diff:.3f} m")
 ```
 
 

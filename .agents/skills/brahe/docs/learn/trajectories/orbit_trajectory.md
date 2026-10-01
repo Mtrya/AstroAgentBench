@@ -27,14 +27,12 @@ bh.initialize_eop()
 # Create trajectory in ECI frame, Cartesian representation
 traj_eci = bh.OrbitTrajectory(
     6,  # State dimension (position + velocity)
-    bh.OrbitFrame.ECI,
+    bh.CelestialFrame.ECI,
     bh.OrbitRepresentation.CARTESIAN,
     None,  # No angle format for Cartesian
 )
-print(f"Frame (str): {traj_eci.frame}")  # Output: ECI
-print(
-    f"Frame (repr): {traj_eci.frame!r}"
-)  # Output: OrbitFrame(Earth-Centered Inertial)
+print(f"Frame (str): {traj_eci.frame}")  # Output: GCRF
+print(f"Frame (repr): {traj_eci.frame!r}")  # Output: ReferenceFrame("GCRF")
 print(f"Representation (str): {traj_eci.representation}")  # Output: Cartesian
 print(
     f"Representation (repr): {traj_eci.representation!r}"
@@ -42,18 +40,16 @@ print(
 
 # Create trajectory in ECEF frame, Cartesian representation
 traj_ecef = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECEF, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECEF, bh.OrbitRepresentation.CARTESIAN, None
 )
-print(f"Frame (str): {traj_ecef.frame}")  # Output: ECEF
-print(
-    f"Frame (repr): {traj_ecef.frame!r}"
-)  # Output: OrbitFrame(Earth-Centered Earth-Fixed)
+print(f"Frame (str): {traj_ecef.frame}")  # Output: ITRF
+print(f"Frame (repr): {traj_ecef.frame!r}")  # Output: ReferenceFrame("ITRF")
 ```
 
 
 ### Empty Trajectory - Keplerian Elements
 
-To create an empty trajectory in Keplerian representation you **must** specify the frame as `ECI` and provide an `AngleFormat`.
+To create an empty trajectory in Keplerian representation you must provide an `AngleFormat` and declare a celestial frame whose axes admit orbital elements: `ICRF`, `EME2000`, `MOD`, `TOD`, or `TEME`, at any center. `GCRF`, `LCI`, `EME2000`, `MOD`, `TOD`, and `TEME` all qualify.
 
 
 ```python
@@ -64,14 +60,14 @@ bh.initialize_eop()
 # Create trajectory in ECI frame, Keplerian representation with radians
 traj_kep_rad = bh.OrbitTrajectory(
     6,  # State dimension (6 orbital elements)
-    bh.OrbitFrame.ECI,
+    bh.CelestialFrame.ECI,
     bh.OrbitRepresentation.KEPLERIAN,
     bh.AngleFormat.RADIANS,  # Required for Keplerian
 )
 
 # Create trajectory in ECI frame, Keplerian representation with degrees
 traj_kep_deg = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.KEPLERIAN, bh.AngleFormat.DEGREES
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.KEPLERIAN, bh.AngleFormat.DEGREES
 )
 ```
 
@@ -102,7 +98,7 @@ state2 = np.array([bh.R_EARTH + 500e3, 0.0, 0.0, 0.0, -7600.0, 0.0])
 epochs = [epoch0, epoch1, epoch2]
 states = np.array([state0, state1, state2])  # Flattened array
 traj = bh.OrbitTrajectory.from_orbital_data(
-    epochs, states, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+    epochs, states, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 print(f"Trajectory length: {len(traj)}")
@@ -144,7 +140,7 @@ propagator.propagate_steps(10)
 # Access the trajectory
 traj = propagator.trajectory
 print(f"Trajectory length: {len(traj)}")  # Output: 11 (initial + 10 steps)
-print(f"Frame: {traj.frame}")  # Output: OrbitFrame.ECI
+print(f"Frame: {traj.frame}")  # Output: GCRF
 print(f"Representation: {traj.representation}")  # Output: Keplerian
 ```
 
@@ -167,7 +163,7 @@ bh.initialize_eop()
 
 # Create trajectory in ECI frame
 traj_eci = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 # Add states in ECI
@@ -214,7 +210,7 @@ bh.initialize_eop()
 
 # Create trajectory in ECEF frame
 traj_ecef = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECEF, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECEF, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 # Add dummy states in ECEF
@@ -225,12 +221,12 @@ for i in range(3):
     state_ecef = np.array([bh.R_EARTH + 500e3, 0.0, 0.0, 0.0, 0.0, 7600.0])
     traj_ecef.add(epoch, state_ecef)
 
-print(f"Original frame: {traj_ecef.frame}")  # Output: OrbitFrame.ECEF
+print(f"Original frame: {traj_ecef.frame}")  # Output: ITRF
 
 # Convert to ECI
 traj_eci = traj_ecef.to_eci()
 
-print(f"Converted frame: {traj_eci.frame}")  # Output: OrbitFrame.ECI
+print(f"Converted frame: {traj_eci.frame}")  # Output: GCRF
 print(f"Trajectory length: {len(traj_eci)}")  # Output: 3
 
 # Iterate over converted states
@@ -257,7 +253,7 @@ bh.initialize_eop()
 
 # Create trajectory in ECI
 traj_eci_original = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 # Add a state
@@ -292,7 +288,7 @@ bh.initialize_eop()
 
 # Create trajectory in ECI Cartesian
 traj_cart = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 # Add Cartesian states
@@ -338,7 +334,7 @@ bh.initialize_eop()
 
 # Create trajectory in ECI Cartesian
 traj_cart = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 # Add a state
@@ -377,7 +373,7 @@ bh.initialize_eop()
 
 # Start with ECI Cartesian trajectory
 traj_eci_cart = bh.OrbitTrajectory(
-    6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
 )
 
 # Add states
@@ -424,7 +420,9 @@ import brahe as bh
 bh.initialize_eop()
 
 # Create trajectory
-traj = bh.OrbitTrajectory(6, bh.OrbitFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None)
+traj = bh.OrbitTrajectory(
+    6, bh.CelestialFrame.ECI, bh.OrbitRepresentation.CARTESIAN, None
+)
 
 # Add states
 epoch0 = bh.Epoch.from_datetime(2024, 1, 1, 0, 0, 0.0, 0.0, bh.TimeSystem.UTC)

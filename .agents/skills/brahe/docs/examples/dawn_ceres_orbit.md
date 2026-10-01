@@ -155,7 +155,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -494,7 +494,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -842,7 +842,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -1080,8 +1080,8 @@ equator on the ICRF equator - the standard IAU orientation convention
 ([Archinal et al., 2018](https://doi.org/10.1007/s10569-017-9805-5)) - since
 $\hat{z}_{\text{ICRF}} \times \hat{p}$ is perpendicular to both poles, hence
 lies in both equatorial planes: the line of nodes. Once registered under an
-integer key, `ReferenceFrame.BodyFixedCustom(naif_id, key)` is usable
-anywhere a [`ReferenceFrame`](../library_api/frames/router.md#referenceframe) is accepted:
+integer key, `CelestialFrame.BodyFixedCustom(naif_id, key)` is usable
+anywhere a [`CelestialFrame`](../library_api/frames/router.md#celestialframe) is accepted:
 
 ```python
 #!/usr/bin/env python
@@ -1209,7 +1209,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -1578,7 +1578,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -1930,7 +1930,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -2269,7 +2269,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -2626,7 +2626,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -2974,7 +2974,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -3193,9 +3193,12 @@ print("\nDawn at Ceres Example Complete!")
 [`plot_trajectory_3d`](../library_api/plots/3d_trajectory.md) accepts `central_body="ceres"`: Ceres is already in the
 plotting library's body-visuals registry (radius and NAIF ID for frame
 validation, plus a default texture), so no custom dict is needed. Non-Earth
-central bodies require the plotted trajectory to already be in
-[`OrbitFrame.BodyCenteredInertial(naif_id)`](../library_api/orbits/enums.md#brahe.OrbitFrame.BodyCenteredInertial) for that body; a Ceres-centered
-[`NumericalOrbitPropagator`](../library_api/propagators/numerical_orbit_propagator.md)'s `.trajectory` is already in that frame:
+central bodies plot the trajectory in that body's centered-inertial frame,
+converting through the [reference frame router](../library_api/frames/router.md)
+with `to_frame()` when the trajectory is declared in another frame; a
+Ceres-centered
+[`NumericalOrbitPropagator`](../library_api/propagators/numerical_orbit_propagator.md)'s `.trajectory` is already in
+`CelestialFrame.BodyCenteredICRF(2000001)`:
 
 ```python
 #!/usr/bin/env python
@@ -3323,7 +3326,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]
@@ -3669,7 +3672,7 @@ def ceres_omega(epc=None):
 # The `1` is an arbitrarily chosen registry key for this custom frame; it
 # just needs to be unique among registered custom frames.
 bh.register_custom_frame(1, ceres_rotation, ceres_omega)
-ceres_fixed = bh.ReferenceFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
+ceres_fixed = bh.CelestialFrame.BodyFixedCustom(CERES_NAIF_ID, 1)
 # --8<-- [end:body_fixed_frame]
 
 # --8<-- [start:force_model]

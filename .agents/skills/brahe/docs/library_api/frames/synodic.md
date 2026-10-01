@@ -49,7 +49,7 @@ For conceptual explanations and examples, see [Synodic Reference Frames](../../l
 
 ## SynodicOrigin
 
-Origin choice for the generic [`ReferenceFrame.Synodic`](router.md) constructor.
+Origin choice for the generic [`CelestialFrame.Synodic`](router.md) constructor.
 
 ::: brahe.SynodicOrigin
 

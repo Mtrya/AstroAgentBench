@@ -62,6 +62,19 @@ celestrak_cache = bh.get_celestrak_cache_dir()
 print(f"CelesTrak cache directory: {celestrak_cache}")
 ```
 
+### Starlink Cache Directory
+
+Starlink's manifest and ephemeris files are stored in their own subdirectory. A client
+constructed with a non-default `base_url` caches under a `mirrors/` subdirectory instead, so a
+client pointed at a different mirror never shares files with the public endpoint's cache.
+
+
+```python
+# Get cache subdirectory for Starlink data
+starlink_dir = bh.get_starlink_cache_dir()
+print(f"Starlink cache directory: {starlink_dir}")
+```
+
 ### Custom Subdirectories
 
 You can create custom subdirectories within the cache for your own data:
@@ -94,6 +107,10 @@ print(f"EOP cache directory: {eop_cache}")
 # Get cache subdirectory for CelesTrak data
 celestrak_cache = bh.get_celestrak_cache_dir()
 print(f"CelesTrak cache directory: {celestrak_cache}")
+
+# Get cache subdirectory for Starlink data
+starlink_dir = bh.get_starlink_cache_dir()
+print(f"Starlink cache directory: {starlink_dir}")
 
 # Get a custom subdirectory within the cache
 custom_cache = bh.get_brahe_cache_dir_with_subdir("custom_data")
