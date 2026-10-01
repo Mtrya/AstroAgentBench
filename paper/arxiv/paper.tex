@@ -47,15 +47,17 @@
 
 % ===== Title block (mosi macros) =====
 \title{AstroAgentBench: Evaluating Agentic Planning on Space Mission Planning Tasks}
-\author[1,3]{Weiyi Wang}
-\author[1,3]{Xinchi Chen}
-\author[2,3]{Jingjing Gong}
-\author[1]{Xuanjing Huang}
-\author[1,2,3]{Xipeng Qiu}
-\affiliation[1]{Fudan University, Shanghai, China}
-\affiliation[2]{Shanghai Innovation Institute, China}
-\affiliation[3]{OpenMOSS Team}
-\correspondence{\texttt{\{xc\_chen, xpqiu\}@fudan.edu.cn}}
+\author[1,5]{Weiyi Wang}
+\author[1,3,4,5]{Xinchi Chen}
+\author[2,5]{Jingjing Gong}
+\author[1,4]{Xuanjing Huang}
+\author[1,2,3,4,5]{Xipeng Qiu}
+\affiliation[1]{Institute of Trustworthy Embodied AI, Fudan University}
+\affiliation[2]{Shanghai Innovation Institute}
+\affiliation[3]{Shanghai Key Laboratory of Multimodal Embodied AI}
+\affiliation[4]{College of Computer Science and Artificial Intelligence, Fudan University}
+\affiliation[5]{OpenMOSS Team}
+\correspondence{\texttt{wywang26@m.fudan.edu.cn}, \texttt{xc\_chen@fudan.edu.cn}, \texttt{xjhuang@fudan.edu.cn}, \texttt{xpqiu@fudan.edu.cn}; \texttt{jjgong@sii.edu.cn}}
 \checkdata[Code]{\url{https://github.com/Mtrya/AstroAgentBench}}
 \checkdata[Data]{\url{https://huggingface.co/datasets/kaupane/AstroAgentBench}}
 
@@ -80,11 +82,11 @@ Modern LLM agents have moved beyond single-turn answer generation toward systems
 
 We ask three questions about LLM agents in executable space mission planning. First, can they produce plans that pass external feasibility checks rather than merely describe plausible strategies? Second, when a submission is valid, how close is its quality to that of specialized solver references? Third, which system conditions explain variation in validity and scores, including verifier use, domain guidance, and accumulated experience? The distinction matters because validity alone is too weak. A plan can satisfy a schema and still observe no valuable targets, serve no demand, or cover little area. A benchmark for this setting must therefore evaluate both feasibility and graded mission value.
 
-We introduce \textbf{AstroAgentBench},\footnote{Cases, generators, verifiers, solver references, experiment code, and run traces are publicly available at \url{https://github.com/Mtrya/AstroAgentBench}.} a verifier-backed suite covering seven executable space mission-planning task families across scheduling, observation planning, constellation design, and relay support. Each case provides mission files, documentation, libraries, a solution schema, and a verifier (Figure~\ref{fig:overview}). The agent must construct a planning procedure rather than call a pre-built domain planner. By combining heterogeneous task families, external feasibility checks, graded mission value, and system-level attribution, the benchmark tests agent construction of executable plans under physical constraints.
+We introduce \textbf{AstroAgentBench}, a verifier-backed suite covering seven executable space mission-planning task families across scheduling, observation planning, constellation design, and relay support. Each case provides mission files, documentation, libraries, a solution schema, and a verifier (Figure~\ref{fig:overview}). The agent must construct a planning procedure rather than call a pre-built domain planner. By combining heterogeneous task families, external feasibility checks, graded mission value, and system-level attribution, the benchmark tests agent construction of executable plans under physical constraints.
 
 We evaluate five LLM agent systems on AstroAgentBench and compare their outputs with per-family solver references. The main pattern is uneven capability: stronger systems often produce verifier-valid plans and sometimes approach solver-reference scores, but their success is task- and system-dependent, while weaker systems often fail before producing valid executable artifacts. The same invalid or low-value outcome can arise from different parts of the run, from task interpretation to plan construction and final submission.
 
-We further study two forms of workspace support for solution construction. Procedure injection tests whether compact domain guidance supplies useful abstractions or brittle templates. Memory accumulation tests whether prior run experience transfers across families. AstroAgentBench therefore treats grounded planning as an agent-system property rather than a model-only property.
+We further study two forms of workspace support for solution construction. Procedure injection tests whether compact domain guidance supplies useful abstractions or brittle templates. Memory accumulation tests whether experience accumulated on training cases transfers to held-out test cases. AstroAgentBench therefore treats grounded planning as an agent-system property rather than a model-only property.
 
 The paper makes three contributions. First, it introduces a seven-family verifier-backed benchmark for executable space mission planning, with schemas, instances, verifiers, and solver-reference comparisons. Second, it provides an empirical evaluation of contemporary LLM agent systems on this benchmark, measuring feasibility and comparing normalized scores with task-specific solver references. Third, it analyzes how trace-level failure modes, verifier use, procedure injection, and memory accumulation shape performance. AstroAgentBench gives emerging LLM-for-Space work a controlled evaluation setting grounded in physical and astrodynamic checks of feasibility and mission value.
 
@@ -117,13 +119,13 @@ Agent benchmarks have expanded from symbolic planning tasks to interactive and c
 
 AstroAgentBench is a seven-family benchmark for executable space mission planning with LLM agents, spanning scheduling, imaging, and constellation design. A case gives the agent a mission instance, machine-readable files, documentation, libraries, and a required solution format. The submitted artifact is a schedule, assignment, geometric observation plan, constellation design, or contact plan that is checked after the run by an external verifier.
 
-The suite contains 116 generated and normalized cases spanning train/test splits and seven task families. Agile Earth-observation scheduling, SatNet, and SPOT-5 center on selecting or assigning precomputed opportunities. Stereo Imaging and Regional Coverage require geometric observation plans. Revisit Constellation and Relay Constellation add constellation-design variables together with operating schedules. Table~\ref{tab:benchmark-input-scale} summarizes the per-case input scale, and Appendix~\ref{app:task-contracts} gives the family-specific task definitions.
+The suite contains 116 generated and normalized cases spanning train/test splits and seven task families. Agile Earth-observation scheduling, SatNet, and SPOT-5 center on selecting or assigning precomputed opportunities. Stereo Imaging and Regional Coverage require geometric observation plans. Revisit Constellation and Relay Constellation add constellation-design variables together with operating schedules. Table~\ref{tab:benchmark-input-scale} summarizes the per-case input scale, and Appendix~\ref{app:task-contracts} gives the per-family train/test breakdown (Table~\ref{tab:case-splits}) and the family-specific task definitions.
 
 \begin{table}[t]
 \centering
-\scriptsize
+\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{>{\raggedright\arraybackslash}p{0.19\columnwidth}>{\raggedright\arraybackslash}p{0.13\columnwidth}>{\raggedright\arraybackslash}p{0.58\columnwidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.19\columnwidth}>{\raggedright\arraybackslash}p{0.15\columnwidth}>{\raggedright\arraybackslash}p{0.56\columnwidth}}
 \hline
 \textbf{Task family} & \textbf{Horizon} & \textbf{Primary input entries per case} \\
 \hline
@@ -254,7 +256,7 @@ We compare agent systems with task-specific solver references under the same fam
 
 Table~\ref{tab:main-results} summarizes the main result matrix. Every system has at least some verifier-valid plans, and two are valid on all 35 held-out cases. Normalized scores nevertheless remain far from saturated across several families, especially Regional Coverage and Stereo Imaging. Validity and mission value are therefore distinct measurements. With five held-out cases per family, these results provide an initial comparison of the evaluated systems. Appendix~\ref{app:score-uncertainty} reports 95\% case-bootstrap confidence intervals for the mean scores.
 
-The score gap between agents and solver references varies across task families. In AEOSSP, SPOT-5, Revisit Constellation, and Relay Constellation, the strongest agent row is within roughly three normalized points of the best available solver baseline. On SatNet, the strongest agent row outscores the solver-baseline row under the normalized scorer. Regional Coverage and Stereo Imaging remain more separated: the best solver baselines average 86.44 and 96.05, while the strongest agent rows average 73.15 and 68.91.
+The score gap between agents and solver references varies across task families. On AEOSSP, the strongest agent row scores $3.04$ points below the best solver-reference row; on SPOT-5, Relay Constellation, Revisit Constellation, and SatNet, the strongest agent row scores above the corresponding reference row by $1.00$, $3.12$, $5.52$, and $7.86$ points, respectively. Regional Coverage and Stereo Imaging remain more separated: the best solver baselines average 86.44 and 96.05, while the strongest agent rows average 73.15 and 68.91.
 
 Scores also vary widely within systems. A row that is strong on one family can leave large gaps on geometry-heavy or design-heavy families, and the family leaders differ across agents.
 
@@ -273,7 +275,7 @@ The result matrix in Section~\ref{sec:experiments} shows uneven capability rathe
 \subsection{Failure Modes}
 \label{sec:what-fails}
 
-Trace evidence separates two failure layers: formulating the task from the available materials, and constructing a high-value plan after the task has been formulated. In \textbf{task-formulation failures}, the system may read the task document but fail to integrate the physical model, coupled constraints, scored objective, and required submitted artifact. Stereo Imaging gives the most compact example. Access-window selection is only the first step: raw observations must remain valid under hard constraints, form eligible stereo products, satisfy footprint overlap, convergence, and pixel-scale checks, and preserve final validity. The observed failures break different links in this pipeline. Kimi CLI + Kimi K2.6 produces valid observations whose footprints often do not create products. Claude Code + Claude Opus 4.6 sometimes treats rich case files as a complete task definition, builds a plausible self-imposed problem, and optimizes an inferred product-level schema and hallucinated objective.
+Trace evidence separates two failure layers: formulating the task from the available materials, and constructing a high-value plan after the task has been formulated. In \textbf{task-formulation failures}, the system may read the task document but fail to integrate the physical model, coupled constraints, scored objective, and required submitted artifact. Stereo Imaging gives the most compact example. Access-window selection is only the first step: raw observations must remain valid under hard constraints, form eligible stereo products, satisfy footprint overlap, convergence, and pixel-scale checks, and preserve final validity. The observed failures break different links in this pipeline. Kimi CLI + Kimi K2.6 produces valid observations whose footprints often do not create products. Claude Code + Claude Opus 4.6 sometimes treats rich case files as a complete task definition, builds a plausible self-imposed problem, and optimizes an inferred product-level schema and hallucinated objective. Some Stereo Imaging failures also reflect ambiguity in the documented cross-track sign convention (Appendix~\ref{app:additional-case-studies}), so these outcomes measure sensitivity to the supplied task specification as well as planning capability.
 
 In \textbf{solution-construction failures}, the system has enough of the task contract to generate candidates, but cannot reliably build, improve, and preserve a high-value executable plan. The failure appears as weak search, brittle code, late verifier use, or silent goal drift during optimization. OpenCode + MiniMax M2.7 is representative. It often contacts the task document or verifier, yet still accepts valid but zero-value relay submissions, trusts agent-written simulators after verifier disagreement, or treats feasibility as the stopping condition. OpenCode + DeepSeek V4 Pro shows a related pattern on Stereo Imaging: a run may find useful product geometry, but lose the final score by failing to preserve both product value and hard-constraint validity. Table~\ref{tab:verifier-calls} shows the aggregate counterpart for selected families: Claude Code + Claude Opus 4.6 and OpenCode + MiniMax M2.7 include several no-call cases, so those runs could not use verifier feedback to correct an agent-inferred task model or simulator during construction. Appendix~\ref{app:hallucination-metrics} quantifies the process-level counterparts of these failures across all 175 main-experiment runs: 12.6\% end with an invalid submission, 9.1\% submit a valid artifact that scores zero, and 22.3\% commit to a durable artifact before reading the root workspace contract.
 
@@ -327,7 +329,7 @@ The ablations below focus on whether workspace support improves the solution-con
 \subsection{Ablations}
 \label{sec:ablations}
 
-We test two prompt/workspace supports that target solution construction for OpenCode + DeepSeek V4 Pro and OpenCode + MiniMax M2.7. We choose these two systems because they are the weaker pair in the evaluation, and these two families because they place OpenCode + DeepSeek V4 Pro in a middle band, well below the stronger systems but short of total failure, where workspace support has room to register a measurable change. \textbf{Procedure injection} adds human-written task procedures to the workspace. \textbf{Memory accumulation} adds notes distilled from prior agent runs. Figure~\ref{fig:ablation-effects} reports five-case mean normalized-score deltas on Regional Coverage and Relay Constellation. The appendix reports the underlying system-level rows.
+We test two prompt/workspace supports that target solution construction for OpenCode + DeepSeek V4 Pro and OpenCode + MiniMax M2.7. We choose these two systems because they share the OpenCode harness, and these two families because they place OpenCode + DeepSeek V4 Pro in a middle band, well below the stronger systems but short of total failure, where workspace support has room to register a measurable change. \textbf{Procedure injection} adds human-written task procedures to the workspace. \textbf{Memory accumulation} adds notes distilled from prior agent runs on training cases. Figure~\ref{fig:ablation-effects} reports five-case mean normalized-score deltas on Regional Coverage and Relay Constellation. The appendix reports the underlying system-level rows.
 
 Human-written domain procedures help most when they turn construction into local verifier-guided search. For OpenCode + DeepSeek V4 Pro, the full procedure pack gives the largest Regional Coverage gain, consistent with a loop that generates candidate strips, scores marginal coverage, and preserves verified incumbents. Relay Constellation is more conjunctive: placement, routing, and scheduling must align before service appears, so procedure support gives only small gains for DeepSeek. For OpenCode + MiniMax M2.7, procedures produce smaller Regional gains and larger Relay gains from a zero-score baseline. This contrast suggests that procedures can reduce empty-service collapses, but they do not by themselves supply the coordinated search needed for high relay value.
 
@@ -354,7 +356,7 @@ The ablations are diagnostic rather than exhaustive. Procedure injection and mem
 
 The benchmark reports one sampled difficulty regime. The generators could create larger constellations, denser demand patterns, longer horizons, and higher asset counts. We do not report scaling curves across those regimes, so the results do not establish how the evaluated systems would behave as mission scale increases.
 
-\section*{Ethics Statement}
+\section*{Ethical Considerations}
 
 Space mission-planning technology has dual-use potential. Better automated planning can support scientific observation, disaster response, communications, and operations analysis, but similar capabilities could also support surveillance, military planning, or strategic space operations. AstroAgentBench is designed as an evaluation benchmark rather than an operational autonomy stack: it uses compact physical models, public or representative inputs, and offline verifiers, and it does not provide procedures for commanding spacecraft or ground systems. Extensions toward full-fidelity mission simulation or direct operational interfaces would change this risk profile.
 
@@ -430,7 +432,7 @@ For families that compute geometry from orbital state, feasibility is evaluated 
 \hline
 \rowcolor{black!10}
 \multicolumn{8}{l}{\textit{State and reference geometry}} \\
-Propagation & SGP4 & precomputed & abstracted & SGP4 & SGP4 & J2 & J2 \\
+Propagation & SGP4 (TEME) & precomputed & abstracted & SGP4 (TEME) & SGP4 (TEME) & J2 & J2 \\
 Frame conversion & GCRF--ITRF & / & / & GCRF--ITRF & GCRF--ITRF & GCRF--ITRF & GCRF--ITRF \\
 Surface model & WGS84 & / & / & WGS84 & WGS84 & spherical \(R_E\) & spherical \(R_E\) \\
 \hline
@@ -446,13 +448,13 @@ Capacity resource & / & antenna occupancy & recorder cap & / & duty limit & / & 
 \hline
 \end{tabular*}
 \endgroup
-\caption{Physical and astrodynamics model ingredients by family. A slash marks an inactive layer because the family uses a higher-level abstraction for that part of the physical problem. Revisit and Relay convert geodetic targets or endpoints into Earth-fixed coordinates; the surface-model row names the Earth body used for altitude and blockage checks.}
+\caption{Physical and astrodynamics model ingredients by family. A slash marks an inactive layer because the family uses a higher-level abstraction for that part of the physical problem. SGP4 natively produces TEME states, which the propagation wrappers convert into GCRF and ITRF. Revisit and Relay convert geodetic targets or endpoints into Earth-fixed coordinates; the surface-model row names the Earth body used for altitude and blockage checks.}
 \label{tab:physical-contract-inventory}
 \end{table*}
 
 Three modeling regimes recur across Table~\ref{tab:physical-contract-inventory}. SatNet and SPOT-5 are abstraction-heavy: their physical history enters the task through view periods, maintenance windows, forbidden tuples, camera domains, and capacity fields. AEOSSP, Stereo Imaging, and Regional Coverage keep the satellite set fixed and compute observation geometry from submitted actions. Revisit and Relay expose architecture variables: a solution supplies satellite states, and the model propagates those states before evaluating target visibility or communication service.
 
-\paragraph{Propagation and Frames.} AEOSSP, Stereo Imaging, and Regional Coverage use two-line elements (TLEs): compact mean-element records for cataloged Earth satellites. Their satellite states are propagated with SGP4, the standard TLE propagator that returns time-indexed position and velocity in an Earth-centered inertial frame. Revisit and Relay instead propagate submitted or added GCRF states with deterministic J2 dynamics, which model central-body gravity plus the dominant oblateness perturbation. For all five of these families, the resulting GCRF state is transformed into ITRF/ECEF before it is compared with Earth-fixed targets, grid samples, ground stations, or relay endpoints.
+\paragraph{Propagation and Frames.} AEOSSP, Stereo Imaging, and Regional Coverage use two-line elements (TLEs): compact mean-element records for cataloged Earth satellites. Their satellite states are propagated with SGP4, the standard TLE propagator, which natively returns position and velocity in the TEME frame; the propagation libraries convert TEME states into the GCRF inertial and ITRF Earth-fixed frames before any geometry is computed. Revisit and Relay instead propagate submitted or added GCRF states with deterministic J2 dynamics, which model central-body gravity plus the dominant oblateness perturbation. For AEOSSP, Regional Coverage, Revisit, and Relay, the resulting GCRF state is transformed into ITRF/ECEF before it is compared with Earth-fixed targets, grid samples, ground stations, or relay endpoints; Stereo Imaging queries Earth-fixed states from its propagator directly.
 
 \paragraph{Access and Pointing.} For satellite \(i\), ground object \(j\), and time \(t\), let \(\epsilon_{ij}(t)\) be the elevation angle of the satellite above the local horizon at \(j\), \(R_{ij}(t)\) the slant range, and \(\theta_{ij}(t)\) the payload pointing angle away from the allowed boresight or nadir direction. Let \(\epsilon_j^{\min}\) be the required minimum elevation at the target or ground endpoint, \(R_j^{\max}\) the maximum usable range when a range cap is modeled, and \(\theta_i^{\max}\) the payload's maximum pointing angle. A target observation is feasible only if the line of sight satisfies
 \[
@@ -539,7 +541,29 @@ Here \(V_f(I,S)=1\) means that the submitted solution satisfies the hard constra
 \]
 where \(N_f\) maps the family-native metric to the normalized scale defined below. Native metrics remain family-specific; \(Q_f\) is only the common reporting score.
 
-Table~\ref{tab:task-inventory} lists each family's submitted object, hard-validity layers, and native metrics. The derived quantities below are computed from submitted primitive actions, states, assignments, or link intervals.
+Table~\ref{tab:task-inventory} lists each family's submitted object, hard-validity layers, and native metrics. The derived quantities below are computed from submitted primitive actions, states, assignments, or link intervals. Table~\ref{tab:case-splits} gives the per-family case counts behind the 116-case suite and the 35-case held-out evaluation.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\begin{tabular}{lrrr}
+\hline
+\textbf{Family} & \textbf{Total} & \textbf{Train} & \textbf{Test} \\
+\hline
+AEOSSP & 30 & 10 & 5 \\
+SatNet & 5 & 0 & 5 \\
+SPOT-5 & 21 & 10 & 5 \\
+Stereo & 15 & 10 & 5 \\
+Regional & 15 & 10 & 5 \\
+Revisit & 15 & 10 & 5 \\
+Relay & 15 & 10 & 5 \\
+\hline
+All & 116 & 60 & 35 \\
+\hline
+\end{tabular}
+\caption{Per-family case counts. Test is the held-out split used by the main evaluation and all ablations. AEOSSP additionally provides 15 auxiliary-split cases (test\_easy, test\_hard, test\_horizon\_2022); SatNet contributes five published instances, all held out; SPOT-5's train and test lists overlap on two instances by design, and eight further published instances are in neither split.}
+\label{tab:case-splits}
+\end{table}
 
 \paragraph{AEOSSP.} Let \(\mathcal{J}\) be the task set. Task \(j\in\mathcal{J}\) has release time \(r_j\), deadline \(d_j\), required duration \(\delta_j\), required sensor type \(\sigma_j\), and weight \(w_j\). Satellite \(i\) has sensor type \(\sigma_i\). A submitted point-observation action is
 \[
@@ -608,7 +632,7 @@ with lower values preferred. The reporting score is
   \end{aligned}
 \]
 
-\paragraph{SPOT-5.} Let \(\mathcal{P}\) be the candidate photograph set. Photograph \(p\) has profit \(v_p\) and allowed camera-mode domain \(D_p\); mode \(0\) denotes not selecting the photograph. Binary variable
+\paragraph{SPOT-5.} Let \(\mathcal{P}\) be the candidate photograph set. Photograph \(p\) has profit \(v_p\) and allowed camera-mode domain \(D_p\), which contains only nonzero camera modes; submitting value \(0\), equivalently the all-zero assignment, denotes not selecting the photograph. Binary variable
 \[
   x_{p,m}\in\{0,1\},\qquad p\in\mathcal{P},\ m\in D_p,
 \]
@@ -620,7 +644,7 @@ and must satisfy every listed binary or ternary conflict. For a forbidden tuple 
 \[
   \sum_{\ell=1}^{r}x_{p_\ell,m_\ell}\le r-1.
 \]
-In multi-orbit instances, \(w_{p,m}\) is the memory consumption of selecting photograph \(p\) with mode \(m\), and memory use is capped by
+In multi-orbit instances, \(w_{p,m}\) is the memory consumption of selecting photograph \(p\) with mode \(m\), divided by a fixed normalizing constant and rounded, and memory use is capped by
 \[
   \sum_{p\in\mathcal{P}}\sum_{m\in D_p} w_{p,m}x_{p,m}\le 200.
 \]
@@ -1189,15 +1213,15 @@ This appendix reports the family-native metrics behind Table~\ref{tab:main-resul
 \quad coverage\,$\ddagger$ & 0.197 & 0.723 & 0.003 & 0.000 & 0.188 & 0.971 & 0.944 \\
 \hline
 \end{tabularx}
-\caption{Family-native metrics behind Table~\ref{tab:main-results}, in raw units, for the five agent systems (Claude = Claude Code + Claude Opus 4.6; Codex = Codex CLI + GPT-5.4; Kimi = Kimi CLI + Kimi K2.6; OC+MM = OpenCode + MiniMax M2.7; OC+DS = OpenCode + DeepSeek V4 Pro) and the two strongest reference solvers per family. Pale green, blue, and yellow column shading separate metric labels, agent-system columns, and reference columns; darker bold cells mark the best value in rows with a displayed preference direction, with ties all marked. Each row is one native term the family score uses; the parenthetical weight is its coefficient in the normalized mapping of Appendix~\ref{app:task-contracts} and the arrow its preferred direction ($\uparrow$ higher better, $\downarrow$ lower better). Families divide into three types: \emph{weighted} families combine the listed terms linearly; \emph{gated} families score a revisit-gap or service core and add a post-gate bonus, so the terms enter nonlinearly and no single weight applies; \emph{single-objective} families have a score that is a monotone rescaling of one metric. Cells are penalized five-case means: invalid or missing cases take the score-zero native value, namely zero for higher-is-better metrics, one for the bounded SatNet ratios, the 48-hour horizon for the revisit gap, and the 12-hour horizon for AEOSSP turnaround on cases with no completed task. \emph{valid (/5)} counts verifier-valid cases. $\dagger$ marks count and battery-margin terms reported as valid-only means, since a penalty for a count is ill-defined; $\ddagger$ marks unscored context metrics. Profit is in thousands of objective points, power in kWh, turnaround in seconds, the revisit gap in hours, battery in Wh. Reference columns hold fixed named solvers rather than Table~\ref{tab:main-results}'s per-case envelope: Ref1 and Ref2 are MWIS conflict-graph and greedy-LNS (AEOSSP), $\Delta$-MILP and PPO (SatNet), CP local-search and CELF (Regional), J2-RGT set-cover and RGT-APC constructive (Revisit), MCLP-TEG and UMCF-SRR (Relay), CP local-search and pruned MILP (Stereo), and reference lookup (SPOT-5, one reference). The Relay full-service latency and satellite bonus is inactive here because no agent reaches full service.}
+\caption{Family-native metrics behind Table~\ref{tab:main-results}, in raw units, for the five agent systems (Claude = Claude Code + Claude Opus 4.6; Codex = Codex CLI + GPT-5.4; Kimi = Kimi CLI + Kimi K2.6; OC+MM = OpenCode + MiniMax M2.7; OC+DS = OpenCode + DeepSeek V4 Pro) and the two strongest reference solvers per family. Pale green, blue, and yellow column shading separate metric labels, agent-system columns, and reference columns; darker bold cells mark the best value in rows with a displayed preference direction, with ties all marked. Each row is one native term the family score uses; the parenthetical weight is its coefficient in the normalized mapping of Appendix~\ref{app:task-contracts} and the arrow its preferred direction ($\uparrow$ higher better, $\downarrow$ lower better). Families divide into three types: \emph{weighted} families combine the listed terms linearly; \emph{gated} families score a revisit-gap or service core and add a post-gate bonus, so the terms enter nonlinearly and no single weight applies; \emph{single-objective} families have a score that is a monotone rescaling of one metric. Cells are penalized five-case means: invalid or missing cases take the score-zero native value, namely zero for higher-is-better metrics, one for the bounded SatNet ratios, the 48-hour horizon for the revisit gap, and the 12-hour horizon for AEOSSP turnaround on cases with no completed task. \emph{valid (/5)} counts verifier-valid cases. $\dagger$ marks count and battery-margin terms reported as valid-only means, since a penalty for a count is ill-defined; $\ddagger$ marks unscored context metrics. Profit is in thousands of objective points, power in kWh, turnaround in seconds, the revisit gap in hours, battery in Wh. Reference columns hold fixed named solvers rather than Table~\ref{tab:main-results}'s per-case envelope: Ref1 and Ref2 are MWIS conflict-graph and greedy-LNS (AEOSSP), $\Delta$-MILP and PPO (SatNet), CP local-search and CELF (Regional), J2-RGT set-cover and RGT-APC constructive (Revisit), MCLP-TEG and UMCF-SRR (Relay), CP local-search and pruned MILP (Stereo), and reference lookup (SPOT-5, one reference). The Relay full-service latency and satellite bonus is gated per case at full service: Codex and Kimi each reach full service on one of the five cases, so their Relay means include that bonus, while the reference rows never reach full service.}
 \label{tab:native-metrics}
 \end{table*}
 
 Table~\ref{tab:native-metrics} reports the raw mission metrics behind the normalized results in Table~\ref{tab:main-results}, so the mapping in Appendix~\ref{app:task-contracts} can be read against the quantities each source formulation optimizes. The families divide into three scoring types. Three combine several native terms under fixed weights: AEOSSP over completed-weight ratio, completion ratio, turnaround, and power; SatNet over two unsatisfied-demand statistics; Regional over two coverage terms with an action-count and a battery margin. Two are gated rather than linear: Revisit scores a revisit-gap curve and adds a satellite-count bonus only once every target meets its requirement, and Relay scores demand service and worst-group service and adds a latency and satellite bonus only at full service. The last two are single-objective, where the score is a monotone rescaling of one metric: selected profit for SPOT-5 and product quality for Stereo Imaging. A normalized scale is needed where a family folds several mission terms into one comparable number, which is five of the seven families.
 
-SatNet is the sharpest test of whether normalization flatters the agent rows. Under its published unsatisfied-demand metrics, the strongest agent system reaches $U_{\mathrm{rms}}=0.234$ and $U_{\max}=0.519$, improving on both the mixed-integer baseline ($0.302$, $0.673$) and the reinforcement-learning baseline ($0.316$, $0.772$). The normalized scorer records a narrower lead, $69.45$ against the $61.59$ solver-reference row, because it compresses the unsatisfied-demand range onto a bounded scale. On SatNet the normalization is conservative for the agent rows rather than generous.
+SatNet is the sharpest test of whether normalization flatters the agent rows. Under its published unsatisfied-demand metrics, the strongest agent system reaches $U_{\mathrm{rms}}=0.234$ and $U_{\max}=0.519$, improving on both the mixed-integer baseline ($0.302$, $0.673$) and the reinforcement-learning baseline ($0.316$, $0.772$). The normalized scorer records a narrower lead, $69.45$ against the $61.59$ solver-reference row, because it compresses the unsatisfied-demand range onto a bounded scale.
 
-The native columns also locate where the agent rows genuinely trail, on the raw quantity rather than as an effect of the mapping. Regional Coverage separates on its weighted coverage term, where the strongest agent reaches $0.944$ against references at $0.995$ and $0.968$, and where one agent returns valid but empty schedules at zero coverage. Stereo Imaging separates on product quality, $0.689$ for the strongest agent against $0.961$ and $0.920$ for the references; because Stereo is single-objective, its native and normalized values agree by construction, so this gap is a real quality deficit and not a normalization artifact.
+The native columns also locate where the agent rows genuinely trail, on the raw quantity rather than as an effect of the mapping. Regional Coverage separates on its weighted coverage term, where the strongest agent reaches $0.944$ against references at $0.995$ and $0.968$, and where one agent returns valid but empty schedules at zero coverage. That system's nonzero normalized score comes entirely from the action-count and battery-margin terms, so its best-marked zero action count reflects not acting at all rather than better task performance. Stereo Imaging separates on product quality, $0.689$ for the strongest agent against $0.961$ and $0.920$ for the references; because Stereo is single-objective, its native and normalized values agree by construction, so this gap is a real quality deficit and not a normalization artifact.
 
 Read across families, the native columns reproduce the strong-to-weak ordering of Table~\ref{tab:main-results}. The divergences fall on the weighted and gated families, whose score folds in secondary mission terms beyond the leading native metric, such as SatNet's worst-group ratio, the Regional action and battery margins, or the Relay worst-group service. The normalized scale aggregates mission value across these terms rather than relabeling a single metric, which is why it can be read against the native columns without reducing to them.
 
@@ -1232,7 +1256,7 @@ System & No procedure & Compact & Procedure pack \\
 \end{table*}
 
 \paragraph{Memory accumulation.}
-Memory is more specific than a static procedure and higher variance, since prior-run notes may carry concrete candidate families, warnings from earlier verifier failures, or habits for preserving a valid solution. On Relay Constellation, OpenCode + DeepSeek V4 Pro improves with memory from $0.56$ service with no memory to $0.68$ with Codex-derived notes and $0.83$ with its own prior-run notes, the largest native gain in either ablation. Regional Coverage shows the transfer-mismatch boundary: Codex-derived notes raise weighted coverage to $0.72$, above the $0.65$ from the reader's own notes, so a donor candidate family can transfer better than self-derived memory when it matches the new geometry. OpenCode + MiniMax M2.7 again gains only marginally and stays below $0.18$ on both families; on Relay its DeepSeek-derived condition also drops two of five cases to invalid, so the penalized service of $0.11$ reflects reliability loss rather than quality alone.
+Each memory condition mounts a frozen note set. A donor system (Codex CLI + GPT-5.4, or OpenCode + DeepSeek V4 Pro) accumulated notes over twelve training cases, two per family for the six families with a training split, and the resulting snapshot is mounted unchanged into every evaluated run: no note derives from a held-out test case, and nothing accumulates across test runs. The mounted set always contains notes from all six donor families, so the reported conditions mix same-family training notes with cross-family notes. Memory is more specific than a static procedure and higher variance, since prior-run notes may carry concrete candidate families, warnings from earlier verifier failures, or habits for preserving a valid solution. On Relay Constellation, OpenCode + DeepSeek V4 Pro improves with memory from $0.56$ service with no memory to $0.68$ with Codex-derived notes and $0.83$ with its own prior-run notes, the largest native gain in either ablation. Regional Coverage shows the transfer-mismatch boundary: Codex-derived notes raise weighted coverage to $0.72$, above the $0.65$ from the reader's own notes, so a donor candidate family can transfer better than self-derived memory when it matches the new geometry. OpenCode + MiniMax M2.7 again gains only marginally and stays below $0.18$ on both families; on Relay its DeepSeek-derived condition also drops two of five cases to invalid, so the penalized service of $0.11$ reflects reliability loss rather than quality alone.
 
 \begin{table*}[!t]
 \centering
@@ -1345,7 +1369,7 @@ Kimi CLI + Kimi K2.6 on Revisit Constellation shows why this matters. The trace 
 \section{Hallucination and Ungrounded-Submission Metrics}
 \label{app:hallucination-metrics}
 
-The failure modes in Section~\ref{sec:what-fails} and the case studies in Appendix~\ref{app:additional-case-studies} include hallucination-type behaviors: agents build self-imposed task contracts, optimize hallucinated objectives, trust agent-written validators over the official verifier, or hand off confident but empty artifacts. Table~\ref{tab:hallucination-metrics} quantifies three process-level counterparts over the full main-experiment matrix (175 runs, 35 per system). \emph{Invalid submissions} are runs whose final collected artifact is rejected by the official verifier, typically through fabricated schema fields or malformed artifacts; 22 runs (12.6\%) end this way. \emph{Valid-but-zero submissions} pass the official verifier but score zero: the artifact is real but operationally empty; 16 runs (9.1\%). \emph{Ungrounded commitments} are runs that write a durable candidate or deliverable artifact before reading the root workspace contract, the behavioral precondition for self-imposed task models; 39 runs (22.3\%), and 8 further runs make no detectable durable commitment.
+The failure modes in Section~\ref{sec:what-fails} and the case studies in Appendix~\ref{app:additional-case-studies} include hallucination-type behaviors: agents build self-imposed task contracts, optimize hallucinated objectives, trust agent-written validators over the official verifier, or hand off confident but empty artifacts. Table~\ref{tab:hallucination-metrics} quantifies three process-level counterparts over the full main-experiment matrix (175 runs, 35 per system). \emph{Invalid submissions} are runs whose final collected artifact is rejected by the official verifier, typically through fabricated schema fields or malformed artifacts; 22 runs (12.6\%) end this way. \emph{Valid-but-zero submissions} pass the official verifier but score zero: the artifact is real but operationally empty; 16 runs (9.1\%). \emph{Ungrounded commitments} are runs that write a durable candidate or deliverable artifact before reading the root workspace contract, the behavioral precondition for self-imposed task models; 39 runs (22.3\%), and 8 further runs make no detectable durable commitment. These counts key on explicit read events of the root task document; across the recorded traces, no harness auto-injects that document into the model's context, although Codex CLI auto-injects the generic workspace rules file, which is not the task contract.
 
 \begin{table}[h]
 \centering
@@ -1367,6 +1391,6 @@ All & 22 & 16 & 39 \\
 \label{tab:hallucination-metrics}
 \end{table}
 
-Two qualifications accompany these counts. First, valid-but-zero submissions have mixed causes: the four Kimi CLI + Kimi K2.6 cases on Stereo Imaging stem from an across-track sign-convention mismatch that leaves the artifact valid but with zero footprint overlap, whereas the Relay Constellation cases are zero-service handoffs. Second, an ungrounded commitment is a risk factor, not a verdict: runs can still recover once they acquire the workspace contract and let the official verifier override the private model. Even so, these metrics separate systems whose outcome scores are otherwise close. Codex CLI + GPT-5.4 and OpenCode + DeepSeek V4 Pro almost never commit before reading the contract (1 and 0 of 35 runs, respectively), while Claude Code + Claude Opus 4.6 and OpenCode + MiniMax M2.7 do so in roughly half of their runs, consistent with the trace evidence in Section~\ref{sec:what-fails}.
+Two qualifications accompany these counts. First, valid-but-zero submissions have mixed causes: three of the four Kimi CLI + Kimi K2.6 cases on Stereo Imaging stem from an across-track sign-convention mismatch that leaves the artifact valid but with zero footprint overlap, whereas the Relay Constellation cases are zero-service handoffs. Second, an ungrounded commitment is a risk factor, not a verdict: runs can still recover once they acquire the workspace contract and let the official verifier override the private model. Even so, these metrics separate systems whose outcome scores are otherwise close. Codex CLI + GPT-5.4 and OpenCode + DeepSeek V4 Pro almost never commit before reading the contract (1 and 0 of 35 runs, respectively), while Claude Code + Claude Opus 4.6 and OpenCode + MiniMax M2.7 do so in roughly half of their runs, consistent with the trace evidence in Section~\ref{sec:what-fails}.
 
 \end{document}

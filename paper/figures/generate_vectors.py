@@ -376,8 +376,9 @@ def overview(output):
         y = 786 + i * 52
         for a, b, lines in zip(cols, cols[1:], row):
             svg.rect(a, y, b-a, 52, "#ffffff", "#a9bfd3", sw=1)
+            baseline = y + 34 - (len(lines) - 1) * 11.5
             for k, label in enumerate(lines):
-                svg.text((a+b)/2, y+22+k*23, label, 22, anchor="middle")
+                svg.text((a+b)/2, baseline+k*23, label, 22, anchor="middle")
 
     card(844, 80, 188, "Independent verifier",
          "Checks the submitted plan against the task contract.\nReports validity and mission value.",
@@ -404,7 +405,7 @@ def overview(output):
     checkmark(svg, 904, 871, 17)
     svg.text(904, 917, "Validity", 24, True, anchor="middle")
     gauge(svg, 1056, 888, 26)
-    svg.text(1056, 917, "Normalized score", 24, True, color=BLUE, anchor="middle")
+    svg.text(1056, 917, "Normalized score", 24, True, anchor="middle")
     svg.save(output / "chapter1_overview_v10.svg")
 
 
