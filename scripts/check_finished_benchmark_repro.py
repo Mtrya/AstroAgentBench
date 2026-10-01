@@ -177,9 +177,14 @@ def check_reproducibility() -> list[str]:
                 actual = benchmark_out / relative
                 _compare_paths(expected, actual, benchmark.name, errors)
             for relative in curated:
-                if not (benchmark_out / relative).is_file():
+                actual = benchmark_out / relative
+                if not actual.is_file():
                     errors.append(
                         f"{benchmark.name}: regeneration dropped committed dataset file {relative}"
+                    )
+                elif not filecmp.cmp(benchmark_root / relative, actual, shallow=False):
+                    errors.append(
+                        f"{benchmark.name}: regeneration modified committed dataset file {relative}"
                     )
     return errors
 
