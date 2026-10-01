@@ -37,3 +37,7 @@ benchmarks/*/visualizer/cache
 # Experiment outputs
 .runtime
 results/
+
+# Submission-branch leftovers (tracked on their own snapshot branches)
+paper/
+experiments/_fragments/
