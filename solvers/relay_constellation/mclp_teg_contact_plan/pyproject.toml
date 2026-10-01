@@ -6,7 +6,9 @@ requires-python = ">=3.11"
 dependencies = [
     "brahe>=1.3.4",
     "numpy>=2.4.4",
-    "pulp>=2.8",
+    # pulp 4.0 removed the PULP_CBC_CMD alias this solver's availability probe uses;
+    # stay on the 3.x line that the recorded reference runs were produced with.
+    "pulp>=2.8,<4",
     "PyYAML>=6.0.3",
     "pytest>=9.0.3",
 ]
