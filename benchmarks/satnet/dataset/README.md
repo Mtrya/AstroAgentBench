@@ -35,18 +35,29 @@ Shared, non-verifier-critical benchmark metadata remains at dataset scope:
 
 ## Provenance
 
-The canonical cases are generated from the aggregate upstream SatNet data:
+The canonical cases are generated from the bundled snapshot in
+[sources/satnet.json](../sources/satnet.json), which consolidates the published
+upstream SatNet data:
 
 - repository: `https://github.com/edwinytgoh/satnet`
 - source files: `data/problems.json`, `data/maintenance.csv`,
   `data/mission_color_map.json`
 
+[sources/manifest.json](../sources/manifest.json) records the normalization
+applied, the historical upstream ref as provenance rather than a live download
+selector, and the SHA-256 hash checked before generation. Canonical generation
+reads that snapshot and needs no network access.
+
 The committed split assignment is recorded in [splits.yaml](../splits.yaml),
 which currently places all five published cases in the `test` split and pairs
 `dataset/example_solution.json` with `test/W10_2018`.
 
-Use [generator.py](../generator.py) to regenerate this layout from the upstream source or a local copy of the upstream `data/` directory:
+Use [generator.py](../generator.py) to regenerate this layout from the bundled snapshot:
 
 ```bash
 uv run python benchmarks/satnet/generator.py benchmarks/satnet/splits.yaml
 ```
+
+To regenerate from a local copy of the upstream `data/` directory instead, add
+`--source-dir /path/to/upstream-data`. That path skips the bundled snapshot and
+its hash check, so it is a maintenance input rather than the canonical route.

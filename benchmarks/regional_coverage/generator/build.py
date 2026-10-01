@@ -478,9 +478,9 @@ def _cleanup_output_dir(output_dir: Path) -> None:
         if path.is_dir():
             shutil.rmtree(path)
     shutil.rmtree(output_dir / "cases", ignore_errors=True)
-    for path in (output_dir / "index.json", output_dir / "example_solution.json"):
-        if path.exists():
-            path.unlink()
+    index_path = output_dir / "index.json"
+    if index_path.exists():
+        index_path.unlink()
 
 
 def _sample_case(
