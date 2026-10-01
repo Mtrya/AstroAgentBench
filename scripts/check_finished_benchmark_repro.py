@@ -101,6 +101,21 @@ def _run_generator(
     )
 
 
+GIT_LOCATION_VARS = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+)
+
+
+def _git_env() -> dict[str, str]:
+    """Keep git pointed at this checkout rather than one inherited from the caller."""
+    return {key: value for key, value in os.environ.items() if key not in GIT_LOCATION_VARS}
+
+
 def _tracked_curated_dataset_files(benchmark_root: Path, generated_paths: list[str]) -> list[Path]:
     """Committed dataset files the generator does not produce, relative to the benchmark root."""
     benchmark_relative = benchmark_root.relative_to(REPO_ROOT)
@@ -110,6 +125,7 @@ def _tracked_curated_dataset_files(benchmark_root: Path, generated_paths: list[s
         check=True,
         capture_output=True,
         text=True,
+        env=_git_env(),
     ).stdout.split("\0")
     curated: list[Path] = []
     for entry in tracked:
