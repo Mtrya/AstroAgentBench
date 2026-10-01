@@ -65,6 +65,8 @@ The preview reports any setup inputs still needed. Before executing agent runs, 
 
 Recorded [main result tables and case studies](experiments/main_agentic/reports/) and the individual study reports are included. Read [the snapshot guide](docs/snapshot.md) for paper and artifact organization.
 
+Agent run traces backing these results are published separately as a redacted, checksummed archive at [10.5281/zenodo.23084446](https://doi.org/10.5281/zenodo.23084446); see [run archives](docs/snapshot.md#run-archives).
+
 ## Paper
 
 The available manuscript source, bibliography, styles, and required figures are in [`paper/`](paper/README.md). It builds without rerunning experiments. Camera-ready formatting and author metadata are still being finalized.
