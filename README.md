@@ -36,7 +36,7 @@ Preparation refuses to overwrite an existing task directory. Use a new output/jo
 
 Prepare a task without `--reference-solution`, then select a Harbor installed-agent adapter or your own `BaseAgent` implementation. The system writes `/workspace/solution/solution.json`; Harbor collects the directory and evaluates it in a separate container. No repository-specific model router or reasoning protocol is required.
 
-[Evaluation instructions](experiments/evaluate/README.md) cover system adapters, a real bounded CELF solver example, settings, results, and limitations. Traditional solvers retain their standalone `setup.sh` / `solve.sh` interfaces under [solvers/](solvers/finished_solvers.json). Each solver README describes its method and compute requirements.
+[Evaluation instructions](experiments/evaluate/README.md) cover system adapters, interactive case inspection, a real bounded CELF solver example, settings, results, and limitations. Traditional solvers retain their standalone `setup.sh` / `solve.sh` interfaces under [solvers/](solvers/finished_solvers.json). Each solver README describes its method and compute requirements.
 
 ## Versions and contributions
 

@@ -31,6 +31,24 @@ The adapter uploads the selected solver and public configuration, calls its own 
 
 SPOT5's lookup baseline writes native text. Prepare its task with `--solution-filename solution.spot_sol.txt`; other benchmarks use `solution.json`. Lookup baselines validate plumbing and are not optimization methods.
 
+## Inspecting a case interactively
+
+To read one case by hand, or to try a solution before spending a Harbor trial on it, open a shell in the environment a system would actually see:
+
+```bash
+uv run --locked --extra evaluation python -m experiments.evaluate.workspace spot5 test 8 --output .runtime/tasks/spot5-inspect
+```
+
+The entrypoint prepares the same task `prepare` would, builds the same environment image, and drops you into `bash` in `/workspace` with the case under `case/` and an empty `solution/`. `/workspace/solution` is a bind mount, so anything written there stays on the host and can be scored afterwards:
+
+```bash
+uv run --locked --extra evaluation python -m experiments.evaluate.score --tests .runtime/tasks/spot5-inspect/tests --solution .runtime/tasks/spot5-inspect/solution --output .runtime/tasks/spot5-inspect/verifier
+```
+
+The image tag carries the case checksum, so a rebuilt environment always matches the prepared case; pass `--no-build` to reuse the existing one. `--cpus`, `--memory-mb`, `--image`, `--network no-network`, and `--solution-filename` mirror `prepare`. `--command` runs one command headlessly instead of a shell, which is useful in scripts.
+
+The container runs as your host user so files you leave behind stay editable, and it has no Harbor trial around it: artifacts are not collected, no agent or verifier timeout is enforced, and the verifier is not present, because `prepare` deliberately withholds it from the solving environment. Inspecting a case this way tells you nothing about how a system would perform. Score the result, or run a real trial.
+
 ## Settings and results
 
 Prepared tasks default to 2 CPUs, 4096 MiB memory, 10240 MiB requested storage, 7200 seconds of system execution, 600 seconds of verification, and public network access. Harbor defaults to Docker; `-n 1` in the examples runs one trial at a time. Image references, case/verifier hashes, source commit and dirty state, limits, and network policy are recorded. Use an image digest and a clean source commit for a fixed comparison. Docker does not promise a disk quota from `storage_mb`; check the provider's enforcement capabilities.
