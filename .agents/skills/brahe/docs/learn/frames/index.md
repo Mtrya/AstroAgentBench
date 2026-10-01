@@ -14,6 +14,9 @@ Inertial reference frames currently supported in Brahe are:
 
 - **GCRF (Geocentric Celestial Reference Frame)**: The standard modern inertial reference frame for Earth-orbiting satellites, aligned with the International Celestial Reference Frame (ICRF)
 - **EME2000 (Earth Mean Equator and Equinox of J2000.0)**: Classical J2000.0 mean equator and mean equinox inertial frame. Derived from the FK5 catalog and widely used in older systems
+- **MOD (Mean Equator and Equinox of Date)**: Earth mean equator and mean equinox of date, related to the GCRF by frame bias and precession
+- **TOD (True Equator and Equinox of Date)**: Earth true equator and true equinox of date, related to MOD by nutation
+- **TEME (True Equator and Mean Equinox of Date)**: The SGP4 output frame, anchored to Greenwich mean sidereal time on the IAU 1982 model
 - **LCI (Lunar-Centered Inertial)**: ICRF-aligned, centered on the Moon
 - **MCI (Mars-Centered Inertial)**: ICRF-aligned, centered on the Mars body center (NAIF ID 499)
 - **EMBI / SSBI**: ICRF-aligned, centered on the Earth-Moon and Solar System barycenters, respectively
@@ -34,7 +37,11 @@ Brahe also supports Moon- and Mars-fixed frames for multibody propagation and re
 - **MCMF (Mars-Centered Mars-Fixed)**: Mars-fixed frame, evaluated from the IAU/WGCCRE rotation model
 - **EMR / SER / GSE (Earth-Moon Rotating / Sun-Earth Rotating / Geocentric Solar Ecliptic)**: synodic frames that rotate with the line between two primary bodies
 
-See [Lunar Reference Frames](lunar_frames.md), [Mars Reference Frames](mars_frames.md), and [Synodic Reference Frames](synodic_frames.md) for details, and [Reference Frame Router](frame_transformations.md) for the `ReferenceFrame` router that converts between any two frames (including generic NAIF-ID variants for bodies without a dedicated named frame). Central-body propagation is covered in [Cislunar and Lunar Propagation](../orbit_propagation/numerical_propagation/cislunar_lunar_propagation.md) and [Propagation Around Other Central Bodies](../orbit_propagation/numerical_propagation/other_central_bodies.md).
+See [Lunar Reference Frames](lunar_frames.md), [Mars Reference Frames](mars_frames.md), and [Synodic Reference Frames](synodic_frames.md) for details, and [Reference Frame Router](frame_transformations.md) for the `CelestialFrame` router that converts between any two frames (including generic NAIF-ID variants for bodies without a dedicated named frame). Central-body propagation is covered in [Cislunar and Lunar Propagation](../orbit_propagation/numerical_propagation/cislunar_lunar_propagation.md) and [Propagation Around Other Central Bodies](../orbit_propagation/numerical_propagation/other_central_bodies.md).
+
+### Object-based Frames
+
+`ReferenceFrame` enables defining reference frames for non-celestial objects: orbit-relative frames (`RTN`, `LVLH`, ...) defined with respect to a satellite's orbital motion, or spacecraft body/sensor/actuator frames (`SC_BODY`, `CSS_1`, ...) defined with respect to a spacecraft's orientation. See [Frame Graph](frame_graph.md) for registering objects and orientation chains, and for the generalized `rotation_frame_to_frame`/`position_frame_to_frame`/`state_frame_to_frame` functions that accept either a `CelestialFrame` or a `ReferenceFrame`.
 
 ## Available Transformations
 
@@ -72,3 +79,21 @@ Learn more in [GCRF ↔ ITRF Transformations](gcrf_itrf.md)
 A constant frame bias transformation between the classical J2000.0 frame (Earth Equator and Mean Equinox) and the modern ICRS-aligned GCRF. The transformation is accomplished using the second-order frame bias rotation matrix as described in [Astrodynamics Convention and Modeling Reference for Lunar, Cislunar, and Libration Point Orbits by Folta et al.](https://ntrs.nasa.gov/api/citations/20220014814/downloads/NASA%20TP%2020220014814%20final.pdf), section 4.3.5.
 
 Learn more in [EME2000 ↔ GCRF Transformations](eme2000_gcrf.md)
+
+### GCRF ↔ MOD ↔ TOD
+
+Equinox-based transformations from the GCRF to the mean equator and equinox of date (MOD) and the true equator and equinox of date (TOD), and from TOD to the ITRF through Greenwich apparent sidereal time. The chain is `[ITRF] = W R3(GAST) N P B [GCRF]` from the [SOFA C transformation cookbook](https://www.iausofa.org/s/sofa_pn_c.pdf), evaluated on the precession-nutation model shared with the GCRF ↔ ITRF transformation.
+
+Learn more in [GCRF ↔ MOD ↔ TOD Transformations](equinox_frames.md)
+
+### GCRF ↔ TEME ↔ ITRF
+
+TEME is the true equator, mean equinox of date frame in which SGP4 expresses its output, related to the GCRF through the same bias-precession-nutation matrix used by the CIO-based chain and to the ITRF through Greenwich mean sidereal time on the IAU 1982 model rather than Greenwich apparent sidereal time.
+
+Learn more in [GCRF ↔ TEME ↔ ITRF Transformations](teme.md)
+
+### Precession-Nutation Model
+
+The GCRF ↔ ITRF and GCRF ↔ MOD ↔ TOD transformations evaluate the same precession-nutation model, IAU 2006/2000A by default, with the truncated IAU 2000B model selectable through a single global setting.
+
+Learn more in [Precession-Nutation Model](precession_nutation_model.md)

@@ -35,8 +35,20 @@ Brahe provides functions to convert between all attitude representations. You ca
 
 - Representing single rotations about an axis
 
+## Attitude Frames
+
+An attitude relates two frames: in brahe it is the [passive rotation](https://en.wikipedia.org/wiki/Active_and_passive_transformation) taking vector components in a source frame A to components in a target frame B. Both endpoints are `ReferenceFrame` values, so any frame the library knows about can serve as either endpoint.
+
+A `Celestial` endpoint is a frame the frame transformation system evaluates from an epoch alone (GCRF, ITRF, EME2000, and the other members of `CelestialFrame`); it composes directly with `rotation_frame_to_frame`. An `OrbitRelative` endpoint is a local orbital frame such as RTN or LVLH, defined only given an orbit state. A `Body` endpoint is an object-local frame — a spacecraft body, sensor, or actuator frame — whose orientation the attitude data itself supplies.
+
+## Attitude Kinematics
+
+The [kinematics functions](kinematics.md) relate an attitude representation's time derivative to angular velocity, in both directions, for quaternions and for all twelve Euler-angle sequences.
+
 ---
 
 ## See Also
 
+- [Attitude Kinematics](kinematics.md)
 - [API Reference - Attitude](../../library_api/attitude/index.md)
+- [Frame Graph](../frames/frame_graph.md)

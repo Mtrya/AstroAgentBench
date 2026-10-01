@@ -1,6 +1,6 @@
 # OPM — Orbit Parameter Message
 
-An Orbit Parameter Message (OPM) carries a single spacecraft state at one epoch — position, velocity, and optionally Keplerian elements, spacecraft parameters, maneuvers, and covariance. It is the standard format for handing off initial conditions for propagation or documenting a maneuver plan.
+An Orbit Parameter Message (OPM), defined by the [CCSDS 502.0-B-3 Orbit Data Messages standard](https://ccsds.org/Pubs/502x0b3e1.pdf), carries a single spacecraft state at one epoch — position, velocity, and optionally Keplerian elements, spacecraft parameters, maneuvers, and covariance. It is the standard format for handing off initial conditions for propagation or documenting a maneuver plan.
 
 ## Parse and Initialize a Propagator
 
@@ -23,7 +23,7 @@ print(f"Frame:  {opm.ref_frame}")
 
 # Extract initial conditions from OPM via .state property
 initial_state = opm.state  # numpy array [x, y, z, vx, vy, vz]
-print("\nInitial state (ECI):")
+print("\nInitial state (ITRF):")
 print(
     f"  Position: [{initial_state[0] / 1e3:.3f}, {initial_state[1] / 1e3:.3f}, {initial_state[2] / 1e3:.3f}] km"
 )
@@ -41,9 +41,9 @@ params = np.array([mass, drag_area, drag_coeff, srp_area, srp_coeff])
 print(f"\nSpacecraft params: mass={mass}kg, Cd={drag_coeff}, Cr={srp_coeff}")
 
 # Initialize propagator from OPM state
-# Note: OPM frame is ITRF2000; we convert to ECI for propagation
-# The propagator expects ECI coordinates
-state_eci = bh.state_ecef_to_eci(opm.epoch, initial_state)
+# The message declares its state in ITRF2000; the propagator expects GCRF, and
+# state_in_frame maps the declared frame through the reference frame router
+state_eci = opm.state_in_frame(bh.CelestialFrame.GCRF)
 prop = bh.NumericalOrbitPropagator(
     opm.epoch,
     state_eci,
@@ -140,6 +140,8 @@ for i, man in enumerate(opm.maneuvers):
 
 Every OPM has a **header** (version, creation date, originator), **metadata** (object identity, center body, reference frame, time system), and a **state vector** (epoch plus position and velocity). Beyond these required parts, four optional sections can be present.
 
+`CENTER_NAME` and `REF_FRAME` are resolved jointly: `REF_FRAME` names the state vector's orientation and `CENTER_NAME` its origin, independently of each other. `state_in_frame` converts the state vector to any other supported frame through the reference frame router; converting to a frame centered on the same body as the OPM's `CENTER_NAME` is a rotation only, while converting to a frame centered on a different body also translates through the loaded SPK kernels. A message that also declares `REF_FRAME_EPOCH` is interpreted in the of-epoch frame frozen at that epoch before `state_in_frame` converts it. See [Axes and Centers](../frames/frame_transformations.md#axes-and-centers) for the full `FrameAxes`/`CelestialFrame` picture.
+
 **Keplerian elements** duplicate the state vector information in orbital-element form — semi-major axis, eccentricity, inclination, RAAN, argument of pericenter, and true or mean anomaly, plus $GM$. The redundancy is intentional: elements are easier for humans to review at a glance, and some receiving systems prefer them as input.
 
 **Spacecraft parameters** record physical properties relevant to force modeling — mass, drag area and coefficient ($C_D$), and solar radiation pressure area and coefficient ($C_R$). These feed directly into atmospheric drag and SRP force models during numerical propagation.
@@ -150,11 +152,9 @@ Every OPM has a **header** (version, creation date, originator), **metadata** (o
 
 ## Maneuver Propagation
 
-Read OPM maneuvers and apply them as impulsive delta-V events during propagation:
+Read OPM maneuvers and apply them as impulsive delta-V events during propagation. The example message declares its state vector in the TOD frame, and `state_in_frame` converts it to GCRF through the reference frame router before it is handed to the propagator. The message's maneuver ignition epochs precede its state vector epoch, so the example schedules the maneuvers relative to the state epoch, preserving the spacing between them:
 
 ```python
-"""
-
 import numpy as np
 
 import brahe as bh
@@ -169,8 +169,8 @@ print(f"Object: {opm.object_name}")
 print(f"Epoch:  {opm.epoch}")
 print(f"Maneuvers: {len(opm.maneuvers)}")
 
-# Extract initial state (OPM is in TOD frame, convert to ECI)
-state_eci = bh.state_ecef_to_eci(opm.epoch, opm.state)
+# Extract initial state; the OPM declares its state in the TOD frame
+state_eci = opm.state_in_frame(bh.CelestialFrame.GCRF)
 
 # Spacecraft parameters from OPM
 mass = opm.mass or 500.0
@@ -193,42 +193,66 @@ prop = bh.NumericalOrbitPropagator(
     params,
 )
 
-# Add event detectors for each maneuver with inertial delta-V
-for i, man in enumerate(opm.maneuvers):
-    dv = man.dv  # [dvx, dvy, dvz] in m/s in the maneuver's ref frame
+# The message's ignition epochs precede its state epoch, so maneuvers are
+# scheduled relative to the state epoch, preserving the spacing between them
+first_ignition = opm.maneuvers[0].epoch_ignition
+scheduled_epochs = [
+    opm.epoch + 3600.0 + (man.epoch_ignition - first_ignition) for man in opm.maneuvers
+]
+
+
+def make_callback(dv_vec, man_idx, is_rtn):
+    """Create a closure that rotates the delta-V into GCRF and applies it.
+
+    Args:
+        dv_vec (numpy.ndarray): Delta-V [dv1, dv2, dv3] in the maneuver frame (m/s)
+        man_idx (int): Index of the maneuver within the OPM
+        is_rtn (bool): True if `dv_vec` is expressed in the RTN frame
+
+    Returns:
+        callable: Event callback returning the post-maneuver state and action
+    """
+
+    def apply_dv(epoch, state):
+        dv_gcrf = bh.rotation_rtn_to_eci(state) @ dv_vec if is_rtn else dv_vec
+        new_state = state.copy()
+        new_state[3] += dv_gcrf[0]
+        new_state[4] += dv_gcrf[1]
+        new_state[5] += dv_gcrf[2]
+        dv_mag = np.linalg.norm(dv_gcrf)
+        print(f"  Applied maneuver {man_idx} at {epoch}: |dv|={dv_mag:.3f} m/s")
+        return (new_state, bh.EventAction.CONTINUE)
+
+    return apply_dv
+
+
+# The frame bias between EME2000 (alias J2000) and GCRF is epoch-independent
+r_eme2000_to_gcrf = bh.rotation_eme2000_to_gcrf()
+
+# Add an event detector for each maneuver
+for i, (man, sched_epoch) in enumerate(zip(opm.maneuvers, scheduled_epochs)):
+    dv = man.dv  # [dv1, dv2, dv3] in m/s in the maneuver's ref frame
     frame = man.ref_frame
 
-    # For this example, only apply inertial-frame maneuvers (J2000/EME2000)
-    # RTN maneuvers would require frame rotation which adds complexity
     if frame in ("J2000", "EME2000"):
-
-        def make_callback(dv_vec, man_idx):
-            """Create a closure that applies the delta-V."""
-
-            def apply_dv(epoch, state):
-                new_state = state.copy()
-                new_state[3] += dv_vec[0]
-                new_state[4] += dv_vec[1]
-                new_state[5] += dv_vec[2]
-                dv_mag = np.linalg.norm(dv_vec)
-                print(f"  Applied maneuver {man_idx} at {epoch}: |dv|={dv_mag:.3f} m/s")
-                return (new_state, bh.EventAction.CONTINUE)
-
-            return apply_dv
-
-        event = bh.TimeEvent(man.epoch_ignition, f"Maneuver-{i}")
-        event = event.with_callback(make_callback(dv, i))
-        prop.add_event_detector(event)
-        print(
-            f"  Registered maneuver {i}: epoch={man.epoch_ignition}, frame={frame}, "
-            f"|dv|={np.linalg.norm(dv):.3f} m/s"
-        )
+        # Inertial delta-V: rotate into GCRF once, ahead of propagation
+        callback = make_callback(r_eme2000_to_gcrf @ dv, i, False)
+    elif frame == "RTN":
+        # RTN delta-V: the rotation depends on the state at the ignition epoch
+        callback = make_callback(dv, i, True)
     else:
-        print(f"  Skipping maneuver {i} (RTN frame — requires frame rotation)")
+        raise ValueError(f"Unsupported maneuver reference frame: {frame}")
+
+    event = bh.TimeEvent(sched_epoch, f"Maneuver-{i}")
+    event = event.with_callback(callback)
+    prop.add_event_detector(event)
+    print(
+        f"  Registered maneuver {i}: epoch={sched_epoch}, frame={frame}, "
+        f"|dv|={np.linalg.norm(dv):.3f} m/s"
+    )
 
 # Propagate past all maneuvers
-last_man = opm.maneuvers[-1]
-target = last_man.epoch_ignition + 3600.0  # 1 hour after last maneuver
+target = scheduled_epochs[-1] + 3600.0  # 1 hour after last maneuver
 print(f"\nPropagating to {target}...")
 prop.propagate_to(target)
 
@@ -297,3 +321,4 @@ Note the optional unit annotations in square brackets (`[km]`, `[deg]`). Brahe s
 - [API Reference — OPM](../../library_api/ccsds/opm.md)
 - [CCSDS Data Formats](index.md) — Overview of all message types
 - [Keplerian Elements](../orbits/properties.md) — Orbital element definitions
+- [CCSDS 502.0-B-3](https://ccsds.org/Pubs/502x0b3e1.pdf) — Orbit Data Messages, the standard OPM implements

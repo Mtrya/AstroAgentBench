@@ -1,6 +1,6 @@
 # OEM — Orbit Ephemeris Message
 
-An Orbit Ephemeris Message (OEM) carries time-ordered state vectors for spacecraft ephemeris exchange. The typical workflow is to parse an OEM file and convert it into an `OrbitTrajectory` for interpolation and analysis, or to generate an OEM from a propagator for distribution.
+An Orbit Ephemeris Message (OEM) carries time-ordered state vectors for spacecraft ephemeris exchange. The message is defined by the [CCSDS 502.0-B-3 Orbit Data Messages standard](https://ccsds.org/Pubs/502x0b3e1.pdf). The typical workflow is to parse an OEM file and convert it into an `OrbitTrajectory` for interpolation and analysis, or to generate an OEM from a propagator for distribution.
 
 ## Parse and Access
 
@@ -66,7 +66,7 @@ print(f"Dict keys: {list(d.keys())}")
 
 ## Converting to OrbitTrajectory
 
-The primary interoperability point for OEM data is conversion to brahe's `OrbitTrajectory`. Each OEM segment maps to a trajectory object, giving you Hermite interpolation at arbitrary epochs within the covered time span:
+The primary interoperability point for OEM data is conversion to brahe's `OrbitTrajectory`. Each OEM segment maps to a trajectory object, giving you Hermite interpolation at arbitrary epochs within the covered time span. `REF_FRAME` and `CENTER_NAME` are resolved jointly: `REF_FRAME` names the trajectory's orientation and `CENTER_NAME` its origin, so a segment with `REF_FRAME = TOD` or `REF_FRAME = TEME` and the default `CENTER_NAME = EARTH` loads as the `TOD` or `TEME` frame, while `REF_FRAME = EME2000` with `CENTER_NAME = MARS` loads as EME2000 orientation centered on Mars (`CelestialFrame.Centered(MARS, EME2000)`) rather than the Earth-centered `EME2000` shorthand. A `TOD` or `TEME` segment that also carries a `REF_FRAME_EPOCH` loads in the corresponding of-epoch frame, `CelestialFrame.tod_of_epoch` or `teme_of_epoch` about the message center. Use `to_frame` to convert to GCRF, ITRF, MCI, or another supported frame; converting to a frame centered on a different body translates through the loaded SPK kernels, while converting to a same-centered frame is a rotation only. See [Axes and Centers](../frames/frame_transformations.md#axes-and-centers) for the full `FrameAxes`/`CelestialFrame` picture.
 
 ```python
 import brahe as bh
@@ -284,3 +284,4 @@ The data lines contain epoch followed by position (km) and velocity (km/s), spac
 - [API Reference — OEM](../../library_api/ccsds/oem.md)
 - [CCSDS Data Formats](index.md) — Overview of all message types
 - [Trajectories](../trajectories/index.md) — Brahe trajectory containers
+- [CCSDS 502.0-B-3](https://ccsds.org/Pubs/502x0b3e1.pdf) — Orbit Data Messages, the standard OEM implements

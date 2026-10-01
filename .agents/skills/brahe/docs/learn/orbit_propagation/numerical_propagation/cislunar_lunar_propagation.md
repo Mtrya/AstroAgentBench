@@ -7,7 +7,7 @@
 | `Moon` | 301 | `LCI` | `LFPA` |
 | `EMB` | 3 | `EMBI` | none |
 
-The propagator integrates in the central body's inertial frame (`LCI` for `Moon`, `EMBI` for `EMB`). `state_in_frame(frame, epoch)` converts the integrated state into any [`ReferenceFrame`](../../frames/frame_transformations.md), routing directly from the integration frame: for a Moon-centered propagator, `state_in_frame(ReferenceFrame.LCI, epoch)` is the identity (no SPK round trip), and `state_in_frame(ReferenceFrame.LFPA, epoch)` gives the Moon-fixed state without first converting to Earth-centered `GCRF`. `state_bci(epoch)` returns the raw body-centered inertial state without conversion, and `state_bcbf(epoch)` returns the body-centered body-fixed state (`LFPA` for `Moon`; `EMB` has no body-fixed frame and returns an error).
+The propagator integrates in the central body's inertial frame (`LCI` for `Moon`, `EMBI` for `EMB`). `state_in_frame(frame, epoch)` converts the integrated state into any [`CelestialFrame`](../../frames/frame_transformations.md), routing directly from the integration frame: for a Moon-centered propagator, `state_in_frame(CelestialFrame.LCI, epoch)` is the identity (no SPK round trip), and `state_in_frame(CelestialFrame.LFPA, epoch)` gives the Moon-fixed state without first converting to Earth-centered `GCRF`. `state_bci(epoch)` returns the raw body-centered inertial state without conversion, and `state_bcbf(epoch)` returns the body-centered body-fixed state (`LFPA` for `Moon`; `EMB` has no body-fixed frame and returns an error).
 
 ## Force-Model Defaults
 
@@ -77,8 +77,8 @@ prop.propagate_to(final_epoch)
 # state_in_frame routes the propagator's native LCI state through the
 # reference frame router into any other supported frame. LFPA is the Moon-
 # fixed, DE440 principal-axis frame.
-x0_lfpa = prop.state_in_frame(bh.ReferenceFrame.LFPA, epoch)
-xf_lfpa = prop.state_in_frame(bh.ReferenceFrame.LFPA, final_epoch)
+x0_lfpa = prop.state_in_frame(bh.CelestialFrame.LFPA, epoch)
+xf_lfpa = prop.state_in_frame(bh.CelestialFrame.LFPA, final_epoch)
 
 print(f"Initial epoch: {epoch}")
 print(f"Final epoch:   {final_epoch}")
