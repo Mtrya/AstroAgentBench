@@ -32,7 +32,7 @@
 | fleet | 编队 / 星群 | 根据上下文 |
 | ground station | 地面站 | 统一 |
 | ground endpoint | 地面端点 | relay_constellation 专用 |
-| backbone satellite | 既有的卫星 | 首次出现可保留英文并加注释 |
+| backbone satellite / backbone constellation | 骨干卫星 / 骨干星座 | relay_constellation 译文确立；首次出现保留英文注释，如“骨干星座（backbone）” |
 | target | 目标 / 观测目标 | 根据 benchmark |
 | task | 任务 / 成像任务 | aeossp 语境下用“成像任务” |
 | request | 请求 / 通信请求 | satnet 专用 |
@@ -90,6 +90,22 @@
 | solar charging | 太阳能充电 | 统一 |
 | eclipse | 阴影 / 地影区 | 统一 |
 | sunlit | 光照区 | 与 eclipse 对应 |
+
+## 求解与优化
+
+| 英文 | 中文译法 | 备注 |
+|---|---|---|
+| baseline | 基线 | 统一 |
+| candidate | 候选 | 统一 |
+| incumbent | 当前最优解 | 优化搜索标准术语，不用“当前解” |
+| tie-break | 平局裁决 | 名词统一；动词用“打破平局” |
+| compute envelope | 计算资源包络 | 求解器声明的算力范围（时长、worker、内存）；compute budget 用“计算预算”，compute limits 用“计算量限制” |
+| local search | 局部搜索 | 统一 |
+| repair | 修复 | 调度修复语境 |
+| branch-and-bound | 分支定界 | 统一 |
+| oracle | oracle | 运筹文献惯例，保留英文 |
+| evaluation runner | 评测运行器 | 指 experiments/evaluate 的评测入口 |
+| contact plan | 接触计划 | relay_constellation 求解器语境 |
 
 ## 评分与指标
 
@@ -152,6 +168,9 @@
 | run archive | 运行归档 | 完整运行记录，体积大，通常不随仓库分发 |
 | smoke test | 冒烟测试 | 沿用上方条目 |
 | solution directory | 解目录 | 容器内 `/workspace/solution` |
+| trial | 试验 | Harbor trial，一次评测尝试 |
+| adapter | 适配器 | Harbor adapter |
+| trace | 轨迹 | 运行/日志轨迹 |
 
 ## 可复现性与数据溯源
 
