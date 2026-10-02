@@ -313,11 +313,12 @@ def source_for_translation(rel_path: Path) -> Path | None:
     if not posix.startswith(translation_root + "/"):
         return None
     relative = Path(posix[len(translation_root) + 1 :])
-    # A leading underscore marks a file that lives under the translation root
-    # without being a translation of any English source (the _TERMS.md
-    # glossary). It has no source to map back to; without this, editing it
-    # produces a phantom "orphaned translation" for a source that never was.
-    if relative.name.startswith("_"):
+    # The _TERMS.md glossary lives under the translation root without being a
+    # translation of any English source. It has no source to map back to;
+    # without this, editing it produces a phantom "orphaned translation" for
+    # a source that never was. Only that file is exempt — any other name maps
+    # normally, so an underscore-prefixed source added later is still checked.
+    if relative.name == "_TERMS.md":
         return None
     return relative
 

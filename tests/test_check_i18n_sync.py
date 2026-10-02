@@ -362,11 +362,15 @@ def test_source_for_translation_maps_back_to_the_english_source() -> None:
 
 
 def test_glossary_is_not_mapped_to_a_phantom_source() -> None:
-    # The leading underscore marks _TERMS.md as not being a translation of any
-    # English source. A glossary-only pull request must not surface a phantom
-    # "orphaned translation" for a `_TERMS.md` source that never existed.
+    # _TERMS.md is not a translation of any English source. A glossary-only
+    # pull request must not surface a phantom "orphaned translation" for a
+    # `_TERMS.md` source that never existed. The exemption is exactly that
+    # file: any other name maps normally, so an underscore-prefixed source
+    # added later is still checked.
     assert source_for_translation(Path("docs/i18n/zh_CN/_TERMS.md")) is None
-    assert source_for_translation(Path("docs/i18n/zh_CN/docs/_draft.md")) is None
+    assert source_for_translation(Path("docs/i18n/zh_CN/docs/_draft.md")) == Path(
+        "docs/_draft.md"
+    )
 
 
 def test_changed_translation_is_inspected_even_though_i18n_is_excluded(
