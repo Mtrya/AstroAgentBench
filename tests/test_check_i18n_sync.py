@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -479,4 +480,4 @@ def test_worktree_is_insulated_from_inherited_git_environment(tmp_path: Path) ->
         },
     )
 
-    assert '"source"' in result.stdout
+    assert isinstance(json.loads(result.stdout), list)
