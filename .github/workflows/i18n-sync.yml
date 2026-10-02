@@ -1,0 +1,64 @@
+name: i18n Sync Check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-i18n-sync:
+    runs-on: ubuntu-latest
+    # This is a soft reminder about translations, never a gate.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check changed documents against their translations
+        id: check
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          python3 scripts/check_i18n_sync.py \
+            --base-ref "$BASE_SHA" \
+            --format markdown > i18n_report.md || true
+          cat i18n_report.md
+          if grep -q '^| `' i18n_report.md; then
+            {
+              echo 'has_problems=true'
+              echo 'report<<REPORT_EOF'
+              cat i18n_report.md
+              echo 'REPORT_EOF'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo 'has_problems=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish the report as a single sticky pull request comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.pull_request.number }}
+          MARKER: "<!-- i18n-sync-report -->"
+          HAS_PROBLEMS: ${{ steps.check.outputs.has_problems }}
+          REPORT: ${{ steps.check.outputs.report }}
+        run: |
+          if [ "$HAS_PROBLEMS" = "true" ]; then
+            body="$MARKER"$'\n'"$REPORT"
+          else
+            body="$MARKER"$'\n'"All changed documents have up-to-date zh_CN translations."
+          fi
+
+          existing=$(gh api "repos/${{ github.repository }}/issues/$ISSUE/comments" \
+            --paginate --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -n1)
+
+          if [ -n "$existing" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$existing" \
+              --method PATCH -f body="$body"
+          else
+            gh api "repos/${{ github.repository }}/issues/$ISSUE/comments" \
+              --method POST -f body="$body"
+          fi
