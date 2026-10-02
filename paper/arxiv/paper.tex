@@ -46,18 +46,22 @@
 }
 
 % ===== Title block (mosi macros) =====
+% mosi's \checkdata always prints a "Label:" prefix; this variant prints the
+% line as-is, since not every listed address is a correspondence address.
+\newcommand\plaindataformat[2][]{{\small {\checkdatafont #2}}}
+\newcommand\plaindata[1]{\addtolist[]{#1}{\checkdatalist}{\plaindataformat}{\par}}
 \title{AstroAgentBench: Evaluating Agentic Planning on Space Mission Planning Tasks}
 \author[1,5]{Weiyi Wang}
-\author[1,3,4,5]{Xinchi Chen}
+\author[1,3,4,5,\dag]{Xinchi Chen}
 \author[2,5]{Jingjing Gong}
 \author[1,4]{Xuanjing Huang}
-\author[1,2,3,4,5]{Xipeng Qiu}
+\author[1,2,3,4,5,\dag]{Xipeng Qiu}
 \affiliation[1]{Institute of Trustworthy Embodied AI, Fudan University}
 \affiliation[2]{Shanghai Innovation Institute}
 \affiliation[3]{Shanghai Key Laboratory of Multimodal Embodied AI}
 \affiliation[4]{College of Computer Science and Artificial Intelligence, Fudan University}
 \affiliation[5]{OpenMOSS Team}
-\correspondence{\texttt{wywang26@m.fudan.edu.cn}, \texttt{xc\_chen@fudan.edu.cn}, \texttt{xjhuang@fudan.edu.cn}, \texttt{xpqiu@fudan.edu.cn}; \texttt{jjgong@sii.edu.cn}}
+\plaindata{\texttt{wywang26@m.fudan.edu.cn}, \texttt{xc\_chen@fudan.edu.cn}, \texttt{jjgong@sii.edu.cn}, \texttt{xjhuang@fudan.edu.cn}, \texttt{xpqiu@fudan.edu.cn}}
 \checkdata[Code]{\url{https://github.com/Mtrya/AstroAgentBench}}
 \checkdata[Data]{\url{https://huggingface.co/datasets/kaupane/AstroAgentBench}}
 \checkdata[Run traces]{\url{https://doi.org/10.5281/zenodo.23084446}}
@@ -68,6 +72,10 @@ Recent LLM-for-Space systems address mission planning, scheduling, operations su
 
 \begin{document}
 \maketitle
+\begingroup
+\def\thefootnote{\fnsymbol{footnote}}%
+\footnotetext[2]{Corresponding authors.}%
+\endgroup
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/chapter1_overview_v10.pdf}
