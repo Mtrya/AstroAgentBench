@@ -395,6 +395,42 @@ def test_changed_translation_is_inspected_even_though_i18n_is_excluded(
     assert changed == [Path("docs/releases.md")]
 
 
+def test_multi_backtick_inline_spans_are_recognised() -> None:
+    """CommonMark allows longer delimiters; the checker must not skip them."""
+    text = "Run ``a`b`` and `plain` and ``spaced``.\n"
+
+    assert inline_code_spans(text) == Counter({"a`b": 1, "plain": 1, "spaced": 1})
+
+
+def test_orphaned_translation_is_reported_when_the_source_is_deleted(tmp_path: Path) -> None:
+    zh = tmp_path / mapped_zh_path(Path("docs/contract.md"))
+    zh.parent.mkdir(parents=True)
+    zh.write_text("[English](../../../../docs/contract.md) | 中文\n", encoding="utf-8")
+
+    problems = check_source(Path("docs/contract.md"), tmp_path)
+
+    assert [p.kind for p in problems] == ["orphaned translation"]
+
+
+def test_absent_source_without_a_translation_is_silent(tmp_path: Path) -> None:
+    assert check_source(Path("docs/contract.md"), tmp_path) == []
+
+
+def test_workflow_reuses_one_output_delimiter_and_guards_the_resolve_step() -> None:
+    """Two independent random delimiters would leave the GITHUB_OUTPUT value open.
+
+    The runner then fails the step, which skips the comment step exactly when a
+    translation warning needs publishing. And the resolve step must not run after a
+    checker failure, or it overwrites a warning with a false all-clear.
+    """
+    workflow = (REPO_ROOT / ".github/workflows/i18n-sync.yml").read_text(encoding="utf-8")
+
+    assert workflow.count("openssl rand -hex 16") == 1, "delimiter must be generated once"
+    assert 'delimiter="$(openssl rand -hex 16)_REPORT_EOF"' in workflow
+    assert 'echo "report<<$delimiter"' in workflow
+    assert "checker_failed != 'true'" in workflow
+
+
 def test_repo_translation_tree_covers_every_in_scope_tier_one_document() -> None:
     tier_one = [
         Path("README.md"),

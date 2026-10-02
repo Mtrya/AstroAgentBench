@@ -92,7 +92,10 @@ STAMP_PATTERN = re.compile(r"<!--\s*i18n-source-sha256:\s*([0-9a-f]{64})\s*-->")
 #: indentation, then three or more backticks or three or more tildes.
 FENCE_PATTERN = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 
-INLINE_CODE_PATTERN = re.compile(r"(?<!`)`([^`\n]+)`(?!`)")
+#: Inline code spans. The opening run of backticks is captured and matched by
+#: backreference, so CommonMark's multi-backtick delimiters -- ``` ``a`b`` ```
+#: -- are recognised as a single span rather than silently skipped.
+INLINE_CODE_PATTERN = re.compile(r"(?<!`)(`+)(?!`)([^\n]+?)\1(?!`)")
 
 GIT_LOCATION_VARS = (
     "GIT_DIR",
@@ -196,7 +199,7 @@ def inline_code_spans(text: str) -> Counter[str]:
     translation keeps it once, that is a dropped occurrence worth reporting, and
     set difference would hide it.
     """
-    return Counter(INLINE_CODE_PATTERN.findall(_strip_fenced_blocks(text)))
+    return Counter(m.group(2) for m in INLINE_CODE_PATTERN.finditer(_strip_fenced_blocks(text)))
 
 
 @dataclass(frozen=True)
@@ -215,11 +218,22 @@ def check_source(rel_path: Path, repo_root: Path = REPO_ROOT) -> list[SyncProble
         return []
 
     source_file = repo_root / rel_path
+    zh_file = repo_root / mapped_zh_path(rel_path)
+
     if not source_file.is_file():
+        # A pull request that deletes a source but leaves the mirror behind
+        # orphans the translation, whose [English] link then points at nothing.
+        if zh_file.is_file():
+            return [
+                SyncProblem(
+                    rel_path.as_posix(),
+                    "orphaned translation",
+                    f"source is gone but `{mapped_zh_path(rel_path).as_posix()}` still exists",
+                )
+            ]
         return []
 
     source_text = source_file.read_text(encoding="utf-8")
-    zh_file = repo_root / mapped_zh_path(rel_path)
 
     if not zh_file.is_file():
         return [

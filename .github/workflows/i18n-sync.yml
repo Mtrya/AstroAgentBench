@@ -61,11 +61,12 @@ jobs:
           cat i18n_report.md >> "$GITHUB_STEP_SUMMARY"
 
           if grep -q '^| `' i18n_report.md; then
+            delimiter="$(openssl rand -hex 16)_REPORT_EOF"
             {
               echo 'has_problems=true'
-              echo "report<<$(openssl rand -hex 16)_EOF"
+              echo "report<<$delimiter"
               cat i18n_report.md
-              echo "$(openssl rand -hex 16)_EOF"
+              echo "$delimiter"
             } >> "$GITHUB_OUTPUT"
           else
             echo 'has_problems=false' >> "$GITHUB_OUTPUT"
@@ -92,7 +93,7 @@ jobs:
           fi
 
       - name: Resolve the comment when translations catch up
-        if: steps.check.outputs.has_problems != 'true'
+        if: steps.check.outputs.checker_failed != 'true' && steps.check.outputs.has_problems != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.pull_request.number }}
