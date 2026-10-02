@@ -177,9 +177,6 @@ def build_case_dataset(
 
     cases_dir = output_dir / "cases"
     shutil.rmtree(cases_dir, ignore_errors=True)
-    example_path = output_dir / "example_solution.json"
-    if example_path.exists():
-        example_path.unlink()
     index = {
         "benchmark": "satnet",
         "case_id_format": "W##_YYYY",

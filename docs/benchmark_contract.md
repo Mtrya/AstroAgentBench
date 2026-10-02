@@ -193,7 +193,7 @@ GitHub Actions runs:
 - PR/push reproducibility (`benchmark-repro.yml`): generator reproducibility check for benchmarks with `"repro_ci": true`
 - Dataset staging/publication (`sync-datasets.yml`): manually dispatched; stages an artifact by default and uploads to Hugging Face only when `publish` is explicitly selected. Publishing a GitHub release does not trigger it. See [Benchmark Releases](releases.md).
 
-The reproducibility workflow compares only generator-owned dataset outputs from `generated_paths`, because finished benchmarks may also keep documented, hand-written dataset artifacts such as dataset-level notes.
+The reproducibility workflow compares generator-owned dataset outputs from `generated_paths`, because finished benchmarks may also keep documented, hand-written dataset artifacts such as `example_solution.json` and dataset-level notes. It additionally seeds each staged benchmark with its tracked dataset files that fall outside `generated_paths`, and requires every one of them to still exist and to be byte-identical after regeneration. A generator owns only the paths it declares: it must neither delete nor rewrite the remaining curated files.
 
 ## Documented But Not Fully Automated Yet
 

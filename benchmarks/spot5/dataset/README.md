@@ -29,11 +29,17 @@ example solution with a case in CI (see `docs/benchmark_contract.md`).
 The committed split assignment is recorded in [splits.yaml](../splits.yaml).
 It defines the full `single_orbit` and `multi_orbit` families plus an overlapping 5-case `test` split sampled with seed `42` and an overlapping 10-case `train` split sampled with seed `163`.
 
-To regenerate this layout from the upstream Mendeley release, run:
+To regenerate this layout, run:
 
 ```bash
 uv run python benchmarks/spot5/generator.py benchmarks/spot5/splits.yaml
 ```
+
+The default route reads the bundled [sources/](../sources) snapshot, one
+unchanged `.spot` input per distinct published instance.
+[sources/manifest.json](../sources/manifest.json) records the original Mendeley
+provenance, the normalization applied, and the SHA-256 hash of each file, all
+checked before generation. Canonical generation needs no network access.
 
 To regenerate from a local directory of raw `.spot` files instead, run:
 

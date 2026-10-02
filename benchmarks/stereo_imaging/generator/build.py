@@ -708,9 +708,6 @@ def generate_dataset(
 
     dataset_root = output_dir
     cases_root = dataset_root / "cases"
-    example_path = dataset_root / "example_solution.json"
-    if example_path.exists():
-        example_path.unlink()
     smoke_split, smoke_case_id = example_smoke_case.split("/")
     smoke_found = False
     selected_norad_catalog_ids: set[int] = set()

@@ -101,6 +101,53 @@ def _run_generator(
     )
 
 
+GIT_LOCATION_VARS = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+)
+
+
+def _git_env() -> dict[str, str]:
+    """Keep git pointed at this checkout rather than one inherited from the caller."""
+    return {key: value for key, value in os.environ.items() if key not in GIT_LOCATION_VARS}
+
+
+def _tracked_curated_dataset_files(benchmark_root: Path, generated_paths: list[str]) -> list[Path]:
+    """Committed dataset files the generator does not produce, relative to the benchmark root."""
+    benchmark_relative = benchmark_root.relative_to(REPO_ROOT)
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z", str(benchmark_relative)],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+        env=_git_env(),
+    ).stdout.split("\0")
+    curated: list[Path] = []
+    for entry in tracked:
+        if not entry:
+            continue
+        relative = Path(entry).relative_to(benchmark_relative)
+        if not relative.parts or relative.parts[0] != "dataset":
+            continue
+        if any(Path(generated) == relative or Path(generated) in relative.parents for generated in generated_paths):
+            continue
+        curated.append(relative)
+    return curated
+
+
+def _seed_curated_dataset_files(benchmark_root: Path, curated: list[Path], temp_benchmark_root: Path) -> None:
+    """Place committed non-generated dataset files so regeneration must preserve them."""
+    for relative in curated:
+        destination = temp_benchmark_root / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(benchmark_root / relative, destination)
+
+
 def check_reproducibility() -> list[str]:
     errors: list[str] = []
     for benchmark in load_finished_benchmarks():
@@ -122,6 +169,8 @@ def check_reproducibility() -> list[str]:
             temp_root = Path(temp_dir_name)
             temp_benchmark_root, temp_entrypoint = _stage_benchmark_copy(benchmark_root, temp_root)
             temp_splits_path = temp_benchmark_root / "splits.yaml"
+            curated = _tracked_curated_dataset_files(benchmark_root, benchmark.generated_paths)
+            _seed_curated_dataset_files(benchmark_root, curated, temp_benchmark_root)
             try:
                 _run_generator(
                     benchmark.name,
@@ -143,6 +192,16 @@ def check_reproducibility() -> list[str]:
                 expected = benchmark_root / relative
                 actual = benchmark_out / relative
                 _compare_paths(expected, actual, benchmark.name, errors)
+            for relative in curated:
+                actual = benchmark_out / relative
+                if not actual.is_file():
+                    errors.append(
+                        f"{benchmark.name}: regeneration dropped committed dataset file {relative}"
+                    )
+                elif not filecmp.cmp(benchmark_root / relative, actual, shallow=False):
+                    errors.append(
+                        f"{benchmark.name}: regeneration modified committed dataset file {relative}"
+                    )
     return errors
 
 
