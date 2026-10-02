@@ -233,6 +233,21 @@ def load_splits_config(path: Path) -> dict[str, object]:
     return payload
 
 
+GIT_LOCATION_VARS = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+)
+
+
+def git_env() -> dict[str, str]:
+    """Keep git pointed at this checkout rather than one inherited from the caller."""
+    return {key: value for key, value in os.environ.items() if key not in GIT_LOCATION_VARS}
+
+
 def _git_tracked_files(root: Path) -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "-z", str(root.relative_to(REPO_ROOT))],
@@ -240,6 +255,7 @@ def _git_tracked_files(root: Path) -> list[Path]:
         capture_output=True,
         text=False,
         check=True,
+        env=git_env(),
     )
     output = result.stdout.decode("utf-8")
     paths = [Path(item) for item in output.split("\x00") if item]
