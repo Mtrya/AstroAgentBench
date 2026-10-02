@@ -39,7 +39,7 @@ dataset/
             ├── satellites.yaml
             ├── targets.yaml
             └── mission.yaml
-```text
+```
 
 每个测试实例都是自包含的。验证器读取一个测试实例目录和一个解文件。
 

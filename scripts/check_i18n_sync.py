@@ -23,6 +23,7 @@ import os
 import re
 import subprocess
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -33,11 +34,18 @@ TRANSLATION_ROOT = Path("docs") / "i18n" / "zh_CN"
 
 #: Directories whose Markdown is never translated, as a path prefix.
 #:
-#: ``experiments/evaluate/instructions/`` and ``AGENTS.md`` / ``CLAUDE.md`` are
-#: inputs to coding agents: translating them changes what an agent is told, and
-#: therefore changes benchmark scores and breaks reproducibility against
-#: published results. ``benchmarks/*/dataset/*.md`` holds vendored upstream
-#: papers, which are third-party copyrighted text.
+#: Two distinct kinds of input are excluded, and the distinction matters.
+#:
+#: ``experiments/evaluate/instructions/`` holds prompts handed to *space agents*
+#: under evaluation. Translating them changes what those agents are told, which
+#: moves benchmark scores and breaks reproducibility against published results.
+#:
+#: ``AGENTS.md`` and ``CLAUDE.md`` guide *coding agents* developing this
+#: repository. Translating them does not affect any score, but it would create a
+#: second, drifting source of truth for repository policy.
+#:
+#: ``benchmarks/<name>/dataset/*.md`` holds vendored upstream papers, which are
+#: third-party copyrighted text.
 EXCLUDED_PREFIXES = (
     Path("experiments") / "evaluate" / "instructions",
     Path("tests") / "fixtures",
@@ -80,8 +88,10 @@ def _is_vendored_dataset_paper(rel_path: Path) -> bool:
 
 STAMP_PATTERN = re.compile(r"<!--\s*i18n-source-sha256:\s*([0-9a-f]{64})\s*-->")
 
-#: Inline code spans, with fenced code blocks masked out first.
-FENCED_BLOCK_PATTERN = re.compile(r"^(?:```|~~~).*?^(?:```|~~~)", re.MULTILINE | re.DOTALL)
+#: An opening or closing code fence, per CommonMark: up to three spaces of
+#: indentation, then three or more backticks or three or more tildes.
+FENCE_PATTERN = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+
 INLINE_CODE_PATTERN = re.compile(r"(?<!`)`([^`\n]+)`(?!`)")
 
 GIT_LOCATION_VARS = (
@@ -120,8 +130,26 @@ def mapped_zh_path(rel_path: Path) -> Path:
     return TRANSLATION_ROOT / rel_path
 
 
+def normalize_newlines(text: str) -> str:
+    """Collapse CRLF and CR to LF.
+
+    A checkout on Windows with ``core.autocrlf`` rewrites Markdown line endings on
+    disk while git stores LF. That is a local checkout artefact, not a change to
+    the committed document, so the stamp must not react to it.
+    """
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def source_sha256(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+    """Hash the source document with line endings normalised.
+
+    The stamp answers "did the committed English content change?". Hashing raw
+    bytes instead would make the same commit hash differently on a CRLF
+    checkout, so every contributor on Windows would see a false "stale" report
+    for a document that had not changed. The translate-docs skill stamps with
+    the matching normalisation; the two must not drift apart.
+    """
+    return hashlib.sha256(normalize_newlines(text).encode("utf-8")).hexdigest()
 
 
 def read_stamp(text: str) -> str | None:
@@ -129,10 +157,46 @@ def read_stamp(text: str) -> str | None:
     return match.group(1) if match else None
 
 
-def inline_code_spans(text: str) -> set[str]:
-    """Return the inline code spans of a document, ignoring fenced code blocks."""
-    without_fences = FENCED_BLOCK_PATTERN.sub("", text)
-    return set(INLINE_CODE_PATTERN.findall(without_fences))
+def _strip_fenced_blocks(text: str) -> str:
+    """Remove fenced code blocks, following CommonMark fence-matching rules.
+
+    A block opened with backticks closes only on a run of backticks of at least
+    the opening length, and vice versa for tildes. Matching on "any fence line"
+    would end a block early on an unrelated fence character and then scan the
+    remaining code as prose, inventing code spans that are not really there.
+    """
+    kept: list[str] = []
+    open_char: str | None = None
+    open_len = 0
+
+    for line in text.splitlines():
+        match = FENCE_PATTERN.match(line)
+        if open_char is None:
+            if match is not None:
+                open_char = match.group(1)[0]
+                open_len = len(match.group(1))
+            else:
+                kept.append(line)
+            continue
+
+        if match is not None:
+            marker, rest = match.group(1), match.group(2)
+            if marker[0] == open_char and len(marker) >= open_len and not rest.strip():
+                open_char = None
+                open_len = 0
+        # Lines inside an open block are dropped.
+
+    return "\n".join(kept)
+
+
+def inline_code_spans(text: str) -> Counter[str]:
+    """Return inline code span occurrences, ignoring fenced code blocks.
+
+    Counts rather than a set: if a source repeats an identifier twice and the
+    translation keeps it once, that is a dropped occurrence worth reporting, and
+    set difference would hide it.
+    """
+    return Counter(INLINE_CODE_PATTERN.findall(_strip_fenced_blocks(text)))
 
 
 @dataclass(frozen=True)
@@ -191,13 +255,17 @@ def check_source(rel_path: Path, repo_root: Path = REPO_ROOT) -> list[SyncProble
 
     dropped = inline_code_spans(source_text) - inline_code_spans(zh_text)
     if dropped:
-        listed = ", ".join(f"`{span}`" for span in sorted(dropped)[:5])
+        shown = sorted(dropped.items())[:5]
+        listed = ", ".join(
+            f"`{span}`" if count == 1 else f"`{span}` ×{count}" for span, count in shown
+        )
         more = "" if len(dropped) <= 5 else f" (+{len(dropped) - 5} more)"
         problems.append(
             SyncProblem(
                 rel_path.as_posix(),
                 "missing code span",
-                f"{len(dropped)} identifier(s) absent from the translation: {listed}{more}",
+                f"{sum(dropped.values())} occurrence(s) absent from the translation: "
+                f"{listed}{more}",
             )
         )
 

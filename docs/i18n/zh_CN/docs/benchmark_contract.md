@@ -196,7 +196,7 @@ GitHub Actions 中运行：
 - PR/push 可复现性检查（`benchmark-repro.yml`）：针对标记了 `"repro_ci": true` 的 benchmark 执行生成器可复现性检查
 - 数据集暂存与发布（`sync-datasets.yml`）：手动触发；默认只暂存产物，只有显式选择 `publish` 时才上传到 Hugging Face。发布 GitHub release 并不会触发它。参见 [Benchmark Releases](releases.md)。
 
-可复现性工作流只比较 `generated_paths` 中由生成器拥有的数据集输出，因为已完成的 benchmark 可能还保留着有文档说明的手写数据产物，例如数据集层面的说明。此外，它会用该 benchmark 已被追踪、且位于 `generated_paths` 之外的数据集文件来补齐每个暂存副本，并要求重新生成之后这些文件依然存在且逐字节一致。生成器只拥有它声明的那些路径：既不能删除，也不能重写其余人工维护的文件。
+可复现性工作流只比较 `generated_paths` 中由生成器拥有的数据集输出，因为已完成的 benchmark 可能还保留着有文档说明的手写数据产物，例如 `example_solution.json` 和数据集层面的说明。此外，它会用该 benchmark 已被追踪、且位于 `generated_paths` 之外的数据集文件来补齐每个暂存副本，并要求重新生成之后这些文件依然存在且逐字节一致。生成器只拥有它声明的那些路径：既不能删除，也不能重写其余人工维护的文件。
 
 ## 已写入文档但尚未完全自动化的部分
 

@@ -107,16 +107,22 @@ reader arrives from the other direction.
 
 ### 5. Stamp the source hash
 
-Immediately after the H1, add the comment below. Compute the hash of the *English
-source file*:
+Immediately after the H1, add the comment below. The stamp is the SHA-256 of the
+English source document with line endings normalised to LF:
 
 ```markdown
-<!-- i18n-source-sha256: <sha256 of the English file, 64 lowercase hex chars> -->
+<!-- i18n-source-sha256: <sha256 of the English source, 64 lowercase hex chars> -->
 ```
 
 ```bash
-python3 -c "import hashlib,pathlib,sys;print(hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest())" <english path>
+python3 -c "import hashlib,pathlib,sys;t=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8');print(hashlib.sha256(t.replace('\r\n','\n').replace('\r','\n').encode()).hexdigest())" <english path>
 ```
+
+Normalise rather than hashing raw bytes on purpose. Git stores LF, but a Windows
+checkout with `core.autocrlf` rewrites line endings on disk. Hashing the bytes
+directly would make an unchanged document report as stale on every such machine.
+Use exactly this command — the checker applies the same normalisation, and the
+two must not drift apart.
 
 The stamp tells the checker whether the translation still reflects its source. An
 unstamped or stale translation is reported on every pull request that touches the

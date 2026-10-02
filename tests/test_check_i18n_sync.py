@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -173,7 +174,51 @@ def test_translation_may_add_code_spans(tmp_path: Path) -> None:
 
 def test_fenced_code_blocks_are_not_inline_spans() -> None:
     text = "Intro `inline_span`.\n\n```python\nvalue = `not_a_span`\n```\n\nTail.\n"
-    assert inline_code_spans(text) == {"inline_span"}
+    assert inline_code_spans(text) == Counter({"inline_span": 1})
+
+
+def test_fence_matching_follows_commonmark() -> None:
+    """A shorter or differently-characterised fence must not close the block."""
+    text = (
+        "Before `kept`.\n\n"
+        "````text\n"
+        "```\n"
+        "inner = `swallowed`\n"
+        "````\n\n"
+        "After `also_kept`.\n"
+    )
+
+    assert inline_code_spans(text) == Counter({"kept": 1, "also_kept": 1})
+
+
+def test_tilde_fence_does_not_close_a_backtick_block() -> None:
+    text = "A `x`.\n\n```text\n~~~\nstill code\n```\n\nB `y`.\n"
+
+    assert inline_code_spans(text) == Counter({"x": 1, "y": 1})
+
+
+def test_repeated_identifier_must_appear_as_often_in_the_translation(tmp_path: Path) -> None:
+    source_text = "# Contract\n\nUse `field` before and after `field`.\n"
+    _make_repo(tmp_path, "docs/contract.md", source_text)
+    _make_translation(
+        tmp_path,
+        "docs/contract.md",
+        source_text,
+        "在 `field` 之前使用，并在 `field` 之后再次使用。",
+    )
+
+    assert check_source(Path("docs/contract.md"), tmp_path) == []
+
+    # Dropping only the second occurrence must still be caught.
+    zh = tmp_path / mapped_zh_path(Path("docs/contract.md"))
+    zh.write_text(
+        zh.read_text(encoding="utf-8").replace("，并在 `field` 之后再次使用", ""),
+        encoding="utf-8",
+    )
+
+    problems = check_source(Path("docs/contract.md"), tmp_path)
+    assert [p.kind for p in problems] == ["missing code span"]
+    assert "`field`" in problems[0].detail
 
 
 def test_excluded_source_is_never_checked(tmp_path: Path) -> None:
@@ -184,6 +229,43 @@ def test_excluded_source_is_never_checked(tmp_path: Path) -> None:
 
 def test_deleted_source_is_skipped(tmp_path: Path) -> None:
     assert check_source(Path("docs/does_not_exist.md"), tmp_path) == []
+
+
+def test_stamp_survives_a_crlf_checkout(tmp_path: Path) -> None:
+    """A CRLF working copy is a core.autocrlf artefact, not a content change."""
+    source_text = "# Contract\n\nBody with `field_name`.\n"
+    _make_repo(tmp_path, "docs/contract.md", source_text)
+    _make_translation(tmp_path, "docs/contract.md", source_text, "正文包含 `field_name`。")
+    assert check_source(Path("docs/contract.md"), tmp_path) == []
+
+    source = tmp_path / "docs/contract.md"
+    source.write_bytes(source.read_bytes().replace(b"\n", b"\r\n"))
+
+    assert check_source(Path("docs/contract.md"), tmp_path) == []
+
+
+def test_documented_stamping_command_matches_the_checker(tmp_path: Path) -> None:
+    """The command the skill tells contributors to run must produce a valid stamp."""
+    import subprocess
+    import sys as _sys
+
+    source = tmp_path / "docs/contract.md"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text("# Contract\n\nBody.\n", encoding="utf-8")
+
+    command = (
+        "import hashlib,pathlib,sys;"
+        "t=pathlib.Path(sys.argv[1]).read_text(encoding='utf-8');"
+        "print(hashlib.sha256(t.replace('\\r\\n','\\n').replace('\\r','\\n').encode()).hexdigest())"
+    )
+    stamped = subprocess.run(
+        [_sys.executable, "-c", command, str(source)],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+    assert stamped == source_sha256(source.read_text(encoding="utf-8"))
 
 
 def test_read_stamp_requires_a_full_sha256() -> None:

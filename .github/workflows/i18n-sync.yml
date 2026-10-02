@@ -7,6 +7,12 @@ permissions:
   contents: read
   pull-requests: write
 
+# Two pushes in quick succession would otherwise race to update the same sticky
+# comment, and a slower older run could land last and overwrite fresher findings.
+concurrency:
+  group: i18n-sync-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   check-i18n-sync:
     runs-on: ubuntu-latest
@@ -17,41 +23,63 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          # The checker only runs local git commands, and pull_request executes
+          # contributor-controlled code. No token needs to persist in .git/config.
+          persist-credentials: false
 
       - name: Check changed documents against their translations
         id: check
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
+          set +e
           python3 scripts/check_i18n_sync.py \
             --base-ref "$BASE_SHA" \
-            --format markdown > i18n_report.md || true
+            --format markdown > i18n_report.md
+          status=$?
+          set -e
+
+          if [ "$status" -ne 0 ]; then
+            {
+              echo '### zh_CN sync check could not run'
+              echo
+              echo "check_i18n_sync.py exited with status $status. No conclusion was"
+              echo "reached about the translations in this pull request."
+              echo
+              echo '```'
+              cat i18n_report.md
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "checker_failed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           cat i18n_report.md
+          # The job summary is the only channel that reaches pull requests from
+          # forks, where GITHUB_TOKEN is downgraded to read-only and the comment
+          # API call below will fail.
+          cat i18n_report.md >> "$GITHUB_STEP_SUMMARY"
+
           if grep -q '^| `' i18n_report.md; then
             {
               echo 'has_problems=true'
-              echo 'report<<REPORT_EOF'
+              echo "report<<$(openssl rand -hex 16)_EOF"
               cat i18n_report.md
-              echo 'REPORT_EOF'
+              echo "$(openssl rand -hex 16)_EOF"
             } >> "$GITHUB_OUTPUT"
           else
             echo 'has_problems=false' >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish the report as a single sticky pull request comment
+        if: steps.check.outputs.has_problems == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.pull_request.number }}
           MARKER: "<!-- i18n-sync-report -->"
-          HAS_PROBLEMS: ${{ steps.check.outputs.has_problems }}
           REPORT: ${{ steps.check.outputs.report }}
         run: |
-          if [ "$HAS_PROBLEMS" = "true" ]; then
-            body="$MARKER"$'\n'"$REPORT"
-          else
-            body="$MARKER"$'\n'"All changed documents have up-to-date zh_CN translations."
-          fi
-
+          body="$MARKER"$'\n'"$REPORT"
           existing=$(gh api "repos/${{ github.repository }}/issues/$ISSUE/comments" \
             --paginate --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -n1)
 
@@ -62,3 +90,20 @@ jobs:
             gh api "repos/${{ github.repository }}/issues/$ISSUE/comments" \
               --method POST -f body="$body"
           fi
+
+      - name: Resolve the comment when translations catch up
+        if: steps.check.outputs.has_problems != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.pull_request.number }}
+          MARKER: "<!-- i18n-sync-report -->"
+        run: |
+          body="$MARKER"$'\n'"All changed documents have up-to-date zh_CN translations."
+          existing=$(gh api "repos/${{ github.repository }}/issues/$ISSUE/comments" \
+            --paginate --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -n1)
+
+          if [ -z "$existing" ]; then
+            exit 0
+          fi
+          gh api "repos/${{ github.repository }}/issues/comments/$existing" \
+            --method PATCH -f body="$body"
