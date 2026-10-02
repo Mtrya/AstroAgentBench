@@ -1,5 +1,7 @@
 # AstroAgentBench
 
+English | [中文](docs/i18n/zh_CN/README.md)
+
 AstroAgentBench evaluates complete agent systems and traditional solvers on space mission design and planning problems. Seven standalone benchmark families provide canonical cases and authoritative verifiers. Systems choose their own models, tools, memory, and coordination; [Harbor](https://docs.harborframework.com/) runs evaluations and collects their outputs.
 
 | Benchmark | Task |
