@@ -1,7 +1,7 @@
 ---
 license: other
 license_name: mixed-source-licenses
-license_link: README.md#licensing-and-attribution
+license_link: https://huggingface.co/datasets/{{DATASET_REPO}}/blob/{{RELEASE}}/README.md#licensing-and-attribution
 language:
   - en
 tags:
