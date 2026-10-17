@@ -62,7 +62,9 @@ def test_taskset_uses_committed_code_and_data(source, tmp_path):
     assert config['metadata']['source_dirty'] is False
     assert config['metadata']['runtime_image'] == IMAGE
     assert {p.name for p in out.iterdir()} == {'README.md', 'LICENSE', 'tasks', 'registry.json', 'release-manifest.json'}
-    assert card_metadata(out / 'README.md')['license_link'] == 'https://huggingface.co/datasets/kaupane/AstroAgentBench/blob/v2.0.0/README.md#licensing-and-attribution'
+    metadata = card_metadata(out / 'README.md')
+    assert metadata['license_link'] == 'https://huggingface.co/datasets/kaupane/AstroAgentBench/blob/v2.0.0/README.md#licensing-and-attribution'
+    assert {'rl-environment', 'harbor'} <= set(metadata['tags'])
     assert manifest['kind'] == 'harbor-taskset'
     git(source, 'add', '.')
     git(source, 'commit', '-qm', 'Newer source')

@@ -35,7 +35,7 @@ uv run --locked --extra evaluation harbor run --repo https://huggingface.co/data
 uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/hf-smoke --output results/hf-smoke.jsonl
 ```
 
-Confirm that all seven expected cases have status `valid`, then repeat the publisher command with `--publish --promote`. The Git ref in `--repo URL@VERSION` pins the repository tree; `--dataset NAME@VERSION` separately selects an entry in that tree's registry. Check the HF landing page and its “Use this dataset” command before announcing the release.
+Confirm that all seven expected cases have status `valid`, then repeat the publisher command with `--publish --promote`. The Git ref in `--repo URL@VERSION` pins the repository tree; `--dataset NAME@VERSION` separately selects an entry in that tree's registry. On the HF page, confirm the **RL Environment** badge, Harbor library, Dataset Viewer, and “Use this dataset” command.
 
 ## Native session traces
 
@@ -51,4 +51,4 @@ This downloads the relevant compressed archive shards, verifies their checksums,
 
 Staging verifies every selected session's checksum and JSONL structure, then screens decoded text for known credential patterns, secret-bearing fields, and personal home paths. Encrypted reasoning payloads are retained as opaque data. A screening failure stops publication and names the file and category without printing the matched value. Review such failures before preparing a corrected source; do not modify the archived evidence in place.
 
-Add `--publish`, or select the workflow's publication option, to create the public traces dataset, upload one atomic release, verify it through `snapshot_download`, tag it `zenodo-23084447`, and update its default branch. After publication, verify native format auto-detection and open both a Claude Code and a Codex session in Data Studio. Linking the traces dataset from the repository README or paper waits for that viewer check. A merged code change alone does not establish publication or viewer acceptance.
+Add `--publish`, or select the workflow's publication option, to upload the traces, tag them `zenodo-23084447.1`, and update the default branch. The dataset card maps `sessions/**/*.jsonl` to one split so HF loads each session once. The earlier `zenodo-23084447` tag retains the incorrectly inferred train/test splits. On the HF page, confirm the **Traces** badge and open one Claude Code and one Codex session in the trace preview before linking the dataset from the repository README or paper.

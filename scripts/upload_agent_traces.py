@@ -27,6 +27,7 @@ if __package__ in (None, ""):
 from scripts.hf_release import finish_stage, publish
 
 RECORD = "23084447"
+TRACE_VERSION = f"zenodo-{RECORD}.1"
 FILES_URL = f"https://zenodo.org/api/records/{RECORD}/files"
 SOURCE_DOI = f"https://doi.org/10.5281/zenodo.{RECORD}"
 ARCHIVE_MANIFEST = "run-archive-manifest.json"
@@ -207,8 +208,9 @@ def stage(archive: Path, output: Path, *, manifest_sha256: str = MANIFEST_SHA256
             raise ValueError("Archive contains no supported sessions")
         card = CARD.read_text().replace("{{CODEX_COUNT}}", str(counts["codex"]))
         card = card.replace("{{CLAUDE_COUNT}}", str(counts["claude-code"]))
+        card = card.replace("{{TRACE_VERSION}}", TRACE_VERSION)
         (destination / "README.md").write_text(card)
-        return finish_stage(destination, output, {"schema_version": 2, "kind": "agent-traces", "version": f"zenodo-{RECORD}",
+        return finish_stage(destination, output, {"schema_version": 2, "kind": "agent-traces", "version": TRACE_VERSION,
                                                  "source_doi": SOURCE_DOI, "source_commit": manifest["source"]["commit"],
                                                  "archive_manifest_sha256": manifest_sha256, "sessions": dict(counts)})
 

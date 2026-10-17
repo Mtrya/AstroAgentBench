@@ -6,9 +6,10 @@ from threading import Thread
 from urllib.error import HTTPError
 
 import pytest
+import yaml
 
 from scripts.hf_release import validate_stage
-from scripts.upload_agent_traces import download_file, stage, validate_session
+from scripts.upload_agent_traces import TRACE_VERSION, download_file, stage, validate_session
 
 CODEX = 'agent_runs/experiments/main/spot5/codex/test/8/session_logs/sessions/2026/01/01/rollout-example.jsonl'
 CLAUDE = 'agent_runs/experiments/main/spot5/claude/test/8/session_logs/projects/workspace/example.jsonl'
@@ -44,7 +45,13 @@ def test_selection_preserves_session_bytes_and_provenance(tmp_path):
     output = tmp_path / 'release'
     result = stage(root, output, manifest_sha256=digest)
     assert result['sessions'] == {'codex': 1, 'claude-code': 1}
+    assert result['version'] == TRACE_VERSION
     assert result['archive_manifest_sha256'] == digest
+    _, frontmatter, _ = (output / 'README.md').read_text().split('---', 2)
+    assert yaml.safe_load(frontmatter)['configs'] == [{
+        'config_name': 'default',
+        'data_files': [{'split': 'train', 'path': 'sessions/**/*.jsonl'}],
+    }]
     for name in (CODEX, CLAUDE):
         assert (output / 'sessions' / name).read_bytes() == (root / 'run-archive' / name).read_bytes()
     assert not (output / 'sessions' / OTHER).exists()
