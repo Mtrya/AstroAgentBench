@@ -28,6 +28,7 @@ def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: st
     here = repo / "experiments/evaluate"
     profile = yaml.safe_load((here / "benchmarks" / f"{benchmark}.yaml").read_text())
     case = (repo / "benchmarks" / benchmark / "dataset/cases" / split / case_id).resolve()
+    case.relative_to(repo.resolve())
     case.relative_to((repo / "benchmarks" / benchmark / "dataset/cases").resolve())
     if not case.is_dir():
         raise FileNotFoundError(case)

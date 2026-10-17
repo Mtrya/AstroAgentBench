@@ -99,6 +99,19 @@ def test_case_symlinks_cannot_export_host_files(source, tmp_path, directory):
     assert not output.exists()
 
 
+def test_case_root_symlink_cannot_escape_checkout(source, tmp_path):
+    cases = source / 'benchmarks/spot5/dataset/cases'
+    outside = tmp_path / 'external-cases'
+    cases.rename(outside)
+    cases.symlink_to(outside)
+    git(source, 'add', '.')
+    git(source, 'commit', '-qm', 'External case root')
+    output = tmp_path / 'release'
+    with pytest.raises(subprocess.CalledProcessError):
+        stage(source, git(source, 'rev-parse', 'HEAD'), 'v2.0.0', output, image=IMAGE)
+    assert not output.exists()
+
+
 def test_promotion_checks_files_even_when_manifest_matches(tmp_path):
     payload = tmp_path / 'payload'
     payload.mkdir()
