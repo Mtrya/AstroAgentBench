@@ -5,6 +5,11 @@ language:
 tags:
   - aerospace
   - agent-traces
+configs:
+  - config_name: default
+    data_files:
+      - split: train
+        path: "sessions/**/*.jsonl"
 ---
 
 # AstroAgentBench Traces
@@ -13,7 +18,7 @@ Native sessions from the [AstroAgentBench agent run archive, version v1](https:/
 
 This is the subset supported by HF's native trace viewer, not the complete experimental corpus. OpenCode, Kimi CLI, other session formats, and non-session run artifacts remain in the Zenodo archive. No sessions have been converted. Experiment, run, system, and case directory structure is preserved under `sessions/`.
 
-The JSONL files are copied byte-for-byte from the frozen redacted archive. Credentials and personal home paths were scrubbed during archive preparation. Publication verifies the pinned archive manifest, every selected file's SHA-256, JSONL structure, and known plaintext credential/home-path patterns. Opaque encrypted reasoning payloads are retained and excluded from plaintext scanning. `release-manifest.json` records source provenance, selection counts, and the published file checksums; `zenodo-23084447` identifies this immutable selection.
+The JSONL files are copied byte-for-byte from the frozen redacted archive. Credentials and personal home paths were scrubbed during archive preparation. Publication verifies the pinned archive manifest, every selected file's SHA-256, JSONL structure, and known plaintext credential/home-path patterns. Opaque encrypted reasoning payloads are retained and excluded from plaintext scanning. `release-manifest.json` records source provenance, selection counts, and the published file checksums; `{{TRACE_VERSION}}` identifies this immutable selection.
 
 ## Attribution
 

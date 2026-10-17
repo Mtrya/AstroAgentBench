@@ -5,6 +5,7 @@ import subprocess
 import tomllib
 
 import pytest
+import yaml
 
 from experiments.evaluate.prepare import ROOT
 from scripts.hf_release import finish_stage, needs_promotion, validate_stage, publication_action
@@ -15,6 +16,11 @@ IMAGE = 'ghcr.io/mtrya/astroagentbench-python@sha256:' + 'a' * 64
 
 def git(repo, *args):
     return subprocess.check_output(['git', *args], cwd=repo, text=True).strip()
+
+
+def card_metadata(path):
+    _, frontmatter, _ = path.read_text().split('---', 2)
+    return yaml.safe_load(frontmatter)
 
 
 @pytest.fixture
@@ -56,6 +62,9 @@ def test_taskset_uses_committed_code_and_data(source, tmp_path):
     assert config['metadata']['source_dirty'] is False
     assert config['metadata']['runtime_image'] == IMAGE
     assert {p.name for p in out.iterdir()} == {'README.md', 'LICENSE', 'tasks', 'registry.json', 'release-manifest.json'}
+    metadata = card_metadata(out / 'README.md')
+    assert metadata['license_link'] == 'https://huggingface.co/datasets/kaupane/AstroAgentBench/blob/v2.0.0/README.md#licensing-and-attribution'
+    assert {'rl-environment', 'harbor'} <= set(metadata['tags'])
     assert manifest['kind'] == 'harbor-taskset'
     git(source, 'add', '.')
     git(source, 'commit', '-qm', 'Newer source')
@@ -67,6 +76,19 @@ def test_taskset_uses_committed_code_and_data(source, tmp_path):
         validate_stage(out)
     with pytest.raises(ValueError):
         stage(source, revision, 'v2.0.0', out, image=IMAGE)
+
+
+def test_frozen_relative_license_link_becomes_an_absolute_hf_url(source, tmp_path):
+    card = source / 'scripts/DATASET_CARD.md'
+    card.write_text(card.read_text().replace(
+        'license_link: https://huggingface.co/datasets/{{DATASET_REPO}}/blob/{{RELEASE}}/README.md#licensing-and-attribution',
+        'license_link: README.md#licensing-and-attribution',
+    ))
+    git(source, 'add', '.')
+    git(source, 'commit', '-qm', 'Frozen release card with relative license link')
+    out = tmp_path / 'release'
+    stage(source, git(source, 'rev-parse', 'HEAD'), 'v2.0.0', out, image=IMAGE, repo_id='example/tasks')
+    assert card_metadata(out / 'README.md')['license_link'] == 'https://huggingface.co/datasets/example/tasks/blob/v2.0.0/README.md#licensing-and-attribution'
 
 
 def test_release_conflicts_and_digest_requirement(source, tmp_path):

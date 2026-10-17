@@ -47,6 +47,12 @@ def stage(repo: Path, revision: str, version: str, output: Path, *, image: str, 
                         "--version", version, "--image", image], cwd=source, check=True)
         shutil.copyfile(source / "LICENSE", destination / "LICENSE")
         card = (source / "scripts/DATASET_CARD.md").read_text()
+        # v2.0.0 used a relative license_link that the Hub now rejects. Render it
+        # as the immutable dataset-tag URL without changing the frozen Git tag.
+        card = card.replace(
+            "license_link: README.md#licensing-and-attribution",
+            f"license_link: https://huggingface.co/datasets/{repo_id}/blob/{version}/README.md#licensing-and-attribution",
+        )
         card = card.replace("{{RELEASE}}", version).replace("{{SOURCE_COMMIT}}", commit).replace("{{DATASET_REPO}}", repo_id)
         (destination / "README.md").write_text(card)
         return finish_stage(destination, output, {"schema_version": 2, "kind": "harbor-taskset", "version": version,

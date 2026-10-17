@@ -1,7 +1,7 @@
 [English](../../../../docs/releases.md) | 中文
 
 # Benchmark 发布
-<!-- i18n-source-sha256: 5af9757f4552ac8bd85dad8fa788b91c82a3367a8ee2c634b1473a03f5cfee4f -->
+<!-- i18n-source-sha256: 704eaa67930eb2c4d5d3599ba354542fcd38f878676b3611d3faeae3e453ad8c -->
 
 GitHub 是源码、benchmark 定义、数据集生成器及源输入的权威来源。Hugging Face 在 `kaupane/AstroAgentBench` 分发可运行的 Harbor 任务集，在 `kaupane/AstroAgentBench-Traces` 分发受支持的原生会话。仅包含任务集的新布局从 `v2.0.0` 开始；已有历史 release 和 tag 保持原内容。
 
@@ -38,7 +38,7 @@ uv run --locked --extra evaluation harbor run --repo https://huggingface.co/data
 uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/hf-smoke --output results/hf-smoke.jsonl
 ```
 
-确认预期的七个测试实例状态均为 `valid` 后，在发布命令中同时使用 `--publish --promote` 再执行一次。`--repo URL@VERSION` 中的 Git ref 固定仓库树；`--dataset NAME@VERSION` 则独立选择该树的注册表条目。宣布发布前，请检查 HF 首页及其“Use this dataset”命令。
+确认预期的七个测试实例状态均为 `valid` 后，在发布命令中同时使用 `--publish --promote` 再执行一次。`--repo URL@VERSION` 中的 Git ref 固定仓库树；`--dataset NAME@VERSION` 则独立选择该树的注册表条目。在 HF 页面上确认 **RL Environment** 标记、Harbor 库、Dataset Viewer 和“Use this dataset”命令。
 
 ## 原生会话轨迹
 
@@ -54,4 +54,4 @@ uv run --locked python scripts/upload_agent_traces.py --output .runtime/hf-trace
 
 暂存过程验证每个选中会话的校验和与 JSONL 结构，然后检查解码文本中的已知凭证模式、含密钥字段及个人主目录路径。加密推理载荷作为不透明数据保留。检查失败会停止发布，只报告文件名和类别，不输出匹配值。请先审查失败原因，再准备修正后的来源；不要原地修改已归档证据。
 
-添加 `--publish`，或选择工作流的发布选项，即可创建公开轨迹数据集，上传一个原子 release，通过 `snapshot_download` 验证，创建 `zenodo-23084447` tag，并更新默认分支。发布后，验证原生格式自动识别，并在 Data Studio 中分别打开一个 Claude Code 和一个 Codex 会话。只有查看器检查通过后，才能在仓库 README 或论文中链接轨迹数据集。仅合并代码变更不能证明发布成功或查看器验收通过。
+添加 `--publish`，或选择工作流的发布选项，即可上传轨迹、创建 `zenodo-23084447.1` tag 并更新默认分支。数据集说明卡将 `sessions/**/*.jsonl` 映射到一个数据划分，使 HF 对每个会话只加载一次。较早的 `zenodo-23084447` tag 保留了错误推断出的 train/test 划分。在 HF 页面上确认 **Traces** 标记，并在轨迹预览中分别打开一个 Claude Code 和一个 Codex 会话，然后再从仓库 README 或论文中链接该数据集。
