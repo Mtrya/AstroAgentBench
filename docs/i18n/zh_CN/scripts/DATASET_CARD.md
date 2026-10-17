@@ -1,7 +1,7 @@
 ---
 license: other
 license_name: mixed-source-licenses
-license_link: README.md#licensing-and-attribution
+license_link: https://huggingface.co/datasets/{{DATASET_REPO}}/blob/{{RELEASE}}/README.md#licensing-and-attribution
 language:
   - en
 tags:
@@ -16,7 +16,7 @@ tags:
 [English](../../../../scripts/DATASET_CARD.md) | 中文
 
 # AstroAgentBench
-<!-- i18n-source-sha256: a45c82e4fdcf2ec884be685fbfde2357f815c98a28e919d5cd592260ffac99dd -->
+<!-- i18n-source-sha256: 66ab760da6812cedc7f5bfde5e5eac600cfbc2b0cbec1c85936bb477396617fd -->
 
 用于在空间任务设计问题上评估完整 agent 系统的 Harbor 任务。[GitHub](https://github.com/Mtrya/AstroAgentBench/tree/{{SOURCE_COMMIT}}) 是 benchmark 定义、数据集生成器和源输入的权威来源。本 release 为 `{{RELEASE}}`，由 Git commit `{{SOURCE_COMMIT}}` 生成。
 
