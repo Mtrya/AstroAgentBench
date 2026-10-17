@@ -69,8 +69,8 @@ def workspace(
     output: Path,
     *,
     image: str = "astroagentbench-python:latest",
-    cpus: int = 2,
-    memory_mb: int = 4096,
+    cpus: int = 8,
+    memory_mb: int = 16384,
     network: str = "public",
     solution_filename: str = "solution.json",
     command: str | None = None,
@@ -109,8 +109,8 @@ def main() -> None:
     parser.add_argument("case_id")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--image", default="astroagentbench-python:latest")
-    parser.add_argument("--cpus", type=int, default=2)
-    parser.add_argument("--memory-mb", type=int, default=4096)
+    parser.add_argument("--cpus", type=int, default=8)
+    parser.add_argument("--memory-mb", type=int, default=16384)
     parser.add_argument("--network", choices=["public", "no-network"], default="public")
     parser.add_argument("--solution-filename", default="solution.json")
     parser.add_argument("--command", help="Run this command instead of an interactive shell.")

@@ -65,6 +65,8 @@ def test_untracked_inputs_mark_task_source_dirty(tmp_path):
     case = benchmark / 'dataset/cases/test/8'
     shutil.copytree(ROOT / 'benchmarks/spot5/dataset/cases/test/8', case)
     shutil.copyfile(ROOT / 'benchmarks/spot5/verifier.py', benchmark / 'verifier.py')
+    shutil.copytree(ROOT / 'experiments/evaluate', repo / 'experiments/evaluate', ignore=shutil.ignore_patterns('__pycache__'))
+    shutil.copyfile(ROOT / 'experiments/__init__.py', repo / 'experiments/__init__.py')
     for args in [('init', '-q'), ('add', '.'), ('-c', 'user.name=Task Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'Canonical inputs')]:
         subprocess.run(['git', *args], cwd=repo, check=True)
     clean = prepare('spot5', 'test', '8', tmp_path / 'clean', repo=repo)

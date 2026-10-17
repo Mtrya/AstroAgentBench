@@ -1,0 +1,70 @@
+name: Publish Python Runtime
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Full Git commit SHA or release tag
+        required: true
+        type: string
+      version:
+        description: Matching GitHub release tag
+        required: true
+        default: v2.0.0
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: python-runtime-publication
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/mtrya/astroagentbench-python
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.revision }}
+          fetch-depth: 0
+      - name: Verify release source
+        id: source
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(git rev-parse --verify "refs/tags/$RELEASE_VERSION^{commit}")"
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish runtime from the release commit
+        id: image
+        uses: docker/build-push-action@v7
+        with:
+          context: runtimes/python
+          file: runtimes/python/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/mtrya/astroagentbench-python:${{ inputs.version }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/Mtrya/AstroAgentBench
+            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.revision=${{ steps.source.outputs.commit }}
+      - name: Report immutable reference
+        env:
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: echo "$IMAGE@$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify anonymous pull
+        env:
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/anonymous-docker"
+          docker --config "$RUNNER_TEMP/anonymous-docker" pull "$IMAGE@$IMAGE_DIGEST"

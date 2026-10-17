@@ -87,9 +87,9 @@ jobs:
           BUILDX_BUILDER: default
         run: |
           docker buildx use default
-          uv run --locked --extra evaluation python -m experiments.evaluate.prepare spot5 test 8 --output .runtime/tasks/spot5 --reference-solution benchmarks/spot5/dataset/example_solution.json
+          uv run --locked --extra evaluation python -m experiments.evaluate.prepare spot5 test 8 --output .runtime/tasks/spot5 --cpus 2 --memory-mb 4096 --reference-solution benchmarks/spot5/dataset/example_solution.json
           uv run --locked --extra evaluation harbor run -p .runtime/tasks/spot5 -a oracle -n 1 --jobs-dir results --job-name spot5
-          uv run --locked --extra evaluation python -m experiments.evaluate.prepare regional_coverage test case_0001 --output .runtime/tasks/celf
+          uv run --locked --extra evaluation python -m experiments.evaluate.prepare regional_coverage test case_0001 --output .runtime/tasks/celf --cpus 2 --memory-mb 4096
           uv run --locked --extra evaluation harbor run -p .runtime/tasks/celf -a experiments.evaluate.solver:SolverAgent --agent-kwarg solver_dir=solvers/regional_coverage/celf_submodular --agent-kwarg config_dir=experiments/evaluate/examples/celf -n 1 --jobs-dir results --job-name celf
           uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/spot5 --output results/spot5.jsonl
           uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/celf --output results/celf.jsonl

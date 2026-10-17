@@ -1,7 +1,7 @@
 [English](../../../../../experiments/evaluate/README.md) | 中文
 
 # 评测
-<!-- i18n-source-sha256: bdb917cf65a85a07b87c381bd002023b6ade8061774c114c8aac581abb12dd7a -->
+<!-- i18n-source-sha256: 89a64416771e63db3c487598da0950ae058202f4c932fb9b8586b51f2af268c6 -->
 
 Harbor 0.23.0 负责环境生命周期、并发、超时、重试、已安装或外部的系统适配器以及产物。本目录负责准备标准测试实例、调用权威验证器 CLI、适配独立自洽的求解器 CLI，并汇总原生指标。参见[评测契约](../../docs/experiment_contract.md)。
 
@@ -54,7 +54,7 @@ uv run --locked --extra evaluation python -m experiments.evaluate.score --tests 
 
 ## 设置与结果
 
-准备好的任务默认使用 2 个 CPU、4096 MiB 内存、10240 MiB 请求存储、7200 秒系统执行时间和 600 秒验证时间，并允许访问公共网络。Harbor 默认使用 Docker；示例中的 `-n 1` 表示一次只运行一个试验。镜像引用、测试实例与验证器的哈希、源码提交与工作区是否干净、资源上限以及网络策略都会被记录。要做固定条件下的对比，请使用镜像 digest 和干净的源码提交。Docker 不保证 `storage_mb` 会落实为磁盘配额；请确认环境提供方的强制执行能力。
+准备好的任务默认使用 8 个 CPU、16384 MiB 内存、10240 MiB 请求存储、7200 秒系统执行时间和 600 秒验证时间，并允许访问公共网络。Harbor 默认使用 Docker；示例中的 `-n 1` 表示一次只运行一个试验。镜像引用、测试实例与验证器的哈希、源码提交与工作区是否干净、资源上限以及网络策略都会被记录。要做固定条件下的对比，请使用镜像 digest 和干净的源码提交。Docker 不保证 `storage_mb` 会落实为磁盘配额；请确认环境提供方的强制执行能力。
 
 可以使用 `prepare --cpus`、`--memory-mb`、`--timeout`、`--image` 和 `--network no-network`，或者用 Harbor 原生的运行时覆盖选项。`no-network` 模式需要环境提供方支持，可阻止容器内发起外部模型调用；Harbor 会拒绝不受支持的网络策略。构建与 setup 阶段的下载同样取决于本地的网络与代理配置。常规示例不会授予宿主机网络，也不会把仓库挂载进求解容器。
 

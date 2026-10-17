@@ -1,0 +1,40 @@
+name: Stage or Publish Agent Traces
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified supported-format sessions to HF
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-traces-publication
+  cancel-in-progress: false
+
+jobs:
+  traces:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13.11"
+      - run: uv sync --locked
+      - run: zstd --version
+      - name: Download and verify the frozen Zenodo sessions
+        run: uv run --locked python scripts/upload_agent_traces.py --output .runtime/hf-traces
+      - uses: actions/upload-artifact@v7
+        with:
+          name: agent-traces-stage
+          path: .runtime/hf-traces
+          include-hidden-files: true
+      - name: Publish and read back the trace dataset
+        if: ${{ inputs.publish }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: uv run --locked python scripts/upload_agent_traces.py --archive .runtime/zenodo-traces --output .runtime/hf-traces --publish
