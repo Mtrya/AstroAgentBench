@@ -1,7 +1,7 @@
 [English](../../../../docs/experiment_contract.md) | 中文
 
 # 评测契约
-<!-- i18n-source-sha256: bd6c18bf2b7d40dc82fedf5393952ec5d2bd5423cd0ecc2bc17617db264e4f71 -->
+<!-- i18n-source-sha256: c30adc55561c44f9972f9e02ae3a3df715bbebda52e4823dd8fc5d25f4690d81 -->
 
 `experiments/evaluate/` 把独立自洽的 benchmark 与求解器的 CLI 和文件契约接入 Harbor 0.23.0。Harbor 是评测执行器。被评测的智能体系统，指研究者提供的完整组合：运行框架、模型、工具、记忆与协作机制。
 
@@ -10,6 +10,12 @@
 `python -m experiments.evaluate.prepare BENCHMARK SPLIT CASE --output DIRECTORY` 会把一个标准测试实例及其任务简报复制成一个自包含的 Harbor 任务。它记录 Git 提交号与工作区是否干净、测试实例与验证器的 SHA-256 标识、镜像引用、解文件名、资源上限以及网络策略。已有的输出目录绝不会被覆盖。
 
 求解环境中包含 `/workspace/case/` 和一个空的 `/workspace/solution/`。其中没有其他测试实例、示例解、仓库历史或权威验证器代码。`--reference-solution` 会显式加入一份 Oracle 解供集成检查使用；评测被评测系统时应当省略该参数。另有一个独立的验证器镜像，内含原始测试实例和未经修改的 benchmark 验证器，外加一个很薄的 CLI 输出适配器。
+
+## 已发布任务集
+
+`python -m experiments.evaluate.taskset --output DIRECTORY --version VERSION --image IMAGE` 准备标准数据集索引列出的全部测试实例。它生成 `tasks/<benchmark>-<split>-<case_id>/` 目录和 Harbor `registry.json`，按 benchmark/子集提供条目，并添加 `smoke` 条目。每个任务只存储一次。只有索引指定的七个冒烟测试实例包含参考解；除非 Harbor 运行 oracle agent，否则这些参考解不进入求解环境。
+
+任务准备默认使用 8 个 CPU、16384 MiB 内存、7200 秒 agent 超时和 600 秒验证器超时。发布的任务通过 digest 固定求解与验证器运行时基座。release 暂存从所选 Git commit 的干净检出目录调用导出器；发布、revision 选择及远端冒烟测试请参阅[发布流程](releases.md)。
 
 ## 执行与评分
 

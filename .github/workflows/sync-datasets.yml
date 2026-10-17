@@ -10,21 +10,32 @@ on:
       version:
         description: Matching GitHub release identifier
         required: true
+        default: v2.0.0
+        type: string
+      image:
+        description: Public Python runtime reference pinned by sha256 digest
+        required: true
         type: string
       publish:
-        description: Publish the verified stage and create an immutable HF tag
+        description: Publish, smoke-test the HF tag, then promote it to main
         type: boolean
         default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: benchmark-dataset-publication
+  cancel-in-progress: false
+
 jobs:
   dataset:
     runs-on: ubuntu-latest
-    concurrency:
-      group: benchmark-dataset-publication
-      cancel-in-progress: false
+    env:
+      SOURCE_REVISION: ${{ inputs.revision }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      RUNTIME_IMAGE: ${{ inputs.image }}
+      DATASET_REPO: kaupane/AstroAgentBench
     steps:
       - uses: actions/checkout@v7
         with:
@@ -33,21 +44,52 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.13.11"
-      - run: uv sync --locked
+      - run: uv sync --locked --extra evaluation
       - name: Stage immutable Git source
-        env:
-          SOURCE_REVISION: ${{ inputs.revision }}
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --output .runtime/hf-release
+        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --image "$RUNTIME_IMAGE" --output .runtime/hf-release
       - uses: actions/upload-artifact@v7
         with:
           name: benchmark-release-stage
           path: .runtime/hf-release
+          include-hidden-files: true
+      - name: Verify anonymous runtime access
+        if: ${{ inputs.publish }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/anonymous-docker"
+          docker --config "$RUNNER_TEMP/anonymous-docker" pull "$RUNTIME_IMAGE"
       - name: Publish verified immutable version
         if: ${{ inputs.publish }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_DATASET_REPO_ID: ${{ secrets.HF_DATASET_REPO_ID }}
-          SOURCE_REVISION: ${{ inputs.revision }}
-          RELEASE_VERSION: ${{ inputs.version }}
-        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --output .runtime/hf-release --repo-id "$HF_DATASET_REPO_ID" --publish
+        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --image "$RUNTIME_IMAGE" --output .runtime/hf-release --repo-id "$DATASET_REPO" --publish
+      - name: Run seven oracle checks from HF
+        if: ${{ inputs.publish }}
+        env:
+          HARBOR_TELEMETRY: "0"
+        run: |
+          uv run --locked --extra evaluation harbor run --repo "https://huggingface.co/datasets/$DATASET_REPO@$RELEASE_VERSION" --dataset "smoke@$RELEASE_VERSION" --agent oracle -n 1 --override-cpus 2 --override-memory-mb 4096 --jobs-dir results --job-name hf-smoke
+          uv run --locked --extra evaluation python -m experiments.evaluate.aggregate results/hf-smoke --output results/hf-smoke.jsonl
+          uv run --locked python - <<'PY'
+          import json
+          from pathlib import Path
+          import tomllib
+          root = Path('.runtime/hf-release')
+          smoke = next(row for row in json.loads((root / 'registry.json').read_text()) if row['name'] == 'smoke')
+          expected = [tomllib.loads((root / task['path'] / 'task.toml').read_text())['metadata'] for task in smoke['tasks']]
+          rows = [json.loads(line) for line in Path('results/hf-smoke.jsonl').read_text().splitlines()]
+          assert len(rows) == len(expected), rows
+          assert all(row['status'] == 'valid' for row in rows), rows
+          identity = lambda item: (item['benchmark'], item['split'], item['case_id'])
+          assert {identity(row['task']) for row in rows} == {identity(item) for item in expected}
+          PY
+      - name: Promote the checked release to the dataset landing page
+        if: ${{ inputs.publish }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: uv run --locked python scripts/upload_benchmark_datasets.py --revision "$SOURCE_REVISION" --version "$RELEASE_VERSION" --image "$RUNTIME_IMAGE" --output .runtime/hf-release --repo-id "$DATASET_REPO" --publish --promote
+      - name: Retain remote smoke evidence
+        if: ${{ always() && inputs.publish }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: published-taskset-smoke
+          path: results/

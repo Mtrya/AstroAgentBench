@@ -51,7 +51,7 @@ The container runs as your host user so files you leave behind stay editable, an
 
 ## Settings and results
 
-Prepared tasks default to 2 CPUs, 4096 MiB memory, 10240 MiB requested storage, 7200 seconds of system execution, 600 seconds of verification, and public network access. Harbor defaults to Docker; `-n 1` in the examples runs one trial at a time. Image references, case/verifier hashes, source commit and dirty state, limits, and network policy are recorded. Use an image digest and a clean source commit for a fixed comparison. Docker does not promise a disk quota from `storage_mb`; check the provider's enforcement capabilities.
+Prepared tasks default to 8 CPUs, 16384 MiB memory, 10240 MiB requested storage, 7200 seconds of system execution, 600 seconds of verification, and public network access. Harbor defaults to Docker; `-n 1` in the examples runs one trial at a time. Image references, case/verifier hashes, source commit and dirty state, limits, and network policy are recorded. Use an image digest and a clean source commit for a fixed comparison. Docker does not promise a disk quota from `storage_mb`; check the provider's enforcement capabilities.
 
 Use `prepare --cpus`, `--memory-mb`, `--timeout`, `--image`, and `--network no-network` or Harbor's native runtime overrides. No-network requires provider support and prevents external model calls from inside the container; Harbor rejects unsupported policies. Build/setup downloads also depend on your local network and proxy configuration. The normal examples do not grant host networking or mount the repository into the solving container.
 

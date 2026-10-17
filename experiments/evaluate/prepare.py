@@ -24,12 +24,17 @@ def tree_hash(path: Path) -> str:
     return digest.hexdigest()
 
 
-def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: str = "astroagentbench-python:latest", cpus: int = 2, memory_mb: int = 4096, timeout: int = 7200, network: str = "public", reference_solution: Path | None = None, solution_filename: str = "solution.json", repo: Path = ROOT) -> Path:
-    profile = yaml.safe_load((HERE / "benchmarks" / f"{benchmark}.yaml").read_text())
+def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: str = "astroagentbench-python:latest", cpus: int = 8, memory_mb: int = 16384, timeout: int = 7200, network: str = "public", reference_solution: Path | None = None, solution_filename: str = "solution.json", repo: Path = ROOT) -> Path:
+    here = repo / "experiments/evaluate"
+    profile = yaml.safe_load((here / "benchmarks" / f"{benchmark}.yaml").read_text())
     case = (repo / "benchmarks" / benchmark / "dataset/cases" / split / case_id).resolve()
+    case.relative_to(repo.resolve())
     case.relative_to((repo / "benchmarks" / benchmark / "dataset/cases").resolve())
     if not case.is_dir():
         raise FileNotFoundError(case)
+    for path in case.rglob("*"):
+        if path.is_symlink():
+            raise ValueError(f"Case inputs must not contain symlinks: {path.relative_to(case)}")
     if cpus <= 0 or memory_mb <= 0 or timeout <= 0:
         raise ValueError("Resource and time limits must be positive")
     if solution_filename not in ("solution.json", "solution.spot_sol.txt") or (solution_filename.endswith(".txt") and benchmark != "spot5"):
@@ -44,7 +49,7 @@ def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: st
     environment, tests = output / "environment", output / "tests"
     for target in (environment, tests):
         shutil.copytree(case, target / "case")
-    brief = (HERE / "instructions" / f"{benchmark}.md").read_text().replace("solution.json", f"/workspace/solution/{solution_filename}")
+    brief = (here / "instructions" / f"{benchmark}.md").read_text().replace("solution.json", f"/workspace/solution/{solution_filename}")
     (output / "instruction.md").write_text(brief)
     (environment / "Dockerfile").write_text(f"FROM {image}\nWORKDIR /workspace\nCOPY case /workspace/case\nRUN mkdir -p /workspace/solution\n")
     # The authority and original case exist only in the fresh verifier image.
@@ -59,7 +64,7 @@ def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: st
     else:
         shutil.copyfile(verifier.with_suffix(".py"), package / "verifier.py")
         command = [f"benchmarks/{benchmark}/verifier.py"]
-    shutil.copyfile(HERE / "score.py", tests / "score.py")
+    shutil.copyfile(here / "score.py", tests / "score.py")
     profile.update(solution_filename=solution_filename, verifier_command=command)
     (tests / "profile.json").write_text(json.dumps(profile, indent=2) + "\n")
     (tests / "test.sh").write_text("#!/bin/bash\nset -euo pipefail\npython /tests/score.py\n")
@@ -90,8 +95,8 @@ def main() -> None:
     parser.add_argument("case_id")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--image", default="astroagentbench-python:latest")
-    parser.add_argument("--cpus", type=int, default=2)
-    parser.add_argument("--memory-mb", type=int, default=4096)
+    parser.add_argument("--cpus", type=int, default=8)
+    parser.add_argument("--memory-mb", type=int, default=16384)
     parser.add_argument("--timeout", type=int, default=7200)
     parser.add_argument("--network", choices=["public", "no-network"], default="public")
     parser.add_argument("--reference-solution", type=Path)

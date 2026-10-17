@@ -8,6 +8,12 @@
 
 The solving environment has `/workspace/case/` and an empty `/workspace/solution/`. It does not contain other cases, example solutions, repository history, or authoritative verifier code. `--reference-solution` explicitly adds an Oracle solution for integration checks; omit it for evaluated systems. An independent verifier image contains the original case and unmodified benchmark verifier, plus a small CLI-output adapter.
 
+## Published tasksets
+
+`python -m experiments.evaluate.taskset --output DIRECTORY --version VERSION --image IMAGE` prepares every case listed in the canonical dataset indexes. It emits `tasks/<benchmark>-<split>-<case_id>/` directories and a Harbor `registry.json` with one entry per benchmark/split and an additional `smoke` entry. Each task is stored once. Only the seven indexed smoke cases include reference solutions, and those solutions remain outside the solving environment unless Harbor runs the oracle agent.
+
+Task preparation defaults to 8 CPUs, 16384 MiB memory, a 7200-second agent timeout, and a 600-second verifier timeout. Published tasks pin the solving and verifier runtime by digest. Release staging invokes the exporter from a clean checkout of the selected Git commit; see [the release workflow](releases.md) for publication, revision selection, and remote smoke checks.
+
 ## Execution and scoring
 
 Use Harbor's native `run -p TASK -a ADAPTER` interface. Installed CLI and external `BaseAgent` adapters use the same task environment and output contract. The repository does not implement a second scheduler, Docker lifecycle, retry loop, model router, or agent reasoning protocol.
