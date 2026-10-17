@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: astral-sh/setup-uv@v7
       - uses: actions/setup-python@v7
         with:
@@ -27,7 +29,7 @@ jobs:
       - run: uv sync --locked
       - run: zstd --version
       - name: Download and verify the frozen Zenodo sessions
-        run: uv run --locked python scripts/upload_agent_traces.py --output .runtime/hf-traces
+        run: uv run --locked python scripts/upload_agent_traces.py --cache .runtime/zenodo-traces --output .runtime/hf-traces
       - uses: actions/upload-artifact@v7
         with:
           name: agent-traces-stage

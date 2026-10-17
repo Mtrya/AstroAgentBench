@@ -1,9 +1,11 @@
 [English](../../../../docs/releases.md) | 中文
 
 # Benchmark 发布
-<!-- i18n-source-sha256: 18d88d67bee7d40b15a21bf890b50f8a4d52a079538d3774d6702d2851146407 -->
+<!-- i18n-source-sha256: 5af9757f4552ac8bd85dad8fa788b91c82a3367a8ee2c634b1473a03f5cfee4f -->
 
 GitHub 是源码、benchmark 定义、数据集生成器及源输入的权威来源。Hugging Face 在 `kaupane/AstroAgentBench` 分发可运行的 Harbor 任务集，在 `kaupane/AstroAgentBench-Traces` 分发受支持的原生会话。仅包含任务集的新布局从 `v2.0.0` 开始；已有历史 release 和 tag 保持原内容。
+
+发布前，先将发布工具合并到 `main`，再在合并后的 commit 上创建 release tag。GitHub 要求手动触发的工作流已存在于默认分支。先发布 GHCR 运行时基座，再用其 digest 发布 HF 任务集；轨迹数据集单独发布。只有远程 oracle 检查和 Data Studio 检查都通过后，才能关闭发布 issue。
 
 ## 运行时基座镜像
 
@@ -24,7 +26,7 @@ uv run --locked python scripts/upload_benchmark_datasets.py --revision v2.0.0 --
 
 注册表条目按 benchmark 和子集选择任务，例如 `regional_coverage-test@v2.0.0`。额外的 `smoke@v2.0.0` 条目选择各任务族索引中的示例测试实例，这七个任务包含 oracle 参考解。每个标准测试实例只存储一次，即使它同时被任务族/子集条目和 `smoke` 选中。默认上限为 8 个 CPU、16384 MiB 内存、7200 秒 agent 超时和 600 秒验证器超时。两种任务环境使用同一镜像 digest。release manifest 记录完整的源码溯源信息和文件 SHA-256 校验和。
 
-从实现分支运行 **Stage or Publish Benchmark Dataset**，提供 revision、版本号和镜像 digest。默认只暂存为 Actions 产物。选择 `publish` 需要具有数据集写入权限的 `HF_TOKEN`。发布过程确认 Git release tag 指向所选 commit，在 release 分支上创建一个原子 commit，下载并验证其校验和，然后创建不可变的 HF tag。已有 tag 的内容一致时会验证并复用；冲突时会失败。
+从 `main` 运行 **Stage or Publish Benchmark Dataset**，提供 revision、版本号和镜像 digest。默认只暂存为 Actions 产物。选择 `publish` 需要具有数据集写入权限的 `HF_TOKEN`。发布过程确认 Git release tag 指向所选 commit，在 release 分支上创建一个原子 commit，下载并验证其校验和，然后创建不可变的 HF tag。已有 tag 的内容一致时会验证并复用；冲突时会失败。
 
 工作流随后直接从公开 HF tag 加载七个 oracle 任务，并要求每个选中测试实例的结果都合法。这些集成检查通过 Harbor 将资源覆盖为 2 个 CPU 和 4096 MiB 内存，以适配托管运行器；发布的默认值仍为 8 个 CPU 和 16384 MiB。只有检查通过后，工作流才会以原子 commit 将已验证文件更新到 HF 的 `main` 分支，使数据集首页和自动生成的框架命令使用可运行布局。已有 HF tag 永不替换。
 

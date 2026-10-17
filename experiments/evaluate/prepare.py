@@ -31,6 +31,9 @@ def prepare(benchmark: str, split: str, case_id: str, output: Path, *, image: st
     case.relative_to((repo / "benchmarks" / benchmark / "dataset/cases").resolve())
     if not case.is_dir():
         raise FileNotFoundError(case)
+    for path in case.rglob("*"):
+        if path.is_symlink():
+            raise ValueError(f"Case inputs must not contain symlinks: {path.relative_to(case)}")
     if cpus <= 0 or memory_mb <= 0 or timeout <= 0:
         raise ValueError("Resource and time limits must be positive")
     if solution_filename not in ("solution.json", "solution.spot_sol.txt") or (solution_filename.endswith(".txt") and benchmark != "spot5"):

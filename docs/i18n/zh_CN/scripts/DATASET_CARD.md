@@ -38,6 +38,6 @@ harbor run --repo https://huggingface.co/datasets/{{DATASET_REPO}}@{{RELEASE}} -
 
 ## 许可与署名
 
-本 release 同时包含根目录 [MIT 许可](LICENSE) 下的项目代码，以及受各自条款约束的第三方输入。MIT 许可不替代这些来源的许可。溯源信息请参阅[发布 commit 中的 benchmark README 和来源 manifest](https://github.com/Mtrya/AstroAgentBench/tree/{{SOURCE_COMMIT}}/benchmarks)。
+本 release 同时包含根目录 [MIT 许可](../../../../LICENSE) 下的项目代码，以及受各自条款约束的第三方输入。MIT 许可不替代这些来源的许可。溯源信息请参阅[发布 commit 中的 benchmark README 和来源 manifest](https://github.com/Mtrya/AstroAgentBench/tree/{{SOURCE_COMMIT}}/benchmarks)。
 
 SPOT5 的 `.spot` 输入按 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 分发，来源为 Zequn Wei 与 Jin-Kao Hao 的 [Mendeley Data 第 1 版数据集（2021），DOI 10.17632/2kbzg9nw3b.1](https://data.mendeley.com/datasets/2kbzg9nw3b/1)。内置源文件未修改，benchmark 测试实例文件由其派生。再分发这些数据时须保留署名，并注明后续修改。

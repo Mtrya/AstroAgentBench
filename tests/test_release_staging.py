@@ -7,7 +7,7 @@ import tomllib
 import pytest
 
 from experiments.evaluate.prepare import ROOT
-from scripts.hf_release import validate_stage, publication_action
+from scripts.hf_release import finish_stage, needs_promotion, validate_stage, publication_action
 from scripts.upload_benchmark_datasets import stage
 
 IMAGE = 'ghcr.io/mtrya/astroagentbench-python@sha256:' + 'a' * 64
@@ -82,3 +82,39 @@ def test_release_conflicts_and_digest_requirement(source, tmp_path):
         publication_action(expected, changed, None)
     with pytest.raises(ValueError):
         publication_action(expected, None, changed)
+
+
+@pytest.mark.parametrize('directory', [False, True])
+def test_case_symlinks_cannot_export_host_files(source, tmp_path, directory):
+    outside = tmp_path / 'host'
+    outside.mkdir()
+    (outside / 'private.txt').write_text('host-only contents')
+    link = source / 'benchmarks/spot5/dataset/cases/single_orbit/8/host-link'
+    link.symlink_to(outside if directory else outside / 'private.txt')
+    git(source, 'add', '.')
+    git(source, 'commit', '-qm', 'Case with an external link')
+    output = tmp_path / 'release'
+    with pytest.raises(subprocess.CalledProcessError):
+        stage(source, git(source, 'rev-parse', 'HEAD'), 'v2.0.0', output, image=IMAGE)
+    assert not output.exists()
+
+
+def test_promotion_checks_files_even_when_manifest_matches(tmp_path):
+    payload = tmp_path / 'payload'
+    payload.mkdir()
+    (payload / 'task.txt').write_text('canonical task')
+    expected = finish_stage(payload, tmp_path / 'release', {'version': 'v2.0.0'})
+    current = tmp_path / 'main'
+    shutil.copytree(tmp_path / 'release', current)
+    (current / '.gitattributes').write_text('HF-managed attributes')
+    assert not needs_promotion(current, expected)
+    (current / 'task.txt').write_text('changed')
+    assert needs_promotion(current, expected)
+    (current / 'task.txt').write_text('canonical task')
+    (current / 'extra.txt').write_text('extra')
+    assert needs_promotion(current, expected)
+    (current / 'extra.txt').unlink()
+    (current / 'task.txt').unlink()
+    assert needs_promotion(current, expected)
+    (current / 'release-manifest.json').unlink()
+    assert needs_promotion(current, expected)

@@ -48,6 +48,15 @@ def publication_action(expected: dict, tagged: dict | None, pending: dict | None
     return "commit"
 
 
+def needs_promotion(directory: Path, expected: dict) -> bool:
+    manifest = directory / MANIFEST
+    if not manifest.exists() or json.loads(manifest.read_text()) != expected:
+        return True
+    actual = inventory(directory)
+    actual.pop(".gitattributes", None)
+    return actual != expected["files"]
+
+
 def publish(directory: Path, repo_id: str, *, promote: bool = False) -> str:
     from huggingface_hub import CommitOperationAdd, CommitOperationDelete, HfApi, hf_hub_download, snapshot_download
     from huggingface_hub.errors import EntryNotFoundError
@@ -101,7 +110,8 @@ def publish(directory: Path, repo_id: str, *, promote: bool = False) -> str:
     if promote:
         # Promotion changes only main; immutable release tags keep their original trees.
         parent = api.repo_info(repo_id, repo_type="dataset", revision="main").sha
-        if remote_manifest(parent) != expected:
+        current = Path(snapshot_download(repo_id, repo_type="dataset", revision=parent))
+        if needs_promotion(current, expected):
             old_files = set(api.list_repo_files(repo_id, repo_type="dataset", revision=parent))
             names = set(expected["files"]) | {MANIFEST}
             operations = [CommitOperationDelete(path_in_repo=name) for name in sorted(old_files - names - {".gitattributes"})]

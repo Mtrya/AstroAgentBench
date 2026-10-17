@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 from collections import Counter
 import hashlib
+from http.client import IncompleteRead
 import json
 from pathlib import Path
 import re
@@ -14,6 +17,8 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
+import urllib.error
 import urllib.request
 
 if __package__ in (None, ""):
@@ -22,6 +27,7 @@ if __package__ in (None, ""):
 from scripts.hf_release import finish_stage, publish
 
 RECORD = "23084447"
+FILES_URL = f"https://zenodo.org/api/records/{RECORD}/files"
 SOURCE_DOI = f"https://doi.org/10.5281/zenodo.{RECORD}"
 ARCHIVE_MANIFEST = "run-archive-manifest.json"
 MANIFEST_SHA256 = "8218490689421043031fc23c7e29ebc4ecb7ba6e80b99bc04696a2ecdf3bff19"
@@ -33,7 +39,7 @@ SECRET_PATTERNS = {
     "private key": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
     "personal home path": re.compile(r"/(?:home|Users)/[A-Za-z0-9._-]+"),
 }
-SECRET_KEYS = re.compile(r"api_?key|authorization|auth_token|access_?token|refresh_?token|client_?secret|secret|password|passwd|private_?key", re.I)
+SECRET_KEYS = re.compile(r"(?:^|[^a-z0-9])(?:api_?key|authorization|auth_?token|access_?token|refresh_?token|client_?secret|secret|password|passwd|private_?key|token|credentials?)(?:$|[^a-z0-9])", re.I)
 
 
 def checksum(path: Path) -> str:
@@ -55,17 +61,30 @@ def session_format(name: str) -> str | None:
     return None
 
 
-def screen(value, location: str) -> None:
+def opaque_ciphertext(value) -> bool:
+    # The frozen Codex archive uses Fernet envelopes. This recognizes their
+    # representation, not their authenticity; archive checksums pin the bytes.
+    if not isinstance(value, str):
+        return False
+    try:
+        raw = base64.b64decode(value, altchars=b"-_", validate=True)
+    except (binascii.Error, ValueError):
+        return False
+    return len(raw) >= 73 and raw[0] == 0x80 and (len(raw) - 57) % 16 == 0
+
+
+def screen(value, location: str, kind: str) -> None:
     if isinstance(value, dict):
         for key, item in value.items():
-            if key == "encrypted_content":
+            if key == "encrypted_content" and kind == "codex" and value.get("type") in {"reasoning", "compaction"} and opaque_ciphertext(item):
                 continue
-            if SECRET_KEYS.fullmatch(key) and isinstance(item, str) and item and item != "[REDACTED]":
+            normalized_key = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", key)
+            if SECRET_KEYS.search(normalized_key) and isinstance(item, str) and item and item != "[REDACTED]":
                 raise ValueError(f"Review secret-bearing field in {location}: {key}")
-            screen(item, location)
+            screen(item, location, kind)
     elif isinstance(value, list):
         for item in value:
-            screen(item, location)
+            screen(item, location, kind)
     elif isinstance(value, str):
         for label, pattern in SECRET_PATTERNS.items():
             if pattern.search(value):
@@ -80,7 +99,7 @@ def validate_session(path: Path, kind: str) -> None:
                 continue
             row = json.loads(line)
             types.add(row["type"])
-            screen(row, f"{path.name}:{number}")
+            screen(row, f"{path.name}:{number}", kind)
     required = {"session_meta", "response_item"} if kind == "codex" else {"user", "assistant"}
     if not required <= types:
         raise ValueError(f"Incomplete {kind} session: {path.name}")
@@ -93,24 +112,36 @@ def read_manifest(archive: Path, expected_sha256: str) -> dict:
     return json.loads(path.read_text())
 
 
-def download_file(name: str, destination: Path, expected_sha256: str) -> None:
+def download_file(url: str, destination: Path, expected_sha256: str) -> None:
     if destination.exists():
         if checksum(destination) != expected_sha256:
             raise ValueError(f"Corrupt cached archive file: {destination.name}")
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
-    url = f"https://zenodo.org/api/records/{RECORD}/files/{name}/content"
     with tempfile.TemporaryDirectory(dir=destination.parent) as temporary:
         downloaded = Path(temporary) / "download"
-        with urllib.request.urlopen(url, timeout=60) as response, downloaded.open("wb") as handle:
-            shutil.copyfileobj(response, handle)
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(url, timeout=60) as response, downloaded.open("wb") as handle:
+                    shutil.copyfileobj(response, handle)
+                    length = response.headers.get("Content-Length")
+                    if length is not None and handle.tell() < int(length):
+                        raise IncompleteRead(b"", int(length) - handle.tell())
+                break
+            except (urllib.error.URLError, TimeoutError, IncompleteRead) as error:
+                if isinstance(error, urllib.error.HTTPError) and error.code not in {408, 429, 500, 502, 503, 504}:
+                    raise
+                if attempt == 2:
+                    raise
+                print(f"Retrying archive download ({attempt + 2}/3): {destination.name}", file=sys.stderr)
+                time.sleep(2 ** attempt)
         if checksum(downloaded) != expected_sha256:
-            raise ValueError(f"Downloaded archive checksum mismatch: {name}")
+            raise ValueError(f"Downloaded archive checksum mismatch: {destination.name}")
         downloaded.rename(destination)
 
 
 def download_archive(cache: Path) -> Path:
-    download_file(ARCHIVE_MANIFEST, cache / ARCHIVE_MANIFEST, MANIFEST_SHA256)
+    download_file(f"{FILES_URL}/{ARCHIVE_MANIFEST}/content", cache / ARCHIVE_MANIFEST, MANIFEST_SHA256)
     manifest = read_manifest(cache, MANIFEST_SHA256)
     selected = {name for name in manifest["files"] if session_format(name)}
     groups = {}
@@ -122,7 +153,7 @@ def download_archive(cache: Path) -> Path:
         entry = entries[0]
         whole = entry.get("part_of", entry)
         for part in entries:
-            download_file(Path(part["name"]).name, cache / part["name"], part["sha256"])
+            download_file(f"{FILES_URL}/{Path(part['name']).name}/content", cache / part["name"], part["sha256"])
         archive = cache / whole["name"]
         if "part_of" in entry:
             with archive.open("wb") as target:

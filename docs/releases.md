@@ -2,6 +2,8 @@
 
 GitHub is canonical for source code, benchmark definitions, generators, and source inputs. Hugging Face distributes runnable Harbor tasksets in `kaupane/AstroAgentBench` and supported native sessions in `kaupane/AstroAgentBench-Traces`. The taskset-only layout starts at `v2.0.0`; existing historical releases and tags keep their original contents.
 
+Merge the release tooling into `main` before publishing, then create the release tag on the merged commit. GitHub requires manually dispatched workflows to exist on the default branch. Publish the GHCR runtime first, then the HF taskset using its digest, and publish the trace dataset separately. Close the publication issue only after the remote oracle checks and Data Studio checks pass.
+
 ## Runtime image
 
 Create the matching GitHub release tag, then run **Publish Python Runtime** with that tag or its full commit SHA and the same version. It builds `runtimes/python/` from that commit and publishes `ghcr.io/mtrya/astroagentbench-python`. The workflow uses `GITHUB_TOKEN` with `packages: write`; its summary reports the immutable digest reference.
@@ -21,7 +23,7 @@ Staging clones the selected Git revision into a temporary checkout and runs that
 
 Registry entries select one benchmark and split, for example `regional_coverage-test@v2.0.0`. The additional `smoke@v2.0.0` entry selects each family's indexed example case; those seven tasks include oracle solutions. Every canonical case is stored once, even when selected by both a family/split entry and `smoke`. Default limits are 8 CPUs, 16384 MiB memory, a 7200-second agent timeout, and a 600-second verifier timeout. Both task environments use the same image digest. Full source provenance and file SHA-256 checksums are recorded in the release manifest.
 
-Run **Stage or Publish Benchmark Dataset** from the implementation branch, supplying the revision, version, and image digest. The default only stages an Actions artifact. Selecting `publish` requires `HF_TOKEN` with write access to the dataset. Publication verifies that the Git release tag identifies the selected commit, makes one atomic commit on a release branch, downloads it for checksum verification, and creates an immutable HF tag. A matching existing tag is verified and reused; a conflicting tag fails.
+Run **Stage or Publish Benchmark Dataset** from `main`, supplying the revision, version, and image digest. The default only stages an Actions artifact. Selecting `publish` requires `HF_TOKEN` with write access to the dataset. Publication verifies that the Git release tag identifies the selected commit, makes one atomic commit on a release branch, downloads it for checksum verification, and creates an immutable HF tag. A matching existing tag is verified and reused; a conflicting tag fails.
 
 The workflow then loads the seven oracle tasks directly from the public HF tag and requires valid results for every selected case. These integration checks use Harbor overrides of 2 CPUs and 4096 MiB to fit the hosted runner; the released defaults remain 8 CPUs and 16384 MiB. Only after the checks pass does it atomically promote the verified files to HF's `main` branch, so the landing page and generated framework commands see the runnable layout. Existing HF tags are never replaced.
 
