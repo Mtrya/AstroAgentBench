@@ -1,0 +1,118 @@
+{
+  "source": "https://arxiv.org/html/2601.11354v3#S4.T3",
+  "table": "Table 3",
+  "study": "Initial paper evaluation",
+  "cases_per_family": 5,
+  "cases_per_system": 35,
+  "budget": {
+    "wall_clock_hours": 2,
+    "cpu_cores": 8,
+    "cpu_model": "AMD Ryzen 7 9700X",
+    "memory_gb": 32
+  },
+  "protocol": "Agents could use verifier feedback during solving. Current Harbor tasks use independent post-submission verification.",
+  "score": "Mean normalized score; missing or invalid submissions count as zero. Compare within each family.",
+  "reference": "Best and second-best solver references are selected per case, then averaged within each family; these are not certified optima.",
+  "families": [
+    "AEOSSP",
+    "Regional Coverage",
+    "Relay Constellation",
+    "Revisit Constellation",
+    "SatNet",
+    "SPOT-5",
+    "Stereo Imaging"
+  ],
+  "systems": [
+    {
+      "name": "Claude Code + Claude Opus 4.6",
+      "scores": [
+        58.45,
+        21.22,
+        12.25,
+        76.5,
+        60.36,
+        43.96,
+        19.16
+      ],
+      "valid": 26
+    },
+    {
+      "name": "Codex CLI + GPT-5.4",
+      "scores": [
+        72.91,
+        72.08,
+        64.91,
+        69.58,
+        69.45,
+        61.92,
+        68.91
+      ],
+      "valid": 35
+    },
+    {
+      "name": "Kimi CLI + Kimi K2.6",
+      "scores": [
+        72.03,
+        73.15,
+        57.77,
+        73.36,
+        66.14,
+        61.92,
+        0.25
+      ],
+      "valid": 35
+    },
+    {
+      "name": "OpenCode + MiniMax M2.7",
+      "scores": [
+        36.44,
+        17.73,
+        0.0,
+        0.0,
+        37.54,
+        37.47,
+        0.0
+      ],
+      "valid": 23
+    },
+    {
+      "name": "OpenCode + DeepSeek V4 Pro",
+      "scores": [
+        71.44,
+        35.79,
+        35.67,
+        70.95,
+        60.23,
+        60.91,
+        13.0
+      ],
+      "valid": 34
+    }
+  ],
+  "solver_references": [
+    {
+      "name": "Best solver reference",
+      "scores": [
+        75.95,
+        86.44,
+        61.79,
+        70.98,
+        61.59,
+        60.92,
+        96.05
+      ]
+    },
+    {
+      "name": "Second solver reference",
+      "scores": [
+        71.65,
+        76.26,
+        58.2,
+        63.33,
+        55.95,
+        null,
+        92.0
+      ]
+    }
+  ]
+}
