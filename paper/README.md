@@ -25,3 +25,7 @@ cd arxiv && latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build p
 ```
 
 Its `build/` output is covered by this directory's `.gitignore`. Figures are referenced from the canonical `figures/` directory rather than duplicated.
+
+## Conference presentation
+
+`presentation/` holds the AACL-IJCNLP 2026 slides, A0 poster, and the 10-minute talk script; see its [README](presentation/README.md).
