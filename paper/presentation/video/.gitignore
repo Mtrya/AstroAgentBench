@@ -1,0 +1,4 @@
+# Local webcam recordings and processed outputs
+*.mkv
+*.webm
+*-white.mp4
