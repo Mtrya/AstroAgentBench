@@ -1,0 +1,22 @@
+{
+  "title": "Can AI agents plan a space mission?",
+  "subtitle": "Evaluating Agentic Planning on Space Mission Planning Tasks",
+  "project_url": "https://github.com/Mtrya/AstroAgentBench",
+  "targets": {"T": [610, 925]},
+  "observations": [
+    {"id": "A", "target": "T", "color": "#65DDD4", "sprite": [166, 530, 340, 218], "camera": [321, 686], "footprint_offset": [-16, -7], "minute": 12, "window": [8, 16]},
+    {"id": "B", "target": "T", "color": "#FFCC73", "sprite": [729, 558, 340, 218], "camera": [884, 714], "footprint_offset": [16, 7], "minute": 26, "window": [22, 30]}
+  ],
+  "results": {
+    "source": "paper/paper.tex, Table 3 (tab:main-results)",
+    "families": ["AEOSSP", "Regional", "Relay", "Revisit", "SatNet", "SPOT-5", "Stereo"],
+    "systems": [
+      {"id": "codex", "name": "Codex CLI + GPT-5.4", "legend": ["Codex CLI", "GPT-5.4"], "color": "#008777", "shape": "circle", "valid": 35, "scores": [72.91, 72.08, 64.91, 69.58, 69.45, 61.92, 68.91]},
+      {"id": "kimi", "name": "Kimi CLI + Kimi K2.6", "legend": ["Kimi CLI", "Kimi K2.6"], "color": "#1774B7", "shape": "diamond", "valid": 35, "scores": [72.03, 73.15, 57.77, 73.36, 66.14, 61.92, 0.25]},
+      {"id": "claude", "name": "Claude Code + Claude Opus 4.6", "legend": ["Claude Code", "Claude Opus 4.6"], "color": "#915DC1", "shape": "square", "valid": 26, "scores": [58.45, 21.22, 12.25, 76.50, 60.36, 43.96, 19.16]},
+      {"id": "deepseek", "name": "OpenCode + DeepSeek V4 Pro", "legend": ["OpenCode", "DeepSeek V4 Pro"], "color": "#D55D56", "shape": "triangle", "valid": 34, "scores": [71.44, 35.79, 35.67, 70.95, 60.23, 60.91, 13.00]},
+      {"id": "minimax", "name": "OpenCode + MiniMax M2.7", "legend": ["OpenCode", "MiniMax M2.7"], "color": "#BB7A00", "shape": "plus", "valid": 23, "scores": [36.44, 17.73, 0.0, 0.0, 37.54, 37.47, 0.0]}
+    ],
+    "reference": [75.95, 86.44, 61.79, 70.98, 61.59, 60.92, 96.05]
+  }
+}

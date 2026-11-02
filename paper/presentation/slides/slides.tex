@@ -304,7 +304,39 @@
   \end{columns}
 \end{frame}
 
-% ================= 11. Trace evidence =================
+% ================= 11. Success mechanisms =================
+\begin{frame}{What strong runs do differently}
+  \begin{columns}[c]
+    \column{0.50\textwidth}
+      \begin{itemize}\setlength{\itemsep}{1.1em}
+        \item \textbf{Implementation calibration.} Agents write propagation and scheduling code, then repair it against \textbf{verifier disagreement} before trusting it.
+        \item \textbf{Case-adaptive search with incumbent preservation.} Strong runs infer the \emph{case-specific} bottleneck and always keep the best verified plan.
+      \end{itemize}
+    \column{0.50\textwidth}
+      \cardtitle{Mean verifier calls per case}
+      {\scriptsize
+      \setlength{\tabcolsep}{2.5pt}
+      \begin{tabular}{lccccc}
+        \toprule
+        System & Rev. & Ste. & Sat. & Reg. & Rel. \\
+        \midrule
+        Claude & 13.6 & \cellcolor{abgray!18}20.2\textsuperscript{2} & \cellcolor{abgray!18}19.0\textsuperscript{1} & \cellcolor{abgray!18}0.0\textsuperscript{5} & \cellcolor{abgray!18}1.0\textsuperscript{4} \\
+        Codex & 5.8 & 8.8 & 6.0 & 8.2 & 6.4 \\
+        Kimi & 9.2 & 10.4 & 16.0 & 11.6 & 8.8 \\
+        OC+MM & \cellcolor{abgray!18}3.0\textsuperscript{4} & \cellcolor{abgray!18}18.0\textsuperscript{3} & 19.4 & \cellcolor{abgray!18}25.8\textsuperscript{1} & 19.4 \\
+        OC+DS & 6.0 & 47.2 & 10.0 & 18.2 & 12.4 \\
+        \bottomrule
+      \end{tabular}}
+      \par\vspace{0.5em}
+      \srcnote{Gray: at least one zero-call case (superscript = count); these runs never calibrated against the official model.}
+  \end{columns}
+  \vspace{1.0em}
+  \centering
+  {\small Solvers are systematic, but their adaptation policy is fixed before the run.\\[0.3em]
+  Strong agent runs \textbf{synthesize the search policy during the run}.}
+\end{frame}
+
+% ================= 12. Trace evidence =================
 \begin{frame}{Three traces, three mechanisms}
   \begin{columns}[T]
     \column{0.32\textwidth}
@@ -340,37 +372,6 @@
   \end{columns}
 \end{frame}
 
-% ================= 12. Success mechanisms =================
-\begin{frame}{What strong runs do differently}
-  \begin{columns}[c]
-    \column{0.50\textwidth}
-      \begin{itemize}\setlength{\itemsep}{1.1em}
-        \item \textbf{Implementation calibration.} Agents write propagation and scheduling code, then repair it against \textbf{verifier disagreement} before trusting it.
-        \item \textbf{Case-adaptive search with incumbent preservation.} Strong runs infer the \emph{case-specific} bottleneck and always keep the best verified plan.
-      \end{itemize}
-    \column{0.50\textwidth}
-      \cardtitle{Mean verifier calls per case}
-      {\scriptsize
-      \setlength{\tabcolsep}{2.5pt}
-      \begin{tabular}{lccccc}
-        \toprule
-        System & Rev. & Ste. & Sat. & Reg. & Rel. \\
-        \midrule
-        Claude & 13.6 & \cellcolor{abgray!18}20.2\textsuperscript{2} & \cellcolor{abgray!18}19.0\textsuperscript{1} & \cellcolor{abgray!18}0.0\textsuperscript{5} & \cellcolor{abgray!18}1.0\textsuperscript{4} \\
-        Codex & 5.8 & 8.8 & 6.0 & 8.2 & 6.4 \\
-        Kimi & 9.2 & 10.4 & 16.0 & 11.6 & 8.8 \\
-        OC+MM & \cellcolor{abgray!18}3.0\textsuperscript{4} & \cellcolor{abgray!18}18.0\textsuperscript{3} & 19.4 & \cellcolor{abgray!18}25.8\textsuperscript{1} & 19.4 \\
-        OC+DS & 6.0 & 47.2 & 10.0 & 18.2 & 12.4 \\
-        \bottomrule
-      \end{tabular}}
-      \par\vspace{0.5em}
-      \srcnote{Gray: at least one zero-call case (superscript = count); these runs never calibrated against the official model.}
-  \end{columns}
-  \vspace{1.0em}
-  \centering
-  {\small Solvers are systematic, but their adaptation policy is fixed before the run.\\[0.3em]
-  Strong agent runs \textbf{synthesize the search policy during the run}.}
-\end{frame}
 
 % ================= 13. Ablations =================
 \begin{frame}{Workspace support aids planning conditionally}

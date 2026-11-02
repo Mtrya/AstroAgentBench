@@ -1,6 +1,6 @@
 # AstroAgentBench — 10-minute talk script (AACL-IJCNLP 2026)
 
-Target: 10:00 total, with a 10-second closing buffer. Pace ≈ 120–130 words/min; the narration is ~1,240 words. Slide numbers refer to `slides/build/slides.pdf`. Times are cumulative targets, not hard cuts: if a section runs long, compress the next one, but never rush slides 8–11, which carry the results and analysis. The setup section (slides 4–7) is deliberately compressed so that the results and analysis receive the larger share of the talk.
+Target: 10:00 total, with a 10-second closing buffer. Pace ≈ 120–130 words/min; the narration is ~1,240 words. Slide numbers refer to `slides/build/slides.pdf`. Times are cumulative targets, not hard cuts: if a section runs long, compress the next one, but never rush slides 8–12, which carry the results and analysis. The setup section (slides 4–7) is deliberately compressed so that the results and analysis receive the larger share of the talk.
 
 Delivery notes (live talk): use the mouse as a virtual laser pointer; pause ~1.5 s after each slide change; let the audience absorb the figure before speaking about it. The recording checklist at the end covers the pre-recorded format, where the pointer note still helps viewers follow the figures.
 
@@ -12,7 +12,7 @@ Hello everyone, and thank you for joining this talk. On behalf of my colleagues 
 
 ## Slide 2 — Hook: "How should these satellites spend the next 12 hours?" (0:25 → 1:25)
 
-Consider a constellation of Earth-observation satellites, each planning its next twelve hours. A target stays in sight for only a few minutes per orbit pass. Every slew toward the next target burns both time and battery power, and the energy and memory budgets are shared across the entire schedule, so each observation the agent accepts trades off against every other. This is where language-model fluency becomes dangerous. A plan that reads perfectly well can send a satellite to a target after its window has closed, or drain the battery hours before the horizon ends. And once the plan is uplinked, it is final. The central question of this work is therefore concrete: can an LLM agent compute a plan that survives contact with orbital physics?
+Consider a constellation of Earth-observation satellites, each planning its next twelve hours of requested observation targets. Each target stays in sight for only a few minutes per orbit pass. Every slew toward the next target burns both time and battery power, and the energy and memory budgets are shared across the entire schedule, so each observation the agent accepts trades off against every other. This is where language-model fluency becomes dangerous. A plan that reads perfectly well can send a satellite to a target after its window has closed, or drain the battery hours before the horizon ends. And once the plan is uplinked, it is final. Therefore, the central question of this work is therefore concrete: can an LLM agent compute a plan that survives contact with orbital physics?
 
 *Point at the three panels as the scenario unfolds: observe, turn, observe again. Pause for one second after the closing question before advancing.*
 
@@ -22,13 +22,15 @@ Three gaps motivate this benchmark. First, LLM-for-Space evaluations remain frag
 
 ## Slide 4 — Benchmark overview (2:10 → 2:50)
 
-Each mission comes as a self-contained case: mission files, documentation, scientific libraries, and a required solution schema. The agent then works as an aerospace engineer rather than filling in a template. It reads the brief, writes and runs its own code, and constructs the planning procedure from scratch, producing an executable artifact such as an observation timeline, an antenna schedule, or a constellation design. After the run, an independent verifier re-simulates the plan, checks feasibility, and scores its mission value. The full suite contains 116 cases across seven families.
+Each mission comes as a self-contained case: mission files, documentation, scientific libraries, and a required solution schema. The agent then works as an aerospace engineer rather than filling in a template. It reads the brief, writes and runs its own code, and constructs the planning procedure from scratch, producing a final artifact such as an observation timeline, an antenna schedule, or a constellation design. After the run, an independent verifier re-simulates the plan, checks feasibility, and scores its mission value.
 
 *Trace the left-to-right flow once with the pointer: case package → agent → artifact → verifier checklist.*
 
 ## Slide 5 — Seven families (2:50 → 3:30)
 
-The seven families span four kinds of planning decisions. For Earth observation, AEOSSP schedules agile point observations, SPOT-5 selects photographs, Regional Coverage builds roll-only strips, and Stereo Imaging forms stereo products. SatNet allocates ground-station contacts. Revisit Constellation designs a constellation for revisit performance, and Relay Constellation augments a network with new satellites and link plans. Input scale ranges from eight photographs to eighteen thousand grid cells. Orbits come from real CelesTrak TLE snapshots, and SatNet and SPOT-5 are normalized from published benchmarks.
+The seven families span four kinds of planning decisions. Four of them observe the Earth: AEOSSP schedules agile point observations, SPOT-5 selects photographs, Regional Coverage builds roll-only strips, and Stereo Imaging forms stereo products. SatNet allocates ground-station contacts, Revisit designs a constellation for revisit performance, and Relay augments a network with new satellites and link plans.
+
+*Sweep the four images as you name the four decision kinds.*
 
 ## Slide 6 — Evaluation contract (3:30 → 4:25)
 
@@ -40,7 +42,7 @@ Next, we evaluate five agent systems: Claude Code with Claude Opus 4.6, Codex CL
 
 ## Slide 8 — Main results (4:55 → 5:35)
 
-So, what happens when these systems face the held-out cases? Here is the core finding: agents can plan for real. The best agent row beats the solver reference on four of seven families, yet performance remains highly uneven. The matrix reports mean normalized score per family over five cases, with the best solver reference marked by a dashed line. Read it column by column, within a family rather than across families. Two systems, Codex and Kimi, are verifier-valid on all thirty-five cases.
+So, what happens when these systems face the held-out cases? Here is the core finding: agents can plan for real. The best agent row beats the solver reference on four of seven families, yet performance remains highly uneven. The matrix reports mean normalized score per family over five cases, with the best solver reference marked by a dashed line. Two systems, Codex and Kimi, are verifier-valid on all thirty-five cases.
 
 *Point at the dashed solver marks on AEOSSP and SatNet, then at the gap on Stereo Imaging.*
 
@@ -54,17 +56,17 @@ These averages hide important failure patterns. Trace evidence separates two lay
 
 *Slow down for the three percentages; they are the slide's payload.*
 
-## Slide 11 — Trace evidence (7:15 → 8:05)
-
-Three traces make this concrete. On the left, a Stereo Imaging run constructs a private world, with its own product schema and validation, and ends invalid with zero score. In the center, a Revisit run writes its own orbital model, and the verifier reports an off-nadir error just four-hundredths of a degree beyond the thirty-degree limit. The run then repairs its propagation and frame handling until they match the benchmark. On the right, a Relay run writes an empty but valid solution first, then targets the fifty-five unserved demand samples, reaching full service while preserving that valid incumbent.
-
-## Slide 12 — Success mechanisms (8:05 → 8:40)
+## Slide 11 — Success mechanisms (7:15 → 7:50)
 
 What do strong runs do differently? Two mechanisms stand out. First, implementation calibration: agent-written code is repaired against verifier disagreement before it is trusted. Second, case-adaptive search: the run finds this case's bottleneck and keeps its best verified plan. The table agrees: systems that call the verifier in every case group align their hand-built solvers with the official model, while the shaded cells mark runs where calibration never happened. Strong runs synthesize the search policy during the run.
 
+## Slide 12 — Trace evidence (7:50 → 8:40)
+
+Three traces put concrete faces on these patterns. On the left, a failure: a Stereo Imaging run constructs a private world, with its own hallucinated product schema and validation, and ends invalid with zero score. The other two are successes. In the center, a Revisit run writes its own orbital model, and the verifier reports an off-nadir error just four-hundredths of a degree beyond the thirty-degree limit. The run then repairs its propagation and frame handling until they match the verifier. On the right, a Relay run writes an empty but valid solution first, then targets the fifty-five unserved demand samples, reaching full service while preserving validity.
+
 ## Slide 13 — Ablations (8:40 → 9:10)
 
-Can we help the agent from the outside? Ablations tell the same story from the other side. Injecting human-written procedures, or memory distilled from prior runs, helps conditionally, by up to twenty-four points when DeepSeek reads Codex's prior notes on Regional Coverage. Support helps precisely when it supplies the missing formulation, calibration, or search discipline. It never replaces them.
+Finally, can we help the agent from the outside? Ablations tell the same story from the other side. Injecting human-written procedures, or memory distilled from prior runs, helps conditionally, by up to twenty-four points when DeepSeek reads Codex's prior notes on Regional Coverage. Support helps precisely when it supplies the missing formulation, calibration, or search discipline. It never replaces them.
 
 ## Slide 14 — Takeaways (9:10 → 9:50)
 
@@ -84,4 +86,4 @@ To conclude: agentic space mission planning shows nontrivial ability and clear b
 
 **Submission:** upload via the Paperform link from the instructions; latest submission wins. File naming: `AACL 2026_<paper-id>` prefix for video, poster, and slides (e.g., `AACL 2026_main-239`). Confirm the paper ID before naming.
 
-**Checklist before recording:** rehearse slides 8–11 timing (they carry the results); verify slide PDF is the current build; do a 30-second audio test and watch it back for mic level and room echo.
+**Checklist before recording:** rehearse slides 8–12 timing (they carry the results and analysis); verify slide PDF is the current build; do a 30-second audio test and watch it back for mic level and room echo.
