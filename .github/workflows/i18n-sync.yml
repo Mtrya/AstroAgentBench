@@ -20,7 +20,7 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           # The checker only runs local git commands, and pull_request executes
