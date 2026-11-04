@@ -5,20 +5,20 @@ description = "Space mission design benchmarks for complete agent systems and tr
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "brahe[plots]>=1.7.0",
-    "huggingface-hub>=1.29.0,<2.0",
+    "brahe[plots]>=1.8.0",
+    "huggingface-hub>=2.3.0,<3.0",
     "matplotlib>=3.11.2",
-    "numpy>=2.5.3",
+    "numpy>=2.5.4",
     "plotly>=7.1.0",
     "pyyaml>=6.0.3",
-    "pytest>=9.1.1",
+    "pytest>=9.2.0",
     "skyfield>=1.55",
-    "shapely>=2.1.2",
+    "shapely>=2.2.0",
     "pyproj>=3.8.0",
 ]
 
 [project.optional-dependencies]
-evaluation = ["harbor==0.23.0"]
+evaluation = ["harbor==0.25.0"]
 
 [build-system]
 requires = ["hatchling"]
